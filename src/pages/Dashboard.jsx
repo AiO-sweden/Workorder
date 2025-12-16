@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import ReactDOM from "react-dom";
 import { collection, getDocs, query, where, doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase/config";
 import { useNavigate } from "react-router-dom";
@@ -594,7 +595,6 @@ function StatusBadge({ status, orderId, onChange }) {
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const buttonRef = React.useRef(null);
-  const dropdownRef = React.useRef(null);
 
   const statusMap = {
     "Pågående": "info",
@@ -622,16 +622,32 @@ function StatusBadge({ status, orderId, onChange }) {
         top: rect.bottom + 4,
         left: rect.left
       });
-      setIsOpen(true);
-    } else {
-      setIsOpen(false);
     }
+    setIsOpen(!isOpen);
   };
 
   const handleChange = (newStatus) => {
     onChange(orderId, newStatus);
     setIsOpen(false);
   };
+
+  React.useEffect(() => {
+    if (!isOpen) return;
+
+    const handleClickOutside = (e) => {
+      if (buttonRef.current && buttonRef.current.contains(e.target)) return;
+      setIsOpen(false);
+    };
+
+    // Small delay to avoid immediate closure
+    setTimeout(() => {
+      document.addEventListener('click', handleClickOutside);
+    }, 0);
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [isOpen]);
 
   return (
     <>
@@ -647,72 +663,56 @@ function StatusBadge({ status, orderId, onChange }) {
         </div>
       </div>
 
-      {isOpen && (
-        <>
-          {/* Transparent backdrop */}
-          <div
-            onClick={() => setIsOpen(false)}
-            style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              zIndex: 999,
-              backgroundColor: "transparent"
-            }}
-          />
-
-          {/* Dropdown menu */}
-          <div
-            ref={dropdownRef}
-            style={{
-              position: "fixed",
-              top: `${position.top}px`,
-              left: `${position.left}px`,
-              backgroundColor: "white",
-              borderRadius: borderRadius.lg,
-              boxShadow: shadows.lg,
-              padding: spacing[2],
-              zIndex: 1000,
-              minWidth: "180px",
-              border: `1px solid ${colors.neutral[200]}`,
-              maxHeight: "300px",
-              overflowY: "auto"
-            }}>
-            {statusOptions.map((option) => (
-              <div
-                key={option}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleChange(option);
-                }}
-                style={{
-                  padding: `${spacing[2]} ${spacing[3]}`,
-                  cursor: "pointer",
-                  borderRadius: borderRadius.md,
-                  fontSize: typography.fontSize.sm,
-                  fontWeight: typography.fontWeight.medium,
-                  backgroundColor: status === option ? colors.primary[50] : "transparent",
-                  color: status === option ? colors.primary[700] : colors.neutral[700],
-                  transition: `all ${transitions.base}`,
-                }}
-                onMouseEnter={(e) => {
-                  if (status !== option) {
-                    e.currentTarget.style.backgroundColor = colors.neutral[50];
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (status !== option) {
-                    e.currentTarget.style.backgroundColor = "transparent";
-                  }
-                }}
-              >
-                {option}
-              </div>
-            ))}
-          </div>
-        </>
+      {isOpen && ReactDOM.createPortal(
+        <div
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            position: "fixed",
+            top: `${position.top}px`,
+            left: `${position.left}px`,
+            backgroundColor: "white",
+            borderRadius: borderRadius.lg,
+            boxShadow: shadows.lg,
+            padding: spacing[2],
+            zIndex: 9999,
+            minWidth: "180px",
+            border: `1px solid ${colors.neutral[200]}`,
+            maxHeight: "300px",
+            overflowY: "auto"
+          }}>
+          {statusOptions.map((option) => (
+            <div
+              key={option}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleChange(option);
+              }}
+              style={{
+                padding: `${spacing[2]} ${spacing[3]}`,
+                cursor: "pointer",
+                borderRadius: borderRadius.md,
+                fontSize: typography.fontSize.sm,
+                fontWeight: typography.fontWeight.medium,
+                backgroundColor: status === option ? colors.primary[50] : "transparent",
+                color: status === option ? colors.primary[700] : colors.neutral[700],
+                transition: `all ${transitions.base}`,
+              }}
+              onMouseEnter={(e) => {
+                if (status !== option) {
+                  e.currentTarget.style.backgroundColor = colors.neutral[50];
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (status !== option) {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                }
+              }}
+            >
+              {option}
+            </div>
+          ))}
+        </div>,
+        document.body
       )}
     </>
   );
@@ -722,7 +722,6 @@ function PriorityBadge({ priority, orderId, onChange }) {
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const buttonRef = React.useRef(null);
-  const dropdownRef = React.useRef(null);
 
   const priorityMap = {
     "Hög": "error",
@@ -741,16 +740,32 @@ function PriorityBadge({ priority, orderId, onChange }) {
         top: rect.bottom + 4,
         left: rect.left
       });
-      setIsOpen(true);
-    } else {
-      setIsOpen(false);
     }
+    setIsOpen(!isOpen);
   };
 
   const handleChange = (newPriority) => {
     onChange(orderId, newPriority);
     setIsOpen(false);
   };
+
+  React.useEffect(() => {
+    if (!isOpen) return;
+
+    const handleClickOutside = (e) => {
+      if (buttonRef.current && buttonRef.current.contains(e.target)) return;
+      setIsOpen(false);
+    };
+
+    // Small delay to avoid immediate closure
+    setTimeout(() => {
+      document.addEventListener('click', handleClickOutside);
+    }, 0);
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [isOpen]);
 
   return (
     <>
@@ -766,72 +781,56 @@ function PriorityBadge({ priority, orderId, onChange }) {
         </div>
       </div>
 
-      {isOpen && (
-        <>
-          {/* Transparent backdrop */}
-          <div
-            onClick={() => setIsOpen(false)}
-            style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              zIndex: 999,
-              backgroundColor: "transparent"
-            }}
-          />
-
-          {/* Dropdown menu */}
-          <div
-            ref={dropdownRef}
-            style={{
-              position: "fixed",
-              top: `${position.top}px`,
-              left: `${position.left}px`,
-              backgroundColor: "white",
-              borderRadius: borderRadius.lg,
-              boxShadow: shadows.lg,
-              padding: spacing[2],
-              zIndex: 1000,
-              minWidth: "120px",
-              border: `1px solid ${colors.neutral[200]}`,
-              maxHeight: "300px",
-              overflowY: "auto"
-            }}>
-            {priorityOptions.map((option) => (
-              <div
-                key={option}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleChange(option);
-                }}
-                style={{
-                  padding: `${spacing[2]} ${spacing[3]}`,
-                  cursor: "pointer",
-                  borderRadius: borderRadius.md,
-                  fontSize: typography.fontSize.sm,
-                  fontWeight: typography.fontWeight.medium,
-                  backgroundColor: priority === option ? colors.primary[50] : "transparent",
-                  color: priority === option ? colors.primary[700] : colors.neutral[700],
-                  transition: `all ${transitions.base}`,
-                }}
-                onMouseEnter={(e) => {
-                  if (priority !== option) {
-                    e.currentTarget.style.backgroundColor = colors.neutral[50];
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (priority !== option) {
-                    e.currentTarget.style.backgroundColor = "transparent";
-                  }
-                }}
-              >
-                {option}
-              </div>
-            ))}
-          </div>
-        </>
+      {isOpen && ReactDOM.createPortal(
+        <div
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            position: "fixed",
+            top: `${position.top}px`,
+            left: `${position.left}px`,
+            backgroundColor: "white",
+            borderRadius: borderRadius.lg,
+            boxShadow: shadows.lg,
+            padding: spacing[2],
+            zIndex: 9999,
+            minWidth: "120px",
+            border: `1px solid ${colors.neutral[200]}`,
+            maxHeight: "300px",
+            overflowY: "auto"
+          }}>
+          {priorityOptions.map((option) => (
+            <div
+              key={option}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleChange(option);
+              }}
+              style={{
+                padding: `${spacing[2]} ${spacing[3]}`,
+                cursor: "pointer",
+                borderRadius: borderRadius.md,
+                fontSize: typography.fontSize.sm,
+                fontWeight: typography.fontWeight.medium,
+                backgroundColor: priority === option ? colors.primary[50] : "transparent",
+                color: priority === option ? colors.primary[700] : colors.neutral[700],
+                transition: `all ${transitions.base}`,
+              }}
+              onMouseEnter={(e) => {
+                if (priority !== option) {
+                  e.currentTarget.style.backgroundColor = colors.neutral[50];
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (priority !== option) {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                }
+              }}
+            >
+              {option}
+            </div>
+          ))}
+        </div>,
+        document.body
       )}
     </>
   );
