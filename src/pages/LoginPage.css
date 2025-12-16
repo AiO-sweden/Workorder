@@ -1,0 +1,130 @@
+.login-page-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f0f2f5; /* Light grey background, consistent with other pages */
+  padding: 20px;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+
+.login-form-container {
+  background-color: #fff;
+  padding: 40px;
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 420px; /* Max width for the form box */
+  text-align: center;
+}
+
+.login-header {
+  margin-bottom: 30px;
+}
+
+.login-logo-link {
+  text-decoration: none;
+  display: inline-block; /* To allow margin auto for centering if needed, and proper display */
+  margin-bottom: 10px; /* Space below logo */
+}
+
+.login-page-logo-image {
+  height: 60px; /* Increased height */
+  width: auto;
+  display: block; /* Helps with centering if parent is text-align: center */
+  margin: 0 auto 10px auto; /* Centers the image and adds space below */
+}
+
+/* Removed .login-logo-link h2 as it's replaced by an image */
+
+.login-header h1 {
+  font-size: 1.8em; /* Slightly smaller than create account */
+  color: #333;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.login-form .form-group {
+  margin-bottom: 20px;
+  text-align: left; /* Align labels to the left */
+}
+
+.login-form label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #444;
+  font-size: 0.95em;
+}
+
+.login-form input[type="email"],
+.login-form input[type="password"] {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 1em;
+}
+
+.login-form input[type="email"]:focus,
+.login-form input[type="password"]:focus {
+  border-color: #007bff; /* Blue focus, consistent */
+  outline: none;
+  box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+.forgot-password-link {
+  text-align: right;
+  margin-top: -10px; /* Pull it up a bit */
+  margin-bottom: 20px;
+  font-size: 0.9em;
+}
+
+.forgot-password-link a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.forgot-password-link a:hover {
+  text-decoration: underline;
+}
+
+.error-message {
+  color: #dc3545; /* Red for errors */
+  margin-bottom: 15px;
+  font-size: 0.9em;
+  /* text-align is already center from .login-form-container */
+}
+
+.login-submit-button {
+  background-color: #007bff; /* Blue button, consistent with some themes */
+  color: white;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1.1em;
+  font-weight: bold;
+  width: 100%;
+  transition: background-color 0.3s ease;
+}
+
+.login-submit-button:hover {
+  background-color: #0056b3; /* Darker blue */
+}
+
+.signup-link-container {
+  margin-top: 30px;
+  font-size: 0.95em;
+}
+
+.signup-link-container a {
+  color: #28a745; /* Green, consistent with signup buttons */
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.signup-link-container a:hover {
+  text-decoration: underline;
+}

@@ -1,0 +1,184 @@
+.create-account-page-container {
+  max-width: 900px; /* Increased max-width for two columns */
+  margin: 40px auto;
+  padding: 20px;
+  background-color: #fff;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+
+.create-account-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.create-account-header h1 {
+  font-size: 2.5em;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.trial-info {
+  font-size: 1.1em;
+  color: #555;
+}
+
+.create-account-content {
+  display: flex;
+  justify-content: space-between;
+  gap: 40px; /* Space between form and benefits */
+}
+
+.create-account-form-section {
+  flex: 2; /* Form takes more space */
+  background-color: #f9f9f9; /* Light background for form area */
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.create-account-form .form-group {
+  margin-bottom: 20px;
+}
+
+.create-account-form label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #444;
+  font-size: 0.95em;
+}
+
+.create-account-form input[type="text"],
+.create-account-form input[type="email"],
+.create-account-form input[type="tel"],
+.create-account-form input[type="password"] {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 1em;
+}
+
+.create-account-form input[type="text"]:focus,
+.create-account-form input[type="email"]:focus,
+.create-account-form input[type="tel"]:focus,
+.create-account-form input[type="password"]:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+.terms-agreement {
+  display: flex;
+  align-items: center;
+  margin-top: 15px;
+  margin-bottom: 20px;
+}
+
+.terms-agreement input[type="checkbox"] {
+  margin-right: 10px;
+  width: auto; /* Override default width for checkbox */
+  height: auto;
+  accent-color: #28a745; /* Green checkbox */
+}
+
+.terms-label {
+  font-size: 0.9em;
+  color: #555;
+  font-weight: normal !important; /* Override label default */
+}
+
+.terms-label a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.terms-label a:hover {
+  text-decoration: underline;
+}
+
+.error-message {
+  color: #dc3545; /* Red for errors */
+  margin-top: 15px;
+  margin-bottom: 15px;
+  font-size: 0.9em;
+  text-align: center;
+}
+
+.submit-button {
+  background-color: #28a745; /* Green button */
+  color: white;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1.1em;
+  font-weight: bold;
+  width: 100%;
+  transition: background-color 0.3s ease;
+}
+
+.submit-button:hover {
+  background-color: #218838; /* Darker green */
+}
+
+.login-link-container {
+  text-align: center;
+  margin-top: 25px;
+  font-size: 0.95em;
+}
+
+.login-link-container a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.login-link-container a:hover {
+  text-decoration: underline;
+}
+
+/* Benefits Section */
+.benefits-section {
+  flex: 1; /* Benefits take less space */
+  padding-top: 20px; /* Align with form content slightly */
+}
+
+.benefits-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.benefits-section li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 25px; /* Increased spacing */
+  font-size: 1.05em; /* Slightly larger text */
+  color: #444;
+}
+
+.benefit-icon {
+  margin-right: 15px;
+  font-size: 1.8em; /* Larger icons */
+  color: #28a745; /* Green icons */
+  min-width: 30px; /* Ensure alignment */
+  text-align: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .create-account-content {
+    flex-direction: column-reverse; /* Stack benefits above form on mobile */
+  }
+  .create-account-form-section {
+    margin-bottom: 30px;
+  }
+  .benefits-section {
+    padding-top: 0;
+    margin-bottom: 30px;
+  }
+  .create-account-header h1 {
+    font-size: 2em;
+  }
+}

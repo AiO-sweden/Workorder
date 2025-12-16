@@ -1,0 +1,33 @@
+[debug] [2025-06-10T13:49:52.210Z] ----------------------------------------------------------------------
+[debug] [2025-06-10T13:49:52.211Z] Command:       /usr/local/bin/node /usr/local/bin/firebase deploy --only firestore --debug
+[debug] [2025-06-10T13:49:52.212Z] CLI Version:   14.5.0
+[debug] [2025-06-10T13:49:52.212Z] Platform:      darwin
+[debug] [2025-06-10T13:49:52.212Z] Node Version:  v22.16.0
+[debug] [2025-06-10T13:49:52.212Z] Time:          Tue Jun 10 2025 15:49:52 GMT+0200 (Central European Summer Time)
+[debug] [2025-06-10T13:49:52.212Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-06-10T13:49:52.306Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-06-10T13:49:52.307Z] > authorizing via signed-in user (vilmerf07@gmail.com)
+[debug] [2025-06-10T13:49:52.307Z] [iam] checking project aio-arbetsorder for permissions ["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]
+[debug] [2025-06-10T13:49:52.308Z] Checked if tokens are valid: true, expires at: 1749565744448
+[debug] [2025-06-10T13:49:52.308Z] Checked if tokens are valid: true, expires at: 1749565744448
+[debug] [2025-06-10T13:49:52.308Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/aio-arbetsorder:testIamPermissions [none]
+[debug] [2025-06-10T13:49:52.308Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/aio-arbetsorder:testIamPermissions x-goog-quota-user=projects/aio-arbetsorder
+[debug] [2025-06-10T13:49:52.308Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/aio-arbetsorder:testIamPermissions {"permissions":["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]}
+[debug] [2025-06-10T13:49:52.924Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/aio-arbetsorder:testIamPermissions 200
+[debug] [2025-06-10T13:49:52.925Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/aio-arbetsorder:testIamPermissions {"permissions":["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]}
+[info] 
+[info] === Deploying to 'aio-arbetsorder'...
+[info] 
+[info] i  deploying firestore 
+[info] i  firestore: reading indexes from firestore.indexes.json... 
+[info] i  cloud.firestore: checking firestore.rules for compilation errors... 
+[debug] [2025-06-10T13:49:52.929Z] Checked if tokens are valid: true, expires at: 1749565744448
+[debug] [2025-06-10T13:49:52.929Z] Checked if tokens are valid: true, expires at: 1749565744448
+[debug] [2025-06-10T13:49:52.929Z] >>> [apiv2][query] POST https://firebaserules.googleapis.com/v1/projects/aio-arbetsorder:test [none]
+[debug] [2025-06-10T13:49:52.929Z] >>> [apiv2][body] POST https://firebaserules.googleapis.com/v1/projects/aio-arbetsorder:test [omitted]
+[debug] [2025-06-10T13:49:54.132Z] <<< [apiv2][status] POST https://firebaserules.googleapis.com/v1/projects/aio-arbetsorder:test 200
+[debug] [2025-06-10T13:49:54.132Z] <<< [apiv2][body] POST https://firebaserules.googleapis.com/v1/projects/aio-arbetsorder:test {}
+[info] ✔  cloud.firestore: rules file firestore.rules compiled successfully 
+[error] 
+[error] Error: Firestore database configuration is missing in firebase.json.

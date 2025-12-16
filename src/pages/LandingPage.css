@@ -1,0 +1,206 @@
+/* General Page Styles */
+.landing-page {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  color: #333;
+  background-color: #fff; /* White background for the page */
+}
+
+/* Header Styles */
+.landing-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 50px; /* Increased padding */
+  background-color: #fff; /* White header background */
+  border-bottom: 1px solid #e0e0e0; /* Subtle border */
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.logo {
+  /* font-size: 1.8em; Remove if using an image primarily */
+  /* font-weight: bold; */
+  /* color: #2c3e50; */
+  display: flex; /* Align image nicely if needed */
+  align-items: center;
+}
+
+.logo-image {
+  height: 60px; /* Increased height */
+  width: auto; /* Maintain aspect ratio */
+}
+
+.landing-nav a {
+  margin-left: 25px; /* Increased spacing */
+  text-decoration: none;
+  color: #555; /* Softer link color */
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.landing-nav a:hover {
+  color: #007bff; /* Highlight color on hover */
+}
+
+.nav-button {
+  padding: 8px 18px; /* Adjusted padding */
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.login-button-header {
+  border: 1px solid #007bff;
+  color: #007bff;
+  margin-left: 15px;
+}
+
+.login-button-header:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+.signup-button-header {
+  background-color: #28a745; /* Green for sign up */
+  color: white;
+  border: 1px solid #28a745;
+  margin-left: 10px;
+}
+
+.signup-button-header:hover {
+  background-color: #218838; /* Darker green */
+  border-color: #1e7e34;
+}
+
+
+/* Hero Section Styles */
+.hero-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Space between text and image */
+  padding: 60px 50px; /* Increased padding */
+  background-color: #f8f9fa; /* Light grey for hero section */
+  min-height: calc(100vh - 80px); /* Adjust based on header height */
+}
+
+.hero-content {
+  max-width: 50%; /* Limit width of text content */
+  text-align: left; /* Align text to the left */
+}
+
+.hero-content h1 {
+  font-size: 3em; /* Larger heading */
+  font-weight: bold;
+  color: #2c3e50; /* Darker heading color */
+  margin-bottom: 20px;
+  line-height: 1.2;
+}
+
+.hero-subtitle {
+  font-size: 1.2em;
+  color: #555; /* Softer subtitle color */
+  margin-bottom: 30px;
+  line-height: 1.6;
+}
+
+.hero-buttons .cta-button {
+  padding: 15px 30px; /* Larger buttons */
+  text-decoration: none;
+  border-radius: 5px;
+  font-size: 1.1em;
+  font-weight: bold;
+  margin-right: 15px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  display: inline-block; /* Ensure buttons are on the same line */
+}
+
+.hero-buttons .cta-button.primary {
+  background-color: #28a745; /* Green primary button */
+  color: white;
+  border: 1px solid #28a745;
+}
+
+.hero-buttons .cta-button.primary:hover {
+  background-color: #218838; /* Darker green */
+  transform: translateY(-2px);
+}
+
+.hero-buttons .cta-button.secondary {
+  background-color: transparent;
+  color: #007bff; /* Blue secondary button */
+  border: 2px solid #007bff;
+}
+
+.hero-buttons .cta-button.secondary:hover {
+  background-color: #007bff;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.hero-image-container {
+  max-width: 45%; /* Limit width of image container */
+}
+
+.hero-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* Softer shadow */
+}
+
+/* Footer Styles */
+.landing-footer {
+  text-align: center;
+  padding: 30px 50px; /* Increased padding */
+  background-color: #343a40; /* Dark footer */
+  color: #f8f9fa; /* Light text color for footer */
+  border-top: 1px solid #495057;
+}
+
+.landing-footer p {
+  margin: 0;
+  font-size: 0.9em;
+}
+
+/* Responsive adjustments (optional, but good practice) */
+@media (max-width: 768px) {
+  .landing-header {
+    flex-direction: column;
+    padding: 15px 20px;
+  }
+  .landing-nav {
+    margin-top: 10px;
+  }
+  .landing-nav a {
+    margin: 0 10px;
+  }
+  .hero-section {
+    flex-direction: column;
+    text-align: center;
+    padding: 40px 20px;
+  }
+  .hero-content {
+    max-width: 100%;
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  .hero-image-container {
+    max-width: 80%;
+    margin: 0 auto;
+  }
+  .hero-content h1 {
+    font-size: 2.2em;
+  }
+  .hero-subtitle {
+    font-size: 1em;
+  }
+  .hero-buttons .cta-button {
+    margin-bottom: 10px; /* Stack buttons on smaller screens */
+    display: block; /* Make buttons take full width */
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}

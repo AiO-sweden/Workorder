@@ -1,0 +1,3025 @@
+AA1010   Värmepumpar berg, jord, sjö CT30.0
+AA1011   Värmepumpar berg, jord, sjö CT30.0
+AA1110   Värmepumpar berg, jord, sjö Ni30.0
+AA1210   Värmepumpar berg, jord, sjö Bo32.0
+AA1310   Värmepumpar fastighet Bosch   32.0
+AA2010   Värmepumpar luft/vatten CTC   30.0
+AA2011   Värmepumpstillbehör Enertech  30.0
+AA2015   Innerdel luft/vatten CTC      30.0
+AA2110   Värmepumpar luft/vatten Nibe  30.0
+AA2111   Värmepumpar luft/vatten Nibe  30.0
+AA2120   Innerdel luft/vatten Nibe     30.0
+AA2210   Värmepumpar luft/vatten Bosch 32.0
+AA2312   Värmepumpar luft/vatten Panaso29.0
+AA2314   Värmepumpar luft/vatten tank P29.0
+AA2316   Värmepumpar luft/vatten tbh Pa29.0
+AA2410   Poolvärmepumpar Pahlen        29.0
+AA2420   Värmepumpar luft/vatten Qvantu29.0
+AA3011   Värmepumpar frånluft Nibe     29.0
+AA3012   Värmepumpar frånluft Nibe     29.0
+AA3016   Värmepumpar frånluft Metrother29.0
+AA3020   Värmepumpar frånluft Qvantum  29.0
+AA3210   Värmepumpar frånluft Bosch    32.0
+AA4012   Värmepumpar luft/luft Panasoni37.0
+AA4013   Värmepumpar luft/luft Panasoni37.0
+AA4210   Värmepumpar luft/luft Bosch   38.0
+AA4212   Värmepumpar luft/luft tbh     38.0
+AA4310   Värmepumpar luft/vatten split 34.0
+AA4410   Värmepumpar Multisplit Panason37.0
+AA4412   Värmepumpar AC Panasonic      37.0
+AA4414   Värmepumpar tbh Panasonic     37.0
+AA4415   Värmepumpar tbh 30 Panasonic  37.0
+AA4420   Värmepumpar VRF Panasonic     37.0
+AA4610   Värmepumpar luft/luft Altech  37.0
+AA4620   Värmepumpar luft/luft tbh Alte37.0
+AA5010   Värmepumpar tbh CTC           35.0
+AA5012   Värmepumpar tbh Nibe          35.0
+AA5013   Värmepumpar smarta tbh Nibe   35.0
+AA5014   Värmepumpar tbh Bosch         35.0
+AA5016   Värmepumpar tbh Altech        35.0
+AA5018   Poolvärmepumpar tbh Pahlen    35.0
+AA5020   Värmepumpar tbh IVT           35.0
+AA5090   Värmepumpar tbh övriga        35.0
+AB1010   Villapannor el Bosch          29.0
+AB1020   Villapannor el Focus          29.0
+AB1030   Villapannor el Värmebaronen   29.0
+AB1039   Villapannor el övriga         29.0
+AB1044   Elkassetter Nibe              29.0
+AB1050   Elkassetter Värmebaronen      29.0
+AB2010   Villapannor ved Baxi          28.0
+AB2016   Villapannor ved Värmebaronen  28.0
+AB3010   Villapannor Nibe              31.0
+AB3016   Villapannor Värmebaronen      31.0
+AB3018   Villapannor CTC               31.0
+AB3020   Villapannor pellets Focus     31.0
+AB3039   Villapannor övriga            31.0
+AB3099   Utgångna artiklar             31.0
+AB5010   Oljecisterner PE              35.0
+AB5014   Oljecisterner tbh Mano-Term   35.0
+AB5015   Oljecisterner tbh övriga      35.0
+AB5018   Villapannor övriga            35.0
+AB5020   Vattenvärmare tbh Nibe        35.0
+AB5022   Villapannor tbh CTC           35.0
+AB5024   Villapannor tbh Värmebaronen  35.0
+AB5028   Elpannor tbh Nibe             35.0
+AB5030   Elutrustning Energiekonomi    35.0
+AB5038   Pannor tbh övriga             35.0
+AB5046   Pannor tbh övriga             35.0
+AB5050   Oljecisterner tbh Afriso      35.0
+AB5052   Oljecisterner tbh Ezze        35.0
+AB5056   Pannor övriga tbh ESBE        35.0
+AB5070   Elpatroner CTC                35.0
+AB5072   Elpatroner Värmebaronen       35.0
+AB6010   Oljebrännare Bentone          35.0
+AB6042   Pelletsbrännare Iwabo         35.0
+AB6046   Pelletsbrännare Värmebaronen  35.0
+AB6048   Pelletsbrännare tbh Nibe      35.0
+AB6050   Pelletsbrännare tbh Värmebaron35.0
+AB6056   Pelletsbrännare tbh övriga    35.0
+AB6062   Pelletsbrännare tbh CTC       35.0
+AB6070   Oljebrännare Riello           35.0
+AB6072   Oljebrännare reservdelar Riell35.0
+AB6210   Res.delar, armatur och tbh Olj40.0
+AB6212   Res.delar, armatur och tbh Olj40.0
+AB6214   Res.delar, armatur och tbh Olj40.0
+AB6216   Res.delar, armatur och tbh Olj40.0
+AB6218   Res.delar, armatur och tbh Olj40.0
+AB6220   Res.delar, armatur och tbh Olj40.0
+AB6222   Res.delar, armatur och tbh Olj40.0
+AB6226   Res.delar, armatur och tbh Olj40.0
+AB7012   Fjärrvärmecentraler villa Alfa30.0
+AB7013   Värmeväxlare Zypho            30.0
+AB7014   Värmeväxlare Focus            30.0
+AB7015   Fjärrvärmecentraler Cetetherm 30.0
+AB7020   Värmeväxlare Metro            30.0
+AB7021   Värmeväxlare XL Metro         30.0
+AB7024   Fjärrvärmecentraler tbh Alfa L30.0
+AB7025   Fjärrvärme tbh Cetetherm      30.0
+AB7028   Fjärravläsningssystem Armatec 30.0
+AB7030   Fjärrvärmeväxlare tbh         30.0
+AB7040   Värmeväxlare Danfoss          30.0
+AB7049   Värmeväxlare övriga           30.0
+AB7210   Plattvärmeväxlare Swep        30.0
+AB7214   Altech Flexref Nordicold      30.0
+AB7220   Plattvärmeväxlare Alfa Laval  30.0
+AB7280   Plattvärmeväxlare tbh         30.0
+AB7410   Poolvärmeväxlare Pahlen       28.0
+AB8010   Avgasare Spirovent            28.0
+AB8020   Avgasare IMI                  28.0
+AB8030   Avgasare Flamco               28.0
+AB8040   Tryckhållning IMI             28.0
+AB8050   Tryckhållning Flamco          28.0
+AB8060   Expansionssystem Reflex       28.0
+AB8070   Expansionssystem HL Hydronics 28.0
+AB8080   Avgasare HL Hyrdonics         28.0
+AB9010   Shuntgrupper Siemens          28.0
+AB9012   Shuntgrupper tbh Siemens      28.0
+AC1010   Ackumulatortankar CTC         33.0
+AC1016   Ackumulatorer varmvatten Nibe 33.0
+AC1020   Ackumulatortankar och tbh Trar33.0
+AC1026   Ackumulatortankar Borö        33.0
+AC1028   Ackumulatortankar Värmebaronen33.0
+AC1030   Ackumulatortankar och tbh Bosc33.0
+AC1032   Ackumulatortankar tbh         33.0
+AC1034   Ackumulatortankladdning Laddom33.0
+AC1036   Ackumulatortankladdning Laddom33.0
+AC1038   Ackumulatortankar tbh Borö    33.0
+AC1040   Ackumulatortankar tbh Värmebar33.0
+AC1042   Ackumulatortankar och tbh Focu33.0
+AC1044   Fastighetstankar Borö         33.0
+AC1060   Ackumulatortankar Armatec     33.0
+AC1090   Ackumulatortankar övriga      33.0
+AC3014   Vattenvärmare SP-VPB Nibe     39.0
+AC3016   Vattenvärmare Bosch           39.0
+AC3026   Elvattenvärmare Clage         39.0
+AC3036   Elvattenvärmare Metro         39.0
+AC3038   Vattenvärmare tbh Metro       39.0
+AC3040   Elvattenvärmare Nibe          39.0
+AC3042   Elvattenvärmare Nibe          39.0
+AC3048   Elvattenvärmare Focus         39.0
+AC3049   Elvattenvärmare Connected     39.0
+AC3052   Modul-Elvattenvärmare CTC     39.0
+AC3060   Modul-Elvattenvärmare Nibe    39.0
+AC3064   Modul-Elvattenvärmare Focus   39.0
+AC3080   Varmvattenberedare Opal       39.0
+AC3099   Vattenvärmare övriga          39.0
+AC4022   Varmvattenautomater Nibe/Tmv  33.0
+AC4024   Varmvattenautomater Värmebaron33.0
+AC6010   Vattenvärmare tbh CTC         39.0
+AC6014   Vattenvärmare tbh Nibe        39.0
+AC6020   Elpatroner Metro              39.0
+AC6022   Elpatroner CTC                39.0
+AC6024   Elpatroner Nibe               39.0
+AC6099   Vattenvärmare tbh övriga      39.0
+AD1010   Kyl/frys aggregat Zanotti     28.0
+AG2022   Solfångarpaket Wb             28.0
+AG2024   Solfångarpaket tbh Wb         28.0
+AG2028   Solfångarpaket tbh CTC        28.0
+AG2032   Solvärme Roth                 28.0
+AG2090   Solvärme övriga               28.0
+AG3010   Solceller Nibe                28.0
+AG3012   Solceller tbh Nibe            28.0
+BA1010   Panelradiatorer Thermopanel V458.0
+BA1011   Panelradiatorer Thermopanel V458.0
+BA1014   Fläktradiatorer Purmo         58.0
+BA1016   Panelradiatorer Purmo Plan/Ram58.0
+BA1018   Panelradiatorer Purmo Compact 58.0
+BA1020   Panelradiatorer tbh Purmo Air 58.0
+BA1024   Panelradiatorer Lenhovda      58.0
+BA1026   Panelradiatorer tbh Epecon Mod58.0
+BA1030   Panelradiatorer Purmo Compact 58.0
+BA1031   Panelradiatorer Purmo Compact 58.0
+BA1032   Panelradiatorer Purmo Compact 58.0
+BA1033   Panelradiatorer Purmo Compact 58.0
+BA1034   Panelradiatorer Purmo Compact 58.0
+BA1035   Panelradiatorer Purmo Compact 58.0
+BA1039   Panelradiatorer Purmo Compact 58.0
+BA1078   Panelradiatorer Purmo Vertical58.0
+BA1090   Panelradiatorer övrigt        58.0
+BA1210   Panelradiatorer Altech        62.0
+BA1230   Panelradiatorer Altech Compact62.0
+BA1231   Panelradiatorer Altech Compact62.0
+BA1233   Panelradiatorer Altech Compact62.0
+BA1234   Panelradiatorer Altech Compact62.0
+BA1235   Panelradiatorer Altech Compact62.0
+BA1310   Panelradiatorer Altech integre60.0
+BA2010   Elradiatorer Lvi              58.0
+BA3012   Konvektorer Thermopanel       58.0
+BA3016   Konvektorer och tbh Altech    58.0
+BA3099   Konvektorer övriga            58.0
+BA4010   Fläktkonvektorer Eveco        58.0
+BA4020   Fläktkonvektorer Eveco Maestro58.0
+BA5010   Fläktluft, konvektor och luftr58.0
+BA5011   Takkassetter Eveco            58.0
+BA5012   Fläktluft tbh Eveco           58.0
+BA5013   Fläktluft tbh Eveco           58.0
+BA5014   Fläktluft, konvektor och luftr58.0
+BA5016   Fläktluft tbh Frico           58.0
+BA5017   Fläktkonvektorer Eveco Spacesa58.0
+BA5018   Fläktluftvärmare Eveco SAV    58.0
+BA5020   Luftridåer Eveco              58.0
+BA5021   Fläktkonvektorer Frico        58.0
+BA5022   Fläktluftvärmare Frico        58.0
+BA5023   Luftridåer Frico              58.0
+BA5030   Luftridåer AC Altech          58.0
+BA5033   Luftridåer EC Altech          58.0
+BA5035   Fläktluftvärmare AC Altech    58.0
+BA5040   Fläktluftvärmare EC Altech    58.0
+BA5045   Fläktluft tbh Altech          58.0
+BA5049   Fläktluftvärmare övriga       58.0
+BA6012   Termostater Danfoss           61.0
+BA6013   Radiatorventiler Danfoss      61.0
+BA6014   Radiatorventiler MMA          61.0
+BA6015    Slottsvred och ventiler MMA  61.0
+BA6016   Termostatventiler och koppel T61.0
+BA6017   Injustering- och styrventiler 61.0
+BA6019   Koppel Danfoss                61.0
+BA6021   Termostater digitala Danfoss  61.0
+BA6023   Radiatorventil Lågbly Danfoss 61.0
+BA6024   Termostatventiler och koppel A61.0
+BA6025   Radiatorventiler dynamiska IMI61.0
+BA6026   Termostater IMI               61.0
+BA6027   Radiatorventiler IMI          61.0
+BA6029   Termostater MMA               61.0
+BA6030   Koppel MMA                    61.0
+BA6032   Termostatventiler IMI Zero    61.0
+BA6040   Termostater Divello           61.0
+BA6041   Radiatorventiler Divello      61.0
+BA6044   Radiatorventiler Siemens      61.0
+BA7011   Koppel IMI                    61.0
+BA7012   Radiatortillbehör IMI         61.0
+BA7014   Radiatortillbehör Stockmovers 61.0
+BA7018   Kombikopplingar TA            61.0
+BA7020   Radiatortillbehör MMA         61.0
+BA7022   Luftningsventiler för radiator61.0
+BA7023   Koppel Danfoss                61.0
+BA7024   Radiatortillbehör Danfoss     61.0
+BA7026   Avluftare Altech              61.0
+BA7030   Returventiler Holmgrens       61.0
+BA7032   Luftningsventiler radiatorer E61.0
+BA7034   Luftningsventiler radiatorer H61.0
+BA7036   Luftningsventiler radiatorer L61.0
+BA7038   Koppel Altech                 61.0
+BA7040   Avluftare Armatec             61.0
+BA7042   Ställdon IMI                  61.0
+BA7044   Radiatorer/konvektorer tbh IMI61.0
+BA8010   Radiatorer/konvektorer tbh The58.0
+BA8012   Radiatorer/konvektorer tbh Pur58.0
+BA8014   Radiatorer tbh Altech         58.0
+BA8020   Radiatorer tbh Altech integrer58.0
+BB1027   Cirkulationspumpar våta Wilo-S49.0
+BB1028   Cirkulationspumpar våta Wilo  49.0
+BB1029   Cirkulationspumpar våta större49.0
+BB1030   Cirkulationspumpar torra Wilo 49.0
+BB1031   Cirkulationspumpar torra störr49.0
+BB1042   Tappvarmvattenpumpar Wilo     49.0
+BB1110   Cirkulationspumpar våta Grundf49.0
+BB1111   Cirkulationspumpar våta Grundf49.0
+BB1120   Cirkulationspumpar våta Grundf49.0
+BB1130   Cirkulationspumpar torra Grund49.0
+BB1140   Tappvarmvattenpumpar Grundfos 49.0
+BB1209   Cirkulationspumpar våta tbh Wi49.0
+BB1210   Cirkulationspumpar våta tbh Wi49.0
+BB1211   Cirkulationspumpar torra tbh W49.0
+BB1212   Cirkulationspumpar tbh        49.0
+BB1214   Tappvarmvattenpumpar tbh Grund49.0
+BB1215   Cirkulationspumpar våta tbh Gr49.0
+BB1216   Tappvarmvattenpumpar tbh Wilo 49.0
+BB1217   Cirkulationspumpar våta automa49.0
+BB1218   Cirk- och tappvv.pumpar tbh öv49.0
+BB1219   Cirkulationspumpar våta tbh Al49.0
+BB1220   Cirkulationspumpar våta tbh Wi49.0
+BB1222   Cirkulationspumpar tbh Altech 49.0
+BB1223   Cirkulationspumpar våta tbh Gr49.0
+BB1224   Cirkulationspumpar våta tbh Xy49.0
+BB1230   Cirkulationspumpar torra Grund49.0
+BB1322   Cirkulationspumpar våta Xylem 49.0
+BB1324   Tappvarmvattenpumpar Xylem    49.0
+BB1410   Cirkulationspumpar Altech     52.0
+BC1010   Golvvärmerör Uponor           57.0
+BC1040   Markvärmerör Uponor           57.0
+BC1112   Golvvärmetillbehör Uponor     56.0
+BC1113   Golvvärmetillbehör Uponor     56.0
+BC1116   Golvvärme monteringsdetaljer U56.0
+BC1118   Golvvärme skivor Uponor       56.0
+BC1130   Golvvärme fördelarskåp Uponor 56.0
+BC1140   Markvärmerör fördelning Uponor56.0
+BC1142   Markvärmerör tbh Uponor       56.0
+BC1210   Golvvärmerör LK               57.0
+BC1217   Golvvärmerör PEX LK           57.0
+BC1218   Golvvärmerör PE-RT LK         57.0
+BC1231   Markvärmerör PEX LK           57.0
+BC1312   Golvvärmetillbehör LK         56.0
+BC1315   Golvvärme verktyg LK          56.0
+BC1322   Golvvärme monteringsdetaljer L56.0
+BC1324   Golvvärme skivor LK           56.0
+BC1335   Golvvärme fördelare LK        56.0
+BC1338   Golvvärme fördelarskåp LK     56.0
+BC1340   Golvvärme fördelartillbehör LK56.0
+BC1342   Elpannor LK                   56.0
+BC1345   Golvvärme förläggningdetaljer 56.0
+BC1350   Golvvärme kopplingar LK       56.0
+BC1355   Golvvärme LK PushFit          56.0
+BC1360   Golvvärme rumsreglering LK    56.0
+BC1365   Golvvärme reglerutrustning LK 56.0
+BC1370   Golvvärme shuntgrupper LK     56.0
+BC1375   Golvvärme ventiler LK         56.0
+BC1390   Golvvärme reservdelar LK      56.0
+BC1614   Golvvärme rör Altech          56.0
+BC1632   Golvvärme delar Altech        56.0
+BC1636   Golvvärme delar Altech        56.0
+BC1640   Golvvärme delar Altech        56.0
+BC1642   Golvvärme delar Altech        56.0
+BC1644   Golvvärme delar Altech        56.0
+BC1646   Golvvärme delar Altech        56.0
+BC1648   Tappvatten PEX-rör Altech     56.0
+BC1650   Golvvärme delar Altech        56.0
+BC1654   Golvvärme delar Altech        56.0
+BC1810   Golvvärmerör Roth             56.0
+BC1812   Golvvärmetillbehör Roth       56.0
+BC1813   Golvvärmetillbehör Roth       56.0
+BC1814   Golvvärmetillbehör TA         56.0
+BC1817   Golvvärmedelar Rettig         56.0
+BC1849   Golvvärmerör och tbh övriga   56.0
+BC2010   Elgolvvärmesystem nVent       56.0
+BC2011   Elgolvvärmesystem Axjo        56.0
+BD1010   Expansionskärl stålplåt       50.0
+BD1012   Expansionskärl rostfri plåt   50.0
+BD1013   Blandningskärl Altech         50.0
+BD1014   Expansionskärl övriga material50.0
+BD1016   Expansionskärl övriga material50.0
+BD1017   Expansionskärl övriga material50.0
+BD1018   Expansionssystem IPX          50.0
+BD1019   Expansionssystem Reflex       50.0
+BD1021   Expansionssystem Reflex       50.0
+BD1022   Expansionssystem Reflex       50.0
+BD1023   Expansionssystem Somatherm    50.0
+BD1024   Expansionskärl Flamco 400L-50050.0
+BD1026   Expansionssystem Flexcon      50.0
+BD1028   Expansionssystem tbh          50.0
+BD1030   Expansionssystem Pneumatex    50.0
+BD1036   Säkerhetspaket LK             50.0
+BD1038   Expansionssystem övriga       50.0
+BD1040   Armatursats Flamco            50.0
+BD1060   Expansionssystem Armatec      50.0
+BD1210   Expansionssystem Altech       56.0
+BD1211   Expansionssystem Altech       56.0
+BD1212   Expansionssystem Altech       56.0
+BD1215   Expansionssystem tbh Altech   56.0
+BE1010   Reglersystem villa Siemens    54.0
+BE1410   Reglersystem villa Danfoss    54.0
+BE1614   Reglersystem villa övriga     54.0
+BE2012   Ventiler och ställdon Siemens 58.0
+BE2014   Ventiler och ställdon Siemens 58.0
+BE2015   Energimätare Ambiductor       58.0
+BE2016   Energimätare Ambiductor       58.0
+BE2017   Energimätare Siemens          58.0
+BE2018   Givare och regulatorer Siemens58.0
+BE2019   Reglersystem linjärt ESBE     58.0
+BE2020   Spjällställdon Siemens        58.0
+BE2021   Ställdon Sauter               58.0
+BE2022   Ventiler och ställdon Danfoss 58.0
+BE2024   Kommunikationsmoduler         58.0
+BE2026   Ventiler och ställdon Schneide58.0
+BE2028   Givare och regulatorer Schneid58.0
+BE2030   Energimätare Xylem            58.0
+BE2040   Shuntgrupp Grundfos           58.0
+BE2050   Energimätare Diehl            58.0
+BE2052   Energimätare tbh Diehl        58.0
+BE3099   Shuntaggregat övriga          54.0
+BF1010   Tryckmätare och tbh           58.0
+BF1012   Mätarventiler och tbh         58.0
+BF1016   Övrigt tryckmätarmateriel     58.0
+BF1018   Tryckmätare MGS/MS            58.0
+BF1020   Tryckmätare och tbh Afriso EMA58.0
+BF1022   Tryckmätare och tbh Afriso Rub58.0
+BF1024   Mätinstrument Nordtec         58.0
+BF1030   Tryckmätare och tbh Industri ö58.0
+BF1220   Manometerventiler Altech      58.0
+BF1222   Vattensäcksrör Altech         58.0
+BF1230   Tryckmätarsatser Altech       58.0
+BF2010   Termometrar med V-profilhylsa 62.0
+BF2011   Termometrar med V-profilhylsa 62.0
+BF2012   Anliggnings- och instickstermo62.0
+BF2013   Anliggnings- och instickstermo62.0
+BF2014   Rökgas- och hydrotermometrar  62.0
+BF2050   Distanstermometrar            62.0
+BF3004   Vattenmätare Diehl            58.0
+BF3010   Kallvattenmätare Pollux       58.0
+BF3018   Kall- och varmvattenmätare Ebt58.0
+BF3020   Vattenmätarkonsoler parallelko58.0
+BF3021   Vattenmätarkonsoler parallelko58.0
+BF3022   Vattenmätarkonsoler Altech    58.0
+BF3023   Vattenmätarkonsoler parallelko58.0
+BF3024   Vattenmätare tbh övriga       58.0
+BF3026   Vattenmätare tbh EZZE         58.0
+BF3028   Vattenmätare tbh Holmgrens    58.0
+BF3030   Vattenmätarkonsoler tbh Altech58.0
+BF3032   Vattenmätare Armatec          58.0
+BF3034   Värmemängdsmätare Armatec     58.0
+BF3040   Vattenmätare tbh Zenner       58.0
+BF3042   Kallvattenmätare Zenner       58.0
+BF3044   Kallvattenmätare Zenner Reed  58.0
+BF3048   Vattenmätare tbh Zenner       58.0
+BF3050   Kallvattenmätare mBus         58.0
+BF3052   Varmvattenmätare mBus         58.0
+BF3054   Vattenmätare Ambiductor       58.0
+BF3055   Vattenmätare tbh Ambiductor   58.0
+BF3056   Vattenmätare tbh mBus         58.0
+BF3060   Lägenhetsmätare Siemens       58.0
+BF3061   Vattenmätare Kamstrup         58.0
+BF3062   Vatten- och värmemängdsmätare 58.0
+BF3064   Vattenmätare tbh Sensus       58.0
+BF3065   Kallvattenmätare Sensus       58.0
+BF3066   Kallvattenmätare Rjet Sensus  58.0
+BF3067   Varmvattenmätare Rjet Sensus  58.0
+BF3068   Kallvattenmätare Mei Sensus   58.0
+BF3069   Mätare Axsensor               58.0
+BF3075   Vattenmätare Wehrle           58.0
+BF3076   TBH Vattenmätare Wehrle       58.0
+BF3080   Kallvattenmätare övriga       58.0
+BF4010   Flödesmätare Siemens          58.0
+BF4012   Flödesmätare tbh Siemens      58.0
+BF4014   Flödesmätare Endress          58.0
+BF4016   Flödesmätare tbh Endress      58.0
+BF5010   Tryckmätarsatser och tbh      58.0
+BF5012   Övrigt tryckmätarmateriel     58.0
+BF5014   Mätarventiler och tillbehör   58.0
+BF5018   Tryckmätare Armatec           58.0
+BF6002   Vattenmätarskåp               58.0
+BF7010   Abonnemang                    58.0
+CA1012   Badkar, fronter och gavlar GBG41.0
+CA1014   Badkar, fronter och gavlar GBG41.0
+CA1020   Badkar, fronter och gavlar    41.0
+CA1210   Badkar, fronter och gavlar Ifö41.0
+CA1212   Badkar, fronter och gavlar Ifö41.0
+CA1216   Bubbelbadkar Ifö              41.0
+CA1512   Bubbelbadkar Poolspa          40.0
+CA1610   Badkar, fronter och gavlar Alt45.0
+CA1614   Badkar special Alterna        45.0
+CA1710   Badkar, fronter och gavlar Sve40.0
+CA1814   Duschkabiner och väggar övriga40.0
+CA1816   Duschväggar övriga            40.0
+CA1820   Duschkabiner och väggar INR   40.0
+CA1899   Badkar övriga                 40.0
+CA2012   Duschväggar Ifö               40.0
+CA2016   Duschkabiner och väggar Ifö   40.0
+CA2018   Duschkabiner Västia           40.0
+CA2020   Duschväggar GBG               40.0
+CA2030   Duschkabiner/-väggar Svedberg 40.0
+CA2222   Duschkabiner och väggar IDO   40.0
+CA2410   Duschväggar Alterna Picto     45.0
+CA2411   Duschväggar Solo              45.0
+CA2412   Duschväggar badkarsväggar Alte45.0
+CA2413   Duschväggar Alterna Lusso     45.0
+CA2414   Duschdesign Alterna           45.0
+CA2415   Duschväggar Alterna Aria      45.0
+CA2416   Duschväggar och duschdesign tb45.0
+CA2417   Duschväggar Alterna Luxor     45.0
+CA2418   Duschväggar Alterna Capo      45.0
+CA2419   Duschväggar U-dusch Alterna   45.0
+CA2420   Duschväggar vikdörr Alterna Lu45.0
+CA2421   Duschväggar tbh Alterna       45.0
+CA2422   Duschkabiner Alterna          45.0
+CA2430   Duschväggar reservdelar Altern45.0
+CA2431   Duschväggar reservdelar Altern45.0
+CA3010   Handdukstorkar FMM            40.0
+CA3012   Handdukstorkar Ma             40.0
+CA3030   Handdukstorkar Pax            40.0
+CA3032   Handdukstorkar övriga         40.0
+CA3226   Handdukstorkar Alterna Baltic 45.0
+CA3227   Handdukstorkar el Alterna     45.0
+CA3228   Handdukstorkar Alterna        45.0
+CA3230   Handdukstorkar Alterna        45.0
+CA3231   Handdukstorkar S              45.0
+CA3232   Handdukstorkar tbh Alterna    45.0
+CA3250   Handdukstorkar reservdelar Alt45.0
+CA3412   Inbyggnadscisterner och tbh Re45.0
+CA3430   Inbyggnadscisterner och tbh Ge45.0
+CA3431   Inbyggnadscist. tbh spolplatto45.0
+CA3432   Inbyggnadscisterner och tbh Gr45.0
+CA3433   Inbyggnadscisterner tbh Grohe 45.0
+CA3434   Inbyggnadscisterner och tbh GB45.0
+CA3435   Inbyggnadscisterner tbh GBG   45.0
+CA3436   Inbyggnadscisterner och tbh ID45.0
+CA3438   Inbyggnadscisterner och tbh If45.0
+CA3439   Inbyggnadscisterner tbh Ifö   45.0
+CA3440   Inbyggnadscisterner reservdela45.0
+CA3448   Inbyggnadscisterner reservdela45.0
+CA3450   Geberit Monolith              45.0
+CA3510   Inbyggnadscisterner Alterna   46.0
+CA3512   Inbyggnadscisterner tbh Altern46.0
+CA4012   Badrumsmöbler GBG             40.0
+CA4110   Badrumsmöbler Geberit         40.0
+CA4112   Badmöbelpaket Geberit         40.0
+CA4114   Badrumsmöbler reservdelar Gebe40.0
+CA4216   Badrumsmöbler Ifö             40.0
+CA4217   Badrumsmöbler möbelpaket Ifö  40.0
+CA4218   Badrumsmöbler res.delar & tbh 40.0
+CA4230   Badrumsmöbler Vinta           40.0
+CA4232   Badrumsmöbler res.delar & tbh 40.0
+CA4240   Badrumsmöbler Ifö Elegant     40.0
+CA4242   Badrumsmöbler res.delar & tbh 40.0
+CA4250   Speglar Ifö                   40.0
+CA4318   Badrumsmöbler IDO             40.0
+CA4416   Badrumsmöbler och tbh Kungsör 40.0
+CA4510   Badrumsmöbler Duravit         40.0
+CA4622   Badrumsmöbler Svedberg        40.0
+CA4713   Badrumsmöbler tbh Alterna     45.0
+CA4714   Badrumsmöbler Alterna Bella   45.0
+CA4715   Spegelskåp Alterna            45.0
+CA4716   Badrumsmöbler reservdelar Alte45.0
+CA4718   Badrumsmöbler Alterna NiceDay 45.0
+CA4725   Komodtvättställ Alterna       45.0
+CA4740   Metallvattenlås Alterna       45.0
+CA4752   Badrumsmöbler Alterna Ella    45.0
+CA4754   Badrumsmöbler Alterna Isabella45.0
+CA4758   Badrumsmöbler Alterna Gabriell45.0
+CA4760   Badrumsmöbler Alterna Isella  45.0
+CA4762   Badrumsmöbler Alterna Everyday45.0
+CA4766   Badrumsmöbler Alterna Ariella 45.0
+CA4768   Badrumsmöbler Alterna Luxor   45.0
+CA4770   Badrumsmöbler Alterna Basic   45.0
+CA4772   Speglar Alterna               45.0
+CA4774   Badrumsmöbler belysning Altern45.0
+CA4776   Badrumsmöbler handtag Alterna 45.0
+CA4778   Badrumsmöbler Alterna Primeo/S45.0
+CA4806   Badrumsmöbler Polaria         40.0
+CA4820   Badrumsmöbler INR             40.0
+CA4830   Badrumsmöbler övriga          40.0
+CA5016   Badrumstillbehör Arrow        40.0
+CA5020   Badrumstillbehör Mora         40.0
+CA5022   Badrumstillbehör GBG          40.0
+CA5030   Badrumstillbehör Demerx       40.0
+CA5032   Badrumstillbehör Ebim         40.0
+CA5034   Badrumstillbehör Erics        40.0
+CA5036   Badrumstillbehör Habo         40.0
+CA5038   Badrumstillbehör Thomee       40.0
+CA5040   Badrumstillbehör Wahlström    40.0
+CA5050   Badrumstillbehör Divello      40.0
+CA5070   Badrumstillbehör JAFO         40.0
+CA5080   Badrumstillbehör Grohe        40.0
+CA5099   Badrumstillbehör övriga       40.0
+CA5210   Badrumstillbehör Alterna Rondo41.0
+CA5212   Badrumstillbehör Alterna S-Lin41.0
+CA5214   Badrumstillbehör Alterna Basic41.0
+CA5222   Badrumstillbehör Alterna Knox 41.0
+CA5610   Badkarsreservdelar GBG        52.0
+CA5614   Badkarsreservdelar IDO        52.0
+CA5620   Badkarshandtag                52.0
+CA6010   Duschutrustning exklusiv FMM  40.0
+CA6011   Duschutrustning FMM Viskan    40.0
+CA6012   Duschutrustning FMM           40.0
+CA6013   Duschutrustning FMM           40.0
+CA6014   Duschutrustning FMM Antibactus40.0
+CA6015   Duschutrustning reservdelar FM40.0
+CA6016   Duschutrustning Mora          40.0
+CA6018   Duschutrustning exklusiv Mora 40.0
+CA6019   Duschutrustning reservdelar Mo40.0
+CA6020   Duschutrustning GBG/Va        40.0
+CA6022   Duschutrustning MMIXX II      40.0
+CA6023   Duschutrustning LYNX          40.0
+CA6024   Duschutrustning Oras          40.0
+CA6025   Duschutrustning Oras          40.0
+CA6026   Duschutrustning Arrow         40.0
+CA6028   Duschutrustning Grohe         40.0
+CA6030   Duschutrustning exklusiv Hansg40.0
+CA6031   Duschutrustning exklusiv Hansg40.0
+CA6036   Duschutrustning övriga        40.0
+CA6040   Duschutrustning Damixa        40.0
+CA6050   Handdusch Handy               40.0
+CA6052   Duschutrustning Beulco        40.0
+CA6056   Duschutrustning Elles         40.0
+CA6070   Duschslang FMM                40.0
+CA6072   Duschslang Mora               40.0
+CA6074   Duschslang Oras               40.0
+CA6076   Duschslang Grohe              40.0
+CA6078   Duschslang Arrow              40.0
+CA6160   Duschutrustning 9000XE        40.0
+CA6230   Duschutrustning reservdelar Al42.0
+CA6234   Duschutrustning duschset Alter42.0
+CA6236   Duschutrustning tbh Alterna   42.0
+CA6238   Duschutrustning takdusch Alter42.0
+CA6418   Duschkombinationer övriga     43.0
+CA6419   Duschkombinationer LYNX       43.0
+CA6420   Duschkombinationer FMM        43.0
+CA6421   Duschkombinationer MMIXX II   43.0
+CA6422   Duschkombinationer Mora       43.0
+CA6423   Duschkombinationer Mora Design43.0
+CA6424   Duschkombinationer GBG        43.0
+CA6426   Duschkombinationer Oras       43.0
+CA6428   Duschkombinationer Oras Design43.0
+CA6432   Duschkombinationer Hansgrohe  43.0
+CA6434   Duschkombinationer Grohe      43.0
+CA6440   Duschkombinationer Damixa     43.0
+CA6521   Duschkombinationer 9000XE     43.0
+CA6602   Duschpaneler FMM              40.0
+CA6608   Duschpaneler Oras             40.0
+CA6610   Duschpaneler Heno             40.0
+CA6612   Badrum övrigt och tbh Heno    40.0
+CA6620   Duschpaneler övriga           40.0
+CA7010   Bastuaggregat Tylö            40.0
+CA8010   Frånluftsfläktar och tbh Pax  48.0
+CA8020   Friskluftsfläktar och tbh Fres48.0
+CB1010   Tvättställ utan armatur GBG   30.0
+CB1011   Tvättställ utan armatur GBG   30.0
+CB1212   Tvättställspaket GBG          30.0
+CB1214   Tvättställ med armatur GBG    30.0
+CB1410   WC-stolar GBG                 30.0
+CB1412   WC-stolar GBG HF              30.0
+CB1510   Standard WC GBG               34.0
+CB1514   Standard WC GBG HF            34.0
+CB2010   Tvättställ utan armatur Ifö   31.0
+CB2020   Möbeltvättställ Ifö           31.0
+CB2022   Möbeltvättställ Geberit       31.0
+CB2030   Tvättställ Ifö Pala och Vinta 31.0
+CB2040   Möbeltvättställ Ifö Elegant oc31.0
+CB2212   Tvättställspaket Ifö          31.0
+CB2410   WC-stolar Ifö Sign            33.0
+CB2420   WC-stolar Ifö Vinta           33.0
+CB2430   WC-stolar Ifö Pala            33.0
+CB2440   WC-stolar Ifö Vinta Art       33.0
+CB2512   Standard WC Ifö Sign          35.0
+CB2614   Bidéer Ifö                    26.0
+CB2710   WC-stolar Ifö Spira           35.0
+CB2810   Standard WC Ifö Spira         39.0
+CB2910   WC-skålar Geberit             30.0
+CB2930   Bidéer Geberit                30.0
+CB3010   Tvättställ utan armatur IDO   26.0
+CB3080   WC-skålar övriga              26.0
+CB3212   Tvättställspaket IDO          26.0
+CB3410   WC-stolar IDO                 26.0
+CB3510   Standard WC IDO               26.0
+CB3610   Tvättställ utan armatur Svedbe26.0
+CB3612   WC-stolar Svedberg            26.0
+CB3810   Tvättställ Duravit            26.0
+CB3812   WC-stolar Duravit             26.0
+CB4012   Urinaler Ifö                  26.0
+CB4020   Urinaler Novosan              26.0
+CB4022   Urinaler rostfria Furhoff     26.0
+CB4210   Tvättställspaket Alterna      34.0
+CB4212   Tvättställ Alterna            34.0
+CB4220   Tvättställ övriga Alterna     34.0
+CB4410   WC-skålar Alterna             36.0
+CB4412   WC-stolar Carat               36.0
+CB4613   WC-stolar res.delar Laufen    33.0
+CB5014   Tvättställ porslin Grohe      26.0
+CB5099   Tvättställ övriga             26.0
+CB5614   WC-socklar                    41.0
+CB5616   WC-sitsar Pressalit/Saniscan/K41.0
+CB5618   Armstöd och toalettpappershåll41.0
+CB5620   WC-stolar övr res.delar och tb41.0
+CB5624   Armstöd och toap-håll GBG     41.0
+CB5625   Armstöd och toap-håll Pressali41.0
+CB5627   Armstöd och tbh Etac          41.0
+CB5628   Armstöd och toap-håll Merrycar41.0
+CB5630   Armstöd och toap-håll Rebase  41.0
+CB5632   WC-stolar övr res.delar och tb41.0
+CB5634   WC-stolar övr res.delar och tb41.0
+CB5636   WC-stolar övr res.delar och tb41.0
+CB5810   WC-stolar fritid              28.0
+CB5812   WC-stolar fritid tbh          28.0
+CB5816   WC-stolar fritid Saniflo      28.0
+CB6010   WC reservdelar GBG            45.0
+CB6012   WC reservdelar Ifö            45.0
+CB6014   WC reservdelar IDO            45.0
+CB6016   WC-sitsar Alterna             45.0
+CB6018   WC övr res.delar Alterna      45.0
+CB6020   WC reservdelar Jafo           45.0
+CB6022   WC reservdelar Tubman         45.0
+CB6024   WC-sitsar GBG                 45.0
+CB6026   WC-sitsar Ifö                 45.0
+CB6027   WC-sitsar Ifö Pala och Vinta  45.0
+CB6028   WC-sitsar IDO                 45.0
+CB6029   WC-sitsar Geberit             45.0
+CB6030   Badkarsreservdelar Ifö        45.0
+CB6032   Duschreservdelar Ifö          45.0
+CB6034   Installationssystem reservdela45.0
+CB6036   Reservdelar till Ifö Public St45.0
+CB6038   Reservdelar till rostfri sanit45.0
+CB6040   Tvättställ reservdelar Ifö    45.0
+CB6042   Urinaler reservdelar Ifö      45.0
+CB6044   Vattenlås reservdelar Contura 45.0
+CB7410   WC-stolar Laufen              33.0
+CB8010   WC-skålar Duravit Sensowash   26.0
+CB8011   Duschtoaletter Grohe Sensia   26.0
+CB8012   WC-skålar Geberit Auqaclean   26.0
+CC1010   1-greppsblandare FMM          37.0
+CC1014   1-greppsblandare FMM Viskan   37.0
+CC1112   1-greppsblandare 9000XE       37.0
+CC1113   1-greppsblandare 9000XE       37.0
+CC1210   Termostatblandare FMM         37.0
+CC1214   Termostatblandare FMM Viskan  37.0
+CC1313   Termostatblandare 9000XE      37.0
+CC1410   2-greppsblandare FMM          37.0
+CC1610   Vattenutkastare FMM           37.0
+CC1611   Vattenutkastare FMM           37.0
+CC1810   Beröringsfria blandare FMM    37.0
+CC1811   Beröringsfria blandare tbh FMM37.0
+CC2010   1-greppsblandare Mora         37.0
+CC2020   1-greppsblandare Mora Cera    37.0
+CC2030   1-greppsblandare MMIXX II     37.0
+CC2040   Tvättst blandare MMIXX II     37.0
+CC2050   1-greppsblandare LYNX         37.0
+CC2210   Termostatblandare Mora        37.0
+CC2220   Termostatblandare MMIXX II    37.0
+CC2230   Termostatblandare LYNX        37.0
+CC2410   2-greppsblandare Mora         37.0
+CC2610   Vattenutkastare Mora          37.0
+CC2810   Beröringsfria blandare Mora   37.0
+CC2811   Beröringsfria blandare tbh Mor37.0
+CC3010   1-greppsblandare GBG/Va       37.0
+CC3011   1-greppsblandare GBG Atlantic 37.0
+CC3012   Beröringsfria blandare GBG    37.0
+CC3210   Termostatblandare GBG/Va      37.0
+CC3211   Termostatblandare GBG Atlantic37.0
+CC3610   Vattenutkastare GBG/Va        37.0
+CC3611   Vattenutkastare GBG/Va        37.0
+CC4010   1-greppsblandare Oras         37.0
+CC4011   1-greppsblandare Oras         37.0
+CC4012   1-greppsblandare Oras Design  37.0
+CC4016   Garantipaket Oras             37.0
+CC4210   Termostatblandare Oras        37.0
+CC4212   Termostatblandare Oras Inspera37.0
+CC4610   Vattenutkastare övriga        39.0
+CC4612   Vattenutkastare Oras          39.0
+CC4614   Vattenutkastare Alterna       39.0
+CC4810   Beröringsfria blandare Oras   37.0
+CC4811   Beröringsfria blandare tbh Ora37.0
+CC5010   1-greppsblandare Damixa       37.0
+CC5210   Termostatblandare Damixa      37.0
+CC6010   1-greppsblandare Hansgrohe    37.0
+CC6011   1-greppsblandare Hansgrohe    37.0
+CC6012   1-greppsblandare Hansgrohe Axo37.0
+CC6210   Termostatblandare Hansgrohe   37.0
+CC6211   Termostatblandare Hansgrohe   37.0
+CC6810   Beröringsfria blandare Hansgro37.0
+CC7010   1-greppsblandare Grohe        37.0
+CC7011   1-greppsblandare Grohe        37.0
+CC7012   2-greppsblandare Grohe        37.0
+CC7210   Termostatblandare Grohe       37.0
+CC7211   Termostatblandare Grohe       37.0
+CC7213   Funktionsblandare Grohe       37.0
+CC8012   1-greppsblandare Ideal Standar37.0
+CC8014   1-greppsblandare Dornbracht   37.0
+CC8018   Tvättställsblandare Presto    37.0
+CC8020   Storkökskranar Pan Atlantic   37.0
+CC8040   Inbyggnadslådor               37.0
+CC8050   1-greppsblandare övriga       37.0
+CC8090   Termostatblandare övriga      37.0
+CD1010   Tvättställskonsoler och tbh   58.0
+CD1014   Tvättställskonsoler Rebase    58.0
+CD1018   Vägghyllor Rebase             58.0
+CD1020   Funktionstillbehör Alterna    58.0
+CD1024   Diskmaskinsunderlägg          58.0
+CD1099   Hyllor och konsoler övriga    58.0
+CD2010   Proppar, packningar och O-ring58.0
+CD2011   Packningar Tubman             58.0
+CD2012   Utloppspipar övriga           58.0
+CD2014   Kranöverdelar och käglor      58.0
+CD2015   Reservdelar till blandare övri58.0
+CD2016   Reservdelar till blandare övri58.0
+CD2017   Nipplar, anslutn-kpl, bl-fäste58.0
+CD2018   Nipplar, anslutn-kpl, bl-fäste58.0
+CD2019   Vägg- och täckbrickor         58.0
+CD2020   Tapp- och svängkranar         58.0
+CD2022   Nipplar, anslutn-kpl, bl-fäste58.0
+CD2024   Avstängningsventiler          58.0
+CD2025   Bottenventiler Alterna        58.0
+CD2026   Bottenventiler övriga         58.0
+CD2028   Låskopplingar                 58.0
+CD2029   Halvkopplingar Pipefix        58.0
+CD2030   Strålsamlare och flödesreglera58.0
+CD2031   Vattenbesparing Divello       58.0
+CD2032   Sanitetsarmatur övrig         58.0
+CD2033   Strålsamlare och flödesreglera58.0
+CD2034   Sanitetsarmatur övrig Alterna 58.0
+CD2036   Sanitetsarmatur övrig Alterna 58.0
+CD2038   Utloppspipar GBG              58.0
+CD2040   Utloppspipar Mora             58.0
+CD2041   Kranöverdelar och krankäglor F58.0
+CD2042   Utloppspipar Oras             58.0
+CD2043   Kranöverdelar och krankäglor M58.0
+CD2044   Kranöverdelar och krankäglor T58.0
+CD2046   Armaturfett                   58.0
+CD2048   Reservdelar övriga Purus      58.0
+CD2052   Nipplar, anslutn-kpl, bl-fäste58.0
+CD2054   Nipplar, anslutn-kpl, bl-fäste58.0
+CD2056   Nipplar, anslutn-kpl, bl-fäste58.0
+CD2058   Nipplar, anslutn-kpl, bl-fäste58.0
+CD2060   Nipplar, anslutn-kpl, bl-fäste58.0
+CD2062   Tapp- och svängkranar FMM     58.0
+CD2064   Tapp- och svängkranar Mora    58.0
+CD2066   Tapp- och svängkranar Oras    58.0
+CD2068   Tapp- och svängkranar Trio    58.0
+CD2070   Tapp- och svängkranar GBG     58.0
+CD2074   Bottenventiler Mora           58.0
+CD2076   Bottenventiler FMM            58.0
+CD2078   Bottenventiler Alterna PopUp  58.0
+CD2084   Strålsamlare och flödesreglera58.0
+CD2086   Sanitetsarmatur övrig Holmgren58.0
+CD2088   Sanitetsarmatur övrig LK Konsu58.0
+CD2090   Sanitetsarmatur övrig FMM     58.0
+CD2092   Sanitetsarmatur övrig Trio    58.0
+CD2094   Sanitetsarmatur övrig Vatek   58.0
+CD3010   1-grepps-/termostatbl res.dela58.0
+CD3011   1-grepps-/termostatbl res.dela58.0
+CD3210   1-grepps-/termostatbl res.dela58.0
+CD3211   1-grepps-/termostatbl res.dela58.0
+CD3410   1-grepps-/termostatbl res.dela58.0
+CD3411   1-grepps-/termostatbl res.dela58.0
+CD3610   1-grepps-/termostatbl res.dela58.0
+CD3812   1-grepps-/termostatbl res.dela58.0
+CD3813   1-grepps-/termostatbl res.dela58.0
+CD4010   Väggkopplingssystem FMM       58.0
+CD4012   Väggkopplingssystem Ma        58.0
+CD4013   Väggkopplingssystem Ma        58.0
+CD4014   Väggkopplingssystem GBG/Va    58.0
+CD4015   Blandarfästen GBG             58.0
+CD4016   Blandarfästen Alterna         58.0
+CD4018   Väggkopplingssystem Bogårdh   58.0
+CD4020   Väggkopplingssystem Trio      58.0
+CD4021   Väggkopplingssystem Trio      58.0
+CD4022   Väggkopplingssystem Oras      58.0
+CD4023   Väggkopplingssystem Ballofix  58.0
+CD4026   Väggkopplingssystem FMM/Ma    58.0
+CE1010   Diskbänkar rostfria Contura   39.0
+CE1012   Diskbänkar rostfria Intra     39.0
+CE1016   Diskbänkar rostfria Franke    39.0
+CE1020   Diskbänkar rostfria övriga    39.0
+CE1022   Diskbänkar tbh Intra          39.0
+CE1030   Diskbänkar tbh övriga         39.0
+CE1034   Avfallskvarnar                39.0
+CE1036   Avfallskvarnar tbh            39.0
+CE1210   Tvättbänkar rostfria Contura  40.0
+CE1212   Tvättbänkar rostfria Nimo     40.0
+CE1310   Torkskåp Nimo                 40.0
+CE1410   Utslagsbackar rostfria Contura37.5
+CE1412   Utslagsbackar rostfria Intra  37.5
+CE1414   Utslagsbackar rostfria Furhoff37.5
+CE1418   Utslagsbackar rostfria Jafo   37.5
+CE1420   Luddlådor rostfria Blucher    37.5
+CE1421   Luddlådor rostfria Nimo       37.5
+CE1422   Tvättlådor rostfria           37.5
+CE1423   Köks- och industrirännor/brunn37.5
+CE1424   Tvättutrustning rostfri övrig 37.5
+CE1426   Avskiljare och sandfång       37.5
+CE1610   Diskbänkar Alterna            44.0
+CE1612   Utslagsbackar rostfria Alterna44.0
+CE1810   Tvättställ och WC rostfria Con41.0
+CE1812   Tvättställ rostfria Intra     41.0
+CE1816   Tvättställ och WC rostfria Pur41.0
+CE1820   Tvättställ rostfria övriga    41.0
+CE2012   Minikök Intra                 39.0
+CE2014   Minikök Boröpannan            39.0
+CE5010   Tvättrännor rostfria Intra    41.0
+CE5020   Tvättrännor rostfria Furhoff  41.0
+CE6010   Dricksvattenkylare Pan Atlanti37.5
+CE6099   Dricksfontäner                37.5
+CX2420   Blandare Mora INXX ll         28.0
+CX2620   Duschutrustning Mora INXX ll  28.0
+CX2820   Tillbehör Mora INXX ll        28.0
+CX2822   Badrumstillbehör MORA INXX ll 28.0
+CX3410   Blandare FMM Tronic           28.0
+CX3610   Duschutrustning  FMM Tronic   28.0
+CX3810   Tillbehör FMM Tronic          28.0
+DA0210   Presskopplingar koppar M Altec71.0
+DA0212   Presskopplingar koppar M Altec71.0
+DA0214   Presskopplingar koppar M super71.0
+DA0220   Presskopplingar koppar M gas A71.0
+DA0222   Presskopplingar koppar M fkr A71.0
+DA0310   Presskopplingar rfr M Altech  71.0
+DA0312   Presskopplingar rfr M supersiz71.0
+DA0410   Presskopplingar elfz M Altech 73.0
+DA0412   Presskopplingar elfz M Altech 73.0
+DA0414   Presskopplingar elfz M supersi73.0
+DA0510   Pressrör elfz Altech          73.0
+DA0610   Presskopplingar elfz V Altech 73.0
+DA0612   Presskopplingar elfz V Altech 73.0
+DA0614   Presskopplingar V tbh Altech  73.0
+DA0616   Presskopplingar elfz V Altech 73.0
+DA0710   Pressrör rfr Altech           71.0
+DA0810   Presskopplingar rfr V Altech  71.0
+DA0910   Sprinklerrör elfz Mapress     68.0
+DA0912   Rör elfz Mapress              68.0
+DA0916   Sprinklerrör elfz VSH         68.0
+DA0918   Pressrör elfz VSH             68.0
+DA1014   Rördelar elfz Mapress         70.0
+DA1015   Rördelar elfz Mapress         70.0
+DA1020   Rördelar och tbh svarta Mapres70.0
+DA1034   Pressdelar elfz VSH           70.0
+DA1035   Rördelar elfz VSH             70.0
+DA1036   Pressdelar elfz supersize VSH 70.0
+DA1038   Rördelar elfz supersize Mapres70.0
+DA1110   Pressrör rfr Mapress          68.0
+DA1210   Rördelar rfr supersize Mapress68.0
+DA1212   Rördelar rfr Mapress          68.0
+DA1213   Rördelar rfr VSH Press        68.0
+DA1214   Pressdelar rfr supersize VSH  68.0
+DA1250   O-ringar Mapress              68.0
+DA1252   O-ringar VSH Press            68.0
+DA1310   Presskopplingar White         68.0
+DA1410   Rördelar koppar Mapress       68.0
+DA1411   Rördelar koppar Mapress       68.0
+DA1412   Rördelar koppar supersize Mapr68.0
+DA1420   Rördelar koppar VSH Press     68.0
+DA1421   Rördelar koppar VSH Press     68.0
+DA1440   Rördelar koppar LK B-Press    68.0
+DA1610   Presskopplingar koppar V Altec71.0
+DA1612   Presskopplingar koppar V Altec71.0
+DA1613   Presskopplingar koppar gas V A71.0
+DA1620   Presskopplingar koppar V fkr A71.0
+DA1810   Rördelar gas Mapress          68.0
+DA2010   Klämringskopplingar Vatette   70.0
+DA2011   Klämringskopplingar Vatette   70.0
+DA2012   Klämringskopplingar VSH       70.0
+DA2013   Klämringskopplingar VSH       70.0
+DA2014   Klämringskopplingar Conex     70.0
+DA2016   Klämringskopplingar FPL       70.0
+DA2018   Klämringskopplingar Ezze-Krk  70.0
+DA2019   Klämringskopplingar Kuterlite 70.0
+DA2020   Stödhylsor Cu Altech          70.0
+DA2021   Stödhylsor Cu Altech          70.0
+DA2022   Genomföringshylsor Stamco     70.0
+DA2023   Stödhylsor PEX Altech         70.0
+DA2024   Stödhylsor GBG                70.0
+DA2026   Fördelningsrör                70.0
+DA2028   Stödhylsor Altech             70.0
+DA2032   Fördelningsrör övriga         70.0
+DA2040   Värmestamförd raka och tbh Upo70.0
+DA2050   Plaströrskopplingar Vatette   70.0
+DA2070   Halvkopplingar Conex          70.0
+DA2099   Stamrör övriga                70.0
+DA2110   Klämringskopplingar Altech    71.0
+DA2210   Instickskopplingar Ta Tectite 68.0
+DA2212   Instickskopplingar Cu Tectite 68.0
+DA2213   Instickskopplingar Cu Tectite 68.0
+DA2410   Kapillärrördelar Altech       70.0
+DA2411   Kapillärrördelar Altech       70.0
+DA2412   Kopparrördelar för hårdlödning70.0
+DA2609   Metallrördelar renspropp      70.0
+DA2610   Metallrördelar för gängning oc70.0
+DA2611   Metallrördelar för gängning oc70.0
+DA2612   Snabbkopplingar för vatten övr70.0
+DA2618   Stålmetallflänsar             70.0
+DA2620   Slangklämmor                  70.0
+DA2621   Kopplingar tbh Elite          70.0
+DA2622   Snabbkopplingar för vatten EZZ70.0
+DA2624   Snabbkopplingar för vatten Hol70.0
+DA2626   Snabbkopplingar för vatten Hoz70.0
+DA2628   Slangklämmor Novipro FZ       70.0
+DA2630   Slangklämmor Novipro RF       70.0
+DA3010   T-Plus kopplingar             68.0
+DA3014   Påsticks- och blockutrustning 68.0
+DA3015   Påsticks- och blockutrustning 68.0
+DA3016   Reparationskopplingar övriga  68.0
+DA3018   Reparationskopplingar Unifix  68.0
+DA3020   Reparationskopplingar Holmgren68.0
+DA3110   Reparationskoppling Altech    68.0
+DA3210   Rördelar aducerade            68.0
+DA3410   Rördelar smidda               68.0
+DA3412   Rördelar smidda               68.0
+DA3810   Rörkopplingar Normaconnect    68.0
+DA3811   Reparationskopplingar Straub  68.0
+DA3812   Snabbkopplingar M 42 galv     68.0
+DA3813   Snabbkopplingar M 42 rfr      68.0
+DA3820   Gripkoppling Syrafast         68.0
+DA3822   Gripkoppling Rostfri          68.0
+DA4010   Mapress rör therma            68.0
+DA4110   Mapress rördelar therma       68.0
+DA4112   Mapress rördelar therma supers68.0
+DA9999   Utgångna artiklar             68.0
+DB1010   Kopparrör hårda raka          60.0
+DB1011   Kopparrör hårda raka          60.0
+DB1012   Kopparrör oisolerade          60.0
+DB1014   Oljerör                       60.0
+DB1016   Medicinrör                    60.0
+DB1018   Kopparrör vita hårda raka     60.0
+DB1208   Kopparrör plastisolerade Altec54.0
+DB1210   Kopparrör plastisolerade      54.0
+DB1212   Kopparrör värmeisolerade Altec54.0
+DB1213   Kopparrör värmeisolerade Altec54.0
+DB1214   Kopparrör värmeisolerade      54.0
+DB1216   Kopparrör plastisolerade Radis54.0
+DB1612   Kopplingsrör halvhårda fkr    64.0
+DB1620   Kopparrör halvhårda fkr Altech64.0
+DB1622   Kopparrör halvhårda glödgade f64.0
+DC1010   Vattenslangar gummi           60.0
+DC1012   Vattenslangar plast           60.0
+DC1016   Slanghyllor                   60.0
+DC1018   Slangar och tbh Siro          60.0
+DC1020   Vattenslangar gummi Lundgrens 60.0
+DC1028   Slangar Trelleborg            60.0
+DC1030   Slanghyllor Lundgren          60.0
+DC1050   Slangar övriga                60.0
+DC1404   Ansl.slang reservdelar Altech 68.0
+DC1405   Ansl.slang kyla Altech        68.0
+DC1406   Ansl.slang värme Altech       68.0
+DC1407   Ansl.slang disk Altech        68.0
+DC1408   Ansl.slang tappvatten Altech  68.0
+DC1409   Ansl.slang tappvatten XL Altec68.0
+DC1410   Anslutningsslangar övriga     68.0
+DC1412   Anslutningsslangar Jafo       68.0
+DC1416   Anslutningsslangar Neoperl    68.0
+DC1420   Anslutningsslangar gas        68.0
+DD1012   Kulventiler VVS Beulco        62.0
+DD1013   Kulventiler VVS Ta-Isi        62.0
+DD1014   Kulventiler VVS Ta            62.0
+DD1016   Fullflödesventiler Vatette    62.0
+DD1020   Kulventiler låsbar Beulco     62.0
+DD1024   Kulventiler Sauter            62.0
+DD1026   Kulventiler Armatec           62.0
+DD1030   Kulventiler Press Vexve       62.0
+DD1040   Fullflödesventiler Broen      62.0
+DD1099   Kulventiler övriga            62.0
+DD1210   Kulventiler Altech            66.0
+DD1212   Kulventiler tbh Altech        66.0
+DD1214   Kulventiler Altech            66.0
+DD1216   Kulventiler lågbly Altech     66.0
+DD1220   Kulventiler blyfri Altech     66.0
+DD1222   Kulventiler Altech            66.0
+DD1224   Kulventiler blyfri Altech     66.0
+DD1310   Skjutventiler Altech          60.0
+DD1410   Kikboxkranar och tbh övriga   60.0
+DD1414   Kikboxkranar och tbh Holmgren 60.0
+DD1416   Kikboxkranar och tbh Markaryd 60.0
+DD1418   Kikboxkranar och tbh TA       60.0
+DD1510   Sanitetskulventiler Altech    66.0
+DD1511   Sanitetskulventiler Altech    66.0
+DD1612   Sanitetskulventiler Ballofix  65.0
+DD1616   Sanitetskulventiler VSH       65.0
+DD1617   Sanitetskulventiler VSH       65.0
+DD1618   Sanitetskulventiler FMM       65.0
+DD1620   Sanitetskulventiler Vatette   65.0
+DD1621   Sanitetskulventiler Vatette   65.0
+DD1622   Sanitetskulventiler TA        65.0
+DD1624   Sanitetskulventiler övriga    65.0
+DD1626   Självstängande ventiler och bl65.0
+DD1628   Självstängande ventiler Franke65.0
+DD3010   Backventiler av metall        60.0
+DD3012   Backventiler av metall Beulco 60.0
+DD3014   Backventiler                  60.0
+DD3016   Reduceringsventiler blyfria Ho60.0
+DD3020   Backventiler av metall Altech 60.0
+DD3030   Backventiler Armatec          60.0
+DD3099   Stäng- och backventiler övriga60.0
+DD3210   Kilslidventiler TA            60.0
+DD3412   Magnetventiler Danfoss        60.0
+DD3413   Magnetspolar Danfoss          60.0
+DD3414   Magnetventiler GPA            60.0
+DD3416   Magnetventiler Övriga         60.0
+DD3612   Återsugningsskydd Durgo       60.0
+DD3616   Återsugningsskydd Somatherm   60.0
+DD3618   Återsugningsskydd LK          60.0
+DD3620   Återströmningsskydd Armatec   60.0
+DD5012   Vattenpostventiler            60.0
+DD5014   Vattenpostventiler FMM        60.0
+DD5018   Växelventiler                 60.0
+DD5020   Gasventiler                   60.0
+DD5022   Gasarmatur Flamkontroll       60.0
+DD5024   Gaskopplingar                 60.0
+DD5026   Minikulventiler gas           60.0
+DD5028   Gastrycksregulatorer Flamkontr60.0
+DD5030   Reducerventiler Goetze        60.0
+DD5032   Reducerventiler av metall     60.0
+DD5036   Reducerventiler Altech        60.0
+DD5037   Reducerventiler tbh Altech    60.0
+DD5040   Reducerventiler Armatec       60.0
+DD5050   Reducerventiler Industri      60.0
+DD6010   Luftningsventiler Spirovent   62.0
+DD6011   Luft- och smutsavskiljare Spir62.0
+DD6012   Luftningsventiler Airex       62.0
+DD6016   Luftningsventiler TA          62.0
+DD6017   Magnetfilter Altech           62.0
+DD6018   Luftningsventiler Flamco      62.0
+DD6019   Luftningsventiler Cyclone TA  62.0
+DD6020   Luftningsventiler övriga      62.0
+DD6022   Luftklockor                   62.0
+DD6026   Luft och smutsavskiljare Spiro62.0
+DD6027   Luft och smutsavskiljare Spiro62.0
+DD6028   Luft och smutsavskiljare Spiro62.0
+DE2009   Stängventiler STS IMI         56.0
+DE2010   Förinställningsventiler       56.0
+DE2011   Förinställningsventiler Markar56.0
+DE2012   Förinställningsventiler övriga56.0
+DE2014   Gruppventiler STAF/STAG IMI   56.0
+DE2015   Gruppventiler IMI             56.0
+DE2016   Gruppventiler tbh IMI         56.0
+DE2017   Injustering TBV IMI           56.0
+DE2018   Injusteringsventiler Armatec  56.0
+DE2019   Tryckregulator STAP IMI       56.0
+DE2021   Injustering STAP/STAD IMI     56.0
+DE2022   Injustering- och styrventiler 56.0
+DE2023   Gruppventiler STAD Nordic IMI 56.0
+DE2030   Gruppventiler Nordicold       56.0
+DE2032   Förinställningsventiler Circon56.0
+DE2034   Gruppventiler Danfoss         56.0
+DE2036   Gruppventiler Altech          56.0
+DE2038   Injusteringsventiler Victaulic56.0
+DE2040   Stryp- och gruppventiler övrig56.0
+DE2041   Gruppventiler STAD ZERO IMI   56.0
+DE2080   Gruppventiler Oventrop        56.0
+DE2112   Gruppventiler MMA             56.0
+DE2113   Injustering MMA               56.0
+DE2210   Tryckgivare Danfoss           56.0
+DE2410   Ventiler och regler ESBE      56.0
+DE2412   Blandningsventiler Altech     56.0
+DE2414   Blandningsventiler LK         56.0
+DE2416   Blandningsventiler TA         56.0
+DE2417   Blandningsventiler TA         56.0
+DE2418   Blandningsventiler ESBE       56.0
+DE2420   Blandningsventiler tbh TA     56.0
+DE2430   Blandningsventiler GF         56.0
+DE2610   Shuntventiler och övr ESBE    56.0
+DE2611   Shuntventiler ESBE            56.0
+DE2699   Shuntventiler övriga          56.0
+DE2810   Säkerhetsventiler Durgo       56.0
+DE2814   Säkerhetsventiler LK          56.0
+DE2815   Säkerhetsventiler Altech      56.0
+DE2816   Säkerhetsventiler Somatherm   56.0
+DE2818   Säkerhetsventiler Frese       56.0
+DE2820   Säkerhetsventiler övriga      56.0
+DE2822   Säkerhetsventiler Flamco      56.0
+DE2823   Säkerhetsventiler Flamco      56.0
+DE2824   Säkerhetsvetiler ESBE         56.0
+DE2830   Säkerhetsutrustning Armatec   56.0
+DE3010   Ventilrör, sh-komb, påfylln-ve56.0
+DE3012   Ventilrör, sh-komb, påfylln-ve56.0
+DE3014   Ventilrör, sh-komb, påfylln-ve56.0
+DE3016   Ventilrör, sh-komb, påfylln-ve56.0
+DE3018   Ventilrör, sh-komb, påfylln-ve56.0
+DF1010   MA-rör                        58.0
+DF1011   MA-rör                        58.0
+DF1012   MA-delar                      58.0
+DF1013   MA-delar                      58.0
+DF1110   Gjutjärn rör Altech           59.0
+DF1112   Gjutjärn delar Altech         59.0
+DF1210   MA-rör röda Düker             59.0
+DF1211   MA-rördelar röda Düker        59.0
+DF1310   MA JET-kopplingar             59.0
+DF1312   MA JET-kopplingar             59.0
+DF1314   Instickshylsor och tbh        59.0
+DF1332   Gjutjärn kopplingar Altech    59.0
+DF1410   Gjutjärnsgolvbrunnar Revolt   56.0
+DF1414   Gjutjärnsgolvbrunnar Purus    56.0
+DF1416   Durkplåts- och slitsluckor    56.0
+DF1418   Gjutjärnsgolvbrunnar ACO      56.0
+DF1420   Spygatter                     56.0
+DF1422   Spygatter                     56.0
+DF2010   Avloppsrör rfr Europipe       60.0
+DF2011   Avloppsrördelar rfr Europipe  60.0
+DF2012   Avloppsrördelar rfr Europipe  60.0
+DF2210   Brunnar rfr Drain Multi       56.0
+DF2212   Golvbrunnar rfr Purus         56.0
+DF2214   Golvbrunnar rfr Unidrain      56.0
+DF2410   Köks- och industrirännor/brunn56.0
+DF2412   Köks- och industrirännor/brunn56.0
+DF2414   Köks- och industrirännor/brunn56.0
+DF2510   Tak- och terrassbrunnar       56.0
+DF3013   Avloppsrördelar PP och tbh    69.0
+DF3014   Avloppsrördelar PP och tbh    69.0
+DF3016   Avloppsrördelar PP och tbh    69.0
+DF3018   Avloppsrör HTP Uponor         69.0
+DF3020   Avloppsrördelar HTP och tbh Up69.0
+DF3021   Avloppsrördelar HTP och tbh Up69.0
+DF3028   Avloppsrör PVC                69.0
+DF3030   Avloppsrördelar PVC           69.0
+DF3032   Avloppssystem PVC-HT tbh      69.0
+DF3034   Vacuumventiler för avlopp     69.0
+DF3036   Avloppssystem PVC-HT tbh Falup69.0
+DF3037   Avloppssystem PVC-HT tbh Falup69.0
+DF3038   Avloppssystem PVC-HT tbh Fisch69.0
+DF3040   Avloppssystem PVC-HT tbh Purus69.0
+DF3041   Avloppssystem PVC-HT tbh Altec69.0
+DF3042   Avloppssystem PVC-HT tbh övrig69.0
+DF3065   Tak- och terassbrunnar tbh Arm69.0
+DF3080   Vacuumventiler för avlopp Durg69.0
+DF3082   Vacuumventiler för avlopp Falu69.0
+DF3084   Vacuumventiler för avlopp Jafo69.0
+DF3098   Takavvattning Pluvia          69.0
+DF3110   Avloppsrör PP Wafix 5 m       71.0
+DF3112   Avloppsrör PP Wafix           71.0
+DF3114   Avloppsrör PP Wafix           71.0
+DF3116   Avloppsrördelar Wafix         71.0
+DF3117   Avloppsrördelar Wafix PAK     71.0
+DF3118   Avloppsrördelar Wafix         71.0
+DF3119   Avloppsrördelar Wafix PAK     71.0
+DF3120   Avlopp standard Knappens      71.0
+DF3210   Plastgolvbrunnar och tbh Jafo 57.0
+DF3211   Plastgolvbrunnar och tbh Jafo 57.0
+DF3212   Plastgolvbrunnar Purus        57.0
+DF3216   Plastgolvbrunnar och tbh LK   57.0
+DF3218   Plastgolvbrunnar och tbh Viese57.0
+DF3219   Plastgolvbrunnar och tbh Viese57.0
+DF3220   Plastgolvbrunnar och tbh Falup57.0
+DF3224   Golvbrunnar tbh Revolt        57.0
+DF3226   Golvbrunnar tbh Jafo          57.0
+DF3228   Golvbrunnar tbh Purus         57.0
+DF3230   Golvbrunnar tbh Revolt Öringe 57.0
+DF3231   WC stosar Altech              57.0
+DF3232   Spygatter                     57.0
+DF3234   Spygatter Purus               57.0
+DF3236   Spygatter Purus               57.0
+DF3242   Klinkerramar Altech           57.0
+DF3250   Golvbrunnar och tbh Gds       57.0
+DF4010   Avloppsrör Asto               67.0
+DF4013   Avloppsrördelar Asto          67.0
+DF4014   Avloppsrör Raupiano           67.0
+DF4015   Avloppsrördelar och tbh Raupia67.0
+DF4016   Avlopp ljuddämpat Knappens    67.0
+DF4020   Avloppsrör ljuddämpat Polo    67.0
+DF4026   Avloppsrördelar ljuddämpat AS+67.0
+DF4028   Avloppsrör ljuddämpat AS+     67.0
+DF4030   Avloppsrördelar ljuddämpat Sit67.0
+DF4032   Avloppsrör ljuddämpat Sitech  67.0
+DF4110   Avloppsrör SilentPP           67.0
+DF4112   Avloppsrördelar och tbh Silent67.0
+DF4118   Avloppsrör SilentPro          67.0
+DF4120   Avloppsrördelar och tbh Silent67.0
+DF4122   Avloppsrördelar och tbh dB20  67.0
+DF4123   Avloppsrör dB20               67.0
+DF5010   Avloppsrör PEH Geberit        67.0
+DF5012   Avloppsrördelar PEH och tbh Ge67.0
+DF5030   Elmuffrördelar PE GPA         67.0
+DF5040   Avlopp PE Armatec             67.0
+DF6010   ABS-rör och delar             64.0
+DF6012   Avloppsrör Faluplast          64.0
+DF6013   Avloppsrör Purus              64.0
+DF6014   Avloppsrördelar Faluplast     64.0
+DF6015   Avloppsrördelar Jafo          64.0
+DF6016   Avloppsrördelar Purus         64.0
+DF6018   Plastvattenlås Faluplast      64.0
+DF6019   Plastvattenlås Faluplast      64.0
+DF6022   Plastvattenlås Purus          64.0
+DF6023   Plastvattenlås Purus          64.0
+DF6024   Metallvattenlås förkromade    64.0
+DF6026   Plastvattenlås övriga         64.0
+DF6028   WC golvhuvar av plast         64.0
+DF6029   Diskbänksvattenlås tbh Alterna64.0
+DF6031   Korgventiler Alterna          64.0
+DF6032   Diskbänksvattenlås Contura    64.0
+DF6033   Diskbänksvattenlås Contura    64.0
+DF6034   Diskbänksvattenlås Intra      64.0
+DF6036   Diskbänksvattenlås övriga     64.0
+DF9999   Utgångna artiklar             56.0
+DG3010   Avloppspumpar Flygt           47.0
+DG3011   Avloppspumpar Xylem           47.0
+DG3012   Avloppspumpar Grundfos        47.0
+DG3014   Avloppspumpar tbh Grundfos    47.0
+DG3016   Pumpstationer ACO             47.0
+DG3020   Avloppspumpar Wilo            47.0
+DG3022   Avloppspumpar tbh Wilo        47.0
+DG3210   Avloppspumpar Altech          48.0
+DG4010   Grundvattenpumpar Aka         47.0
+DG4012   Grundvattenpumpar XYLEM       47.0
+DG4014   Grundvattenpumpar Grundfos    47.0
+DG4016   Grundvattenpumpar Wilo        47.0
+DG4018   Grundvattenpumpar Abs         47.0
+DG4020   Grundvattenpumpar övriga      47.0
+DG4022   Dräneringspumpar Saniflo      47.0
+DG4024   Grundvattenpumpar TSURUMI     47.0
+DG5012   Pump- och vattenautomater Beul47.0
+DG5014   Pump- och vattenautomater tbh 47.0
+DG5016   Pump- och vattenautomater Grun47.0
+DG5018   Pump- och vattenautomater Wilo47.0
+DG5220   Pumpautomater Altech          48.0
+DG5222   Pumpautomater reservdelar Alte48.0
+DG5410   Handpumpar                    47.0
+DG5414   Handpumpar reservdelar och tbh47.0
+DG5610   WC-pumpar Saniflo             48.0
+DG5612   WC-pumpar Grundfos            48.0
+DG6014   Pumpar övriga Industri        47.0
+DG6018   Pumptillbehör övriga          47.0
+DG6020   Motorskydd                    47.0
+DG6022   Tryckströmbrytare             47.0
+DG6024   Kontaktormotorskydd           47.0
+DG6026   Motorskydd Debe               47.0
+DG6028   Motorskydd Wilo               47.0
+DG6030   Tryckströmbrytare Danfoss     47.0
+DG6032   Tryckströmbrytare EMS         47.0
+DG6099   Pumpar och tbh övriga         47.0
+DG6110   Kalkfilter                    47.0
+DG7010   Hydroforer galv plastbehandlin47.0
+DG7011   Hydroforer rostfria Altech    47.0
+DG7012   Hydroforer rostfria           47.0
+DG7014   Hydroforer glasfiber          47.0
+DG7015   Hydroforer glasfiber          47.0
+DG7016   Hydroforer tbh                47.0
+DG7018   Hydroforer rostfria Metro     47.0
+DG7020   Trv-behållare och tbh Well-X-T47.0
+DG7022   Trv-behållare och tbh Aka     47.0
+DG7024   Trycktankar Flamco            47.0
+DG8014   Magnetfilter                  47.0
+DG8020   Vattenrening tbh              47.0
+DG8022   Avhärdningsfilter Beulco      47.0
+DG8024   Avhärdningsfilter Enwa        47.0
+DG8026   Avhärdningsfilter Altech      47.0
+DH2010   Tappvatten och radiatorer PEX 59.0
+DH2011   Tappvatten och radiatorer PEX 59.0
+DH2012   Tappvatten/värmesystem PEX rör59.0
+DH2016   MLC rör Uponor                59.0
+DH2022   Kombirör Uponor Metallic Pipe 59.0
+DH2110   PEX rör tbh Uponor            56.5
+DH2111   PEX rör tbh Uponor            56.5
+DH2112   MLC rördelar och tbh Uponor   56.5
+DH2130   Fördelarskåp Uponor           56.5
+DH2210   Tappvattensystem LK Tappco    58.0
+DH2212   Universalrör isolerade/rör-i-r58.0
+DH2222   Universalrör nakna LK         58.0
+DH2310   Universal Presspex LK         56.5
+DH2330   Fördelarskåp LK               56.5
+DH2332   Universal Fördelare LK        56.5
+DH2334   Universal Monteringsdetaljer L56.5
+DH2336   Universal Kopplingar LK       56.5
+DH2338   Universal Ventiler LK         56.5
+DH2342   Universal Fördelartillbehör LK56.5
+DH2344   Universal PushFit LK          56.5
+DH2348   Universal Anti-legionella LK  56.5
+DH2352   Universal Tappvattensystem ver56.5
+DH2410   Värmerör och tbh Rehau        56.5
+DH2412   Rehau Rautitan                56.5
+DH2510   Tappvattenrör Mepla           59.0
+DH2512   Tappvattendelar Mepla         59.0
+DH2514   Tappvatten tbh Mepla          59.0
+DH2530   Tappvattenrör Flowfit         59.0
+DH2532   Tappvattendelar och tbh Flowfi59.0
+DH2610   Tappvatten PEX rör Altech     56.5
+DH2614   Tappvatten PEX rör Altech     56.5
+DH2616   Tappvatten PEX rör Altech     56.5
+DH2618   Tappvatten PEX rör Altech     56.5
+DH2636   Tappvatten PEX delar Altech   56.5
+DH2652   Tappvatten Alu delar Altech   56.5
+DH2654   Tappvatten Alu delar Altech   56.5
+DH2674   Tappvatten Alu delar Altech   56.5
+DH2686   Tappvatten Alu delar Altech   56.5
+DH2690   Tappvatten Alu delar Altech   56.5
+DH2692   Tappvatten Alu delar Altech   56.5
+DH2810   Alu-PEX rör Henco             56.5
+DH2812   Alu-PEX rördelar Henco        56.5
+DH2814   Alu-PEX rör Henco RIXC        56.5
+DH2820   Tappvattenrör Roth            56.5
+DH2822   Tappvattendelar Roth          56.5
+DH2830   Fördelarskåp Roth             56.5
+DH2840   Tappvattenrör PP Retherm      56.5
+DH2842   Tappvattenrördelar PP Retherm 56.5
+DH2846   SHT delar Retherm             56.5
+DH2850   PEX-rör och tbh övriga        56.5
+DH2852   Tappvattensystem Sanipex      56.5
+DH2854   Plastkanaler                  56.5
+DH2856   Plastkanaler sockelsystem     56.5
+DH4010   Rör Coolfit                   56.5
+DH4012   Rördelar Coolfit              56.5
+DH4014   Kulventiler Coolfit           56.5
+DH4016   Vridspjäll Coolfit            56.5
+DH4018   Rörsystem tbh Coolfit         56.5
+DH6010   Kulvertrör Ecoflex            56.5
+DH6012   Kulverttillbehör Ecoflex      56.5
+DH6015   Kulvertrör                    56.5
+DH6016   Kulvertrör tbh                56.5
+DH6018   Kulvertrör Maxitherm          56.5
+DH6020   Kulvert TBH Maxitherm         56.5
+DH6099   Kulvert övriga                56.5
+DI1010   Designgolvbrunnar tbh Purus   42.0
+DI1012   Designgolvbrunnar Purus       42.0
+DI1020   Designgolvbrunnar Jafo        42.0
+DI1030   Designgolvbrunnar Blücher     42.0
+DI1040   Designramar Altech            42.0
+DI1060   Designgolvbrunnar övriga      42.0
+DI1070   Designgolvbrunnar Geberit     42.0
+DX1008   Vattenrening BAGA             24.0
+DX1010   Vattenrening                  24.0
+DX1012   Vattenrening Debe             24.0
+DX1014   Vattenrening TBH Debe         24.0
+DX1020   Radonavskiljning Radonett     24.0
+DX1044   Vattenrening tbh IWT          24.0
+DX1110   Vattenfelsbrytare             38.0
+DX1112   Vattenfelsbrytare LK          38.0
+DX1114   Vattenfelsbrytare Tollco      38.0
+DX1116   Vattenfelsbrytare övrigt      38.0
+DX2020   Reliningartiklar Repiper      24.0
+DX2022   Relining Grenrör Sacpro       24.0
+DX2030   Relining tillbehör Sacpro     24.0
+DX2110   Relining Foder Sacpro         24.0
+DX2210   Relining Epoxi Sacpro         24.0
+DX2310   Relining Kalibrationsslang Sac24.0
+DX2314   Relining Extruder             24.0
+DX2316   Relining TBH Extruder         24.0
+EA1010   Elverktyg Bosch               25.0
+EA1012   Elverktyg Milwaukee           25.0
+EA1015   Elverktyg MX TTI              25.0
+EA1021   Laddare och batterier Bosch   25.0
+EA1022   Elverktyg Bosch               25.0
+EA1023   Elverktyg Makita              25.0
+EA1024   Elverktyg Milwaukee           25.0
+EA1025   Laddare och batterier Milwauke25.0
+EA1028   Laddare- och batterikit Milwau25.0
+EA1030   Rillmaskiner                  25.0
+EA1031   Elverktyg övriga              25.0
+EA1034   Elverktyg Ergofast            25.0
+EA1038   Elverktyg byggtillbehör       25.0
+EA1048   Elverktyg byggtillbehör tbh   25.0
+EA1056   Högtryckstvätt och dammsugare 25.0
+EA1057   Högtryckstvätt och dammsugare 25.0
+EA1060   Elektronik                    25.0
+EA1099   Diverse butiksartiklar        25.0
+EA1210   Elverktyg Ridgid              25.0
+EA1211   Rensverktyg Ridgid            25.0
+EA1213   VVS-verktyg tbh Ridgid        25.0
+EA1214   Gängmaskiner tbh Ridgid       25.0
+EA1217   VVS-verktyg tbh Rems          25.0
+EA1219   Verktyg Rothenberger          25.0
+EA1220   Gängmaskiner Ridgid           25.0
+EA1221   Rothenberger Roweld           25.0
+EA1223   Elverktyg Rothenberger        25.0
+EA1224   Bockapparater Ridgid          25.0
+EA1226   Bockapparater Fromax          25.0
+EA1229   Bockapparater SNA             25.0
+EA1232   Rensverktyg                   25.0
+EA1234   Elverktyg T-Drill             25.0
+EA1236   Elverktyg tbh T-Drill         25.0
+EA1238   Elverktyg Rems                25.0
+EA1239   Verktyg Rems                  25.0
+EA1242   Elverktyg Rothenberger        25.0
+EA1250   Pressmaskiner TTI             25.0
+EA1260   Inspektionskameror            25.0
+EA1261   Inspektionsutrustning Seesnake25.0
+EA1262   Inspektionsutrustning tbh Sees25.0
+EA1401   Diamantborrar Novipro         55.0
+EA1412   Elverktyg tbh Milwaukee       55.0
+EA1414   Elverktyg tbh Bosch           55.0
+EA1415   Elverktyg tbh Novipro         55.0
+EA1416   Hålsåg och sågblad            55.0
+EA1419   Hålsåg för plast              55.0
+EA1420   Borrar                        55.0
+EA1421   Borrsats Pro-Fit              55.0
+EA1428   SDS- och diamantborrar Bosch  55.0
+EA1430   Borrar Bosch                  55.0
+EA1431   Borrar Milwaukee              55.0
+EA1438   Borrar SNA                    55.0
+EA1440   Hålsågar och borrar Wareco    55.0
+EA1442   Hålsågar och sågblad Milwaukee55.0
+EA1444   Hålsågar Bahco                55.0
+EA1446   Tigersågsblad Milwaukee       55.0
+EA1450   Hålsågar och borrar Novipro   55.0
+EA1460   Tbh övriga Bosch              55.0
+EA1462   Tbh övriga Milwaukee          55.0
+EA1463   Hyls- och bitset Milwaukee    55.0
+EA1464   Verktyg tbh övriga            55.0
+EA1466   Högtryckstvätt och dammsugare 55.0
+EA1470   Diamant tbh Husqvarna         55.0
+EA1480   Gäng och press Milwaukee      55.0
+EA1510   Kapskivor                     55.0
+EA1511   Kapskivor Rondell             55.0
+EA1516   Kapskivor diamant TTI         55.0
+EA1518   Kapskivor Novipro             55.0
+EA1520   Slipskivor                    55.0
+EA1610   Skruvmejslar Bahco            32.0
+EA1616   Tänger Ridgid                 32.0
+EA1617   Verktyg Ridgid                32.0
+EA1618   Gängverktyg                   32.0
+EA1619   Verktyg Bahco High            32.0
+EA1620   Tänger Lockjaw                32.0
+EA1624   Tänger Bahco                  32.0
+EA1628   Hyls u-ring och sexkantnycklar32.0
+EA1629   Momentnycklar Bahco           32.0
+EA1630   Hyls u-ring och sexkantnycklar32.0
+EA1632   Hammare och stämjärn          32.0
+EA1633   Hammare och stämjärn Hultafors32.0
+EA1634   Knivar, saxar och sågar       32.0
+EA1635   Knivar                        32.0
+EA1636   Knivar, saxar och sågar       32.0
+EA1637   Saxar och sågar Bahco         32.0
+EA1638   Mätutrustning                 32.0
+EA1639   Mätutrustning                 32.0
+EA1640   Mätutrustning Hultafors       32.0
+EA1642   Mätutrustning Ridgid          32.0
+EA1646   Handverktyg övriga            32.0
+EA1648   Handverktyg Bahco             32.0
+EA1649   Handverktyg Ridgid            32.0
+EA1651   Handverktyg Rems              32.0
+EA1652   Murar och kakelverktyg        32.0
+EA1655   Röravskärare                  32.0
+EA1656   Handverktyg övriga            32.0
+EA1657   Verktygskit                   32.0
+EA1660   Fästdetaljer övrigt           32.0
+EA1662   Kedjekniv Fromax              32.0
+EA1664   Handverktyg Knipex            32.0
+EA1666   Handverktyg Coolfit           32.0
+EA1670   Röravskärare Fromax           32.0
+EA1672   Röravskärare och avgradare Rem32.0
+EA1674   Röravskärare och avgradare Rot32.0
+EA1710   Tänger Novipro                35.0
+EA1711   Bits Novipro                  35.0
+EA1712   Hyls-u-ring Novipro           35.0
+EA1714   Mejslar Novipro               35.0
+EA1715   Hålpunch Novipro              35.0
+EA1716   Knivar Novipro                35.0
+EA1718   Mätverktyg Novipro            35.0
+EA1720   Rörtång Novipro               35.0
+EA1721   Röravskärare Novipro          35.0
+EA1722   Tvingar Novipro               35.0
+EA1723   Verktyg VVS Novipro           35.0
+EA1726   Verktygssatser Novipro        35.0
+EA1728   Verktygslådor Novipro         35.0
+EA1730   Gängverktyg Novipro           35.0
+EA1790   Handverktyg diverse Novipro   35.0
+EA1802   Olje- och glykolverktyg       25.0
+EA1806   Temperaturinstrument          25.0
+EA1807   Temperaturinstrument Testo    25.0
+EA1810   Schraderverktyg REFCO         25.0
+EA1811   Schraderverktyg CPS           25.0
+EA1813   Schraderverktyg ITE           25.0
+EA1815   Schraderverktyg övriga        25.0
+EA1816   Serviceslangar PANIMPEX       25.0
+EA1817   Serviceslangar ITE            25.0
+EA1818   Serviceslangar REFCO          25.0
+EA1819   Serviceslangar övriga         25.0
+EA1820   Serviceslangar Fieldpiece     25.0
+EA1822   Serviceslangar CPS            25.0
+EA1823   Läcksökare CPS                25.0
+EA1824   Läcksökare Fieldpiece         25.0
+EA1825   Läcksökare Bosch Tools        25.0
+EA1826   Läcksökare INFICON            25.0
+EA1827   Läcksökare Testo              25.0
+EA1835   REFCO Läcksökning             25.0
+EA1838   Provtryckningsutrustning      25.0
+EA1842   Vågar Vetek                   25.0
+EA1843   Vågar övriga                  25.0
+EA1850   Manometrar analoga Refco      25.0
+EA1851   Manometrar analoga ITE        25.0
+EA1852   Manometrar analoga PANIMPEX   25.0
+EA1853   Manometrar analoga övriga     25.0
+EA1854   Manometerställ Fieldpiece     25.0
+EA1855   Manometrar digitala Refco     25.0
+EA1856   Manometrar digitala ITE       25.0
+EA1857   Manometrar digitala Manometerf25.0
+EA1858   Manometrar digitala Testo     25.0
+EA1859   Manometrar digitala övriga    25.0
+EA1860   Vakuumpumpar Testo            25.0
+EA1862   Kylhandverktyg ITE            25.0
+EA1863   Kylhandverktyg CPS            25.0
+EA1866   Kylhandverktyg Unicorn        25.0
+EA1867   Kylhandverktyg övriga         25.0
+EA1868   Handverktyg Eab               25.0
+EA1870   Vakuumpumpar CPS              25.0
+EA1871   Vakuumpumpar ITE              25.0
+EA1872   Vakuumpumpar Bosch Tools      25.0
+EA1873   Vakuumpumpar övriga           25.0
+EA1874   Handverktyg 1 Adf             25.0
+EA1875   Vakuumpumpar Rothenberger     25.0
+EA1876   Vakuumpumpar Fieldpiece       25.0
+EA1877   Vakuumpumpar TBH Fieldpiece   25.0
+EA1879   Kylhandverktyg Rothenberger   25.0
+EA1880   Rothenberger kylpressbackar   25.0
+EA1881   Service utrustning Rothenberge25.0
+EA1884   Kylverktyg Wigam              25.0
+EA1885   Kylverktyg Fieldpiece         25.0
+EA1886   Tömningsaggregat Bosch Tools  25.0
+EA1887   Tömningsaggregat CPS          25.0
+EA1888   Tömningsaggregat Fieldpiece   25.0
+EA1889   Tömningsaggregat övriga       25.0
+EA1890   Vakuumetrar CPS               25.0
+EA1891   Vakuumetrar REFCO             25.0
+EA1892   Vakuumetrar övriga            25.0
+EA1895   Verktygspaket                 25.0
+EA1898   Kylverktyg övriga             25.0
+EA3007   VA verktyg GF                 25.0
+EA3010   VA verktyg Hawle              25.0
+EA3012   VA verktyg Frialen            25.0
+EA3014   VA verktyg Ibeco              25.0
+EA3016   IN-GO Ringen m. tbh           25.0
+EA3020   PE verktyg Gavatec            25.0
+EA3022   VA verktyg övrigt             25.0
+EA3026   Stumsvetsmaskin Gavatec       25.0
+EA3028   Stumsvetsmaskin Roco-Plt      25.0
+EA3030   PE verktyg tbh Roco-Plt       25.0
+EA3032   PE verktyg tbh Wavin          25.0
+EA5010   Stumsvetsmaskiner             25.0
+EA5014   Svets tbh                     25.0
+EA5016   Tillsatsmaterial              25.0
+EA5020   Lod och flussmedel för kap-löd25.0
+EA5022   Svetsutrustning övriga        25.0
+EA5024   Snabbkopplingar linde gas     25.0
+EA5099   Gas övrigt                    25.0
+EA5210   Svetsutrustning Fronius       25.0
+EA6015   Maskiner Honda                25.0
+EA6016   Byggmaskiner övriga           25.0
+EA6022   Maskiner Bendof               25.0
+EA6024   Maskiner tbh Bendof           25.0
+EA6025   Tryckluftskompressorer        25.0
+EA6026   Byggmaskiner tbh              25.0
+EA6030   Maskiner Näsström Maskin      25.0
+EA6034   Slangupprullare               25.0
+EA6040   Byggmaskiner Husqvarna        25.0
+EA6041   Byggmaskiner tbh Husqvarna    25.0
+EA6099   Utgångna artiklar             25.0
+EA7013   Laserinstrument Laserliner    25.0
+EA7014   Mät och laser                 25.0
+EA7016   Laser tbh                     25.0
+EA7018   Mätverktyg och testmejslar övr25.0
+EA7020   Avstängningsmaterial          25.0
+EA7021   Avstägningsmaterial VOTEC     25.0
+EA7022   Sökutrustning                 25.0
+EA7024   Avstängningsmaterial VA       25.0
+EA7026   Avstängningsmaterial Hässle   25.0
+EA7028   Avstängningsmaterial Proni    25.0
+EA7029   Speglar Pekuma                25.0
+EA7032   Mätinstrument Elma            25.0
+EA7034   Avståndsmätare                25.0
+EA8009   Arbetskläder Novipro          33.0
+EA8012   Skyddshandskar Ejendals       33.0
+EA8099   Kläder övrigt                 33.0
+EA8210   Skyddsutrustning blandat      32.0
+EA8214   Personligt skydd              32.0
+EA8215   Första hjälpen kit            32.0
+EA8216   Skyddshandskar OX-ON          32.0
+EA8217   Skyddsutrustning Novipro      32.0
+EA8219   Hörselskydd Peltor            32.0
+EA8222   Hjälm Guardio                 32.0
+EA8223   Hjälm tbh                     32.0
+EA8226   Skyddshandskar Ejendals       32.0
+EA8230   Skyddshandskar Novipro        32.0
+EA8240   Personligt skydd Milwaukee    32.0
+EA9012   Arbetsbänkar och spännverktyg 30.0
+EA9013   Arbetsbänkar och spännverktyg 30.0
+EA9014   Verktygslådor och väskor      30.0
+EA9015   Hydralik Bahco                30.0
+EA9017   Verktygsförvaring Raaco       30.0
+EA9018   Stegar och arbetsredskap      30.0
+EA9019   Stegar                        30.0
+EA9020   Spännverktyg Bema             30.0
+EA9021   Stegar och ställningar Zarges 30.0
+EA9022   Ficklampor                    30.0
+EA9027   Butiksförpackad belysning     30.0
+EA9028   Arbetsbelysning blandat       30.0
+EA9029   Arbetsbelysning Novipro       30.0
+EA9030   Tjältingsmattor Novipro       30.0
+EA9032   Byggel Novipro                30.0
+EA9034   Spännband Novipro             30.0
+EA9036   Spännremmar Novipro           30.0
+EA9040   Fick och Pannlampor           30.0
+EA9041   Fick och Pannlampor Novipro   30.0
+EA9045   Fick och pannlampor Suprabeam 30.0
+EA9046   Fick och pannlampor Coast     30.0
+EA9050   Tryckluftskompressorer        30.0
+EA9052   Tryckluftsarmaturer           30.0
+EA9054   Slangupprullare               30.0
+EA9060   Mobil tbh                     30.0
+EA9065   Mobil tbh GreenMouse          30.0
+EA9070   Rengöringsdukar               30.0
+EB1010   Tillsatsmaterial Elga         52.0
+EB1018   Tillsatsmaterial Elga         52.0
+EB1026   Tillsatsmaterial Elga         52.0
+EB1030   Tillsatsmaterial Meltolit     52.0
+EG1010   Pressmaskiner Rems            25.0
+EG1012   Pressmaskiner Ridgid          25.0
+EG1016   Pressmaskiner TTI             25.0
+EG1018   Pressmaskiner Uponor          25.0
+EG1020   Pressmaskiner Novopress       25.0
+EG1022   Pressmaskiner Rothenberger    25.0
+EG1110   Pressmaskiner Novipro         25.0
+EG1210   Pressbackar Rems              25.0
+EG1212   Presslingor Rems              25.0
+EG1220   Pressbackar Ridgid            25.0
+EG1224   Presstillbehör Ridgid         25.0
+EG1230   Pressbackar LK                25.0
+EG1232   Presslingor LK                25.0
+EG1234   Presstillbehör LK             25.0
+EG1240   Pressbackar TTI               25.0
+EG1250   Pressbackar Novopress         25.0
+EG1252   Presslingor Novopress         25.0
+EG1256   Pressbackar Rothenberger      25.0
+EG1258   Presslingor Rothenberger      25.0
+EG1260   Pressbackar Geberit           25.0
+EG1310   Pressbackar Novipro           25.0
+EG1312   Presslingor Novipro           25.0
+EG1314   Presstillbehör Novipro        25.0
+EK1011   Skyddsutrustning Optimera     40.0
+EK1012   Handverktyg Optimera          40.0
+FA1012   Ljuskällor blandat            46.0
+FA1016   Belysning LED övriga          46.0
+FA1018   Belysning LED Philips         46.0
+FA1020   Ljuskällor Philips            46.0
+FA1022   Ljuskällor Novipro            46.0
+FA1030   Kompaktlysrör Philips         46.0
+FA1032   Lysrör Philips                46.0
+FA1034   Lysrör LED Philips            46.0
+FA1090   Ljuskällor övriga             46.0
+FA2010   Kabel installation            45.0
+FA2013   Kabel Draka                   45.0
+FA2015   El installationsmaterial      45.0
+FA2016   Kabel                         45.0
+FA2030   Laddstolpar                   45.0
+FA2210   Stickproppar                  45.0
+FA2212   Arbetsplatsbelysning          45.0
+FA2214   Grenproppar                   45.0
+FA2215   Grenuttag                     45.0
+FA2216   Apparat, sladdställ och lampsl45.0
+FA2222   Skarvsladdar                  45.0
+FA2226   Butiksförpackade grenuttag m.m45.0
+FA2228   Kabelvindor och kabelrullar   45.0
+FA2230   Byggcentraler                 45.0
+FA2232   Elradiatorer oljefyllda       45.0
+FA2234   Kabelvindor och grenuttag Novi45.0
+FA2410   Vägguttag och strömställare Sc45.0
+FA2412   Vägguttag och strömställare El45.0
+FA2414   Vägguttag och strömställare öv45.0
+FA2417   Smartahem                     45.0
+FA2422   Dimmer                        45.0
+FA2424   Tid- och klockströmbrytare    45.0
+FA2426   Rörelsevakter KHS             45.0
+FA2610   Lysrörsarmaturer              45.0
+FA2611   Lysrörsarmaturer Philips      45.0
+FA2612   Lysrörsarmaturer Dahl         45.0
+FA2614   Halogenarmaturer              45.0
+FA2616   Porslinsarmaturer, bastu-plast45.0
+FA2617   Armaturer Signify             45.0
+FA2618   Trädgårdsbelysning            45.0
+FA2620   Lamphållare och armaturtillbeh45.0
+FA2622   Armaturer Ensto               45.0
+FA2625   Belysning Westal              45.0
+FA2626   Belysning KHS                 45.0
+FA2628   Belysning Hidealite           45.0
+FA3010   Kabelkanaler och ledningsliste50.0
+FA3012   VP-rör och flexrör            50.0
+FA3014   Skarvmuffar och rörböjar      50.0
+FA3016   Dosor elinstallation          50.0
+FA3018   Dosor elinstallation          50.0
+FA3020   Kopplingsplintar och klämmor  50.0
+FA3022   Häftpistoler och tbh          50.0
+FA3024   Buntband Novipro              50.0
+FA3028   Ledningshållare och klammer   50.0
+FA3210   Jordfels- och säkerhetsbrytare45.0
+FA3212   Säkringar                     45.0
+FA3214   Normprodukter och säkringar   45.0
+FA3410   El övrigt                     45.0
+FA3420   Trapphusprodukter             45.0
+FA3424   Brandvarnare                  45.0
+FA3426   Dörrsignaler                  45.0
+FA3428   Antennmaterial                45.0
+FA3610   Batterier                     45.0
+FA3810   Värmefläktar och tbh          45.0
+FA3812   Byggfläktar Novipro           45.0
+FB3010   Lås med tillbehör             40.0
+FB3011   Beslag och tbh Assa           40.0
+FB3012   Beslag och tbh övriga         40.0
+FB3013   Beslag och tbh Habo           40.0
+FB3014   Lås och beslag övriga         40.0
+FB3016   Beslag dörr övrigt            40.0
+FB3017   Lås och säkerhet Habo         40.0
+FB3020   Fönsterbeslag Habo            40.0
+FB3022   Fönsterbeslag övriga          40.0
+FB3028   Beslag övrigt                 40.0
+FB3030   Beslag övrigt                 40.0
+FB3032   Beslag och tbh övriga Essem   40.0
+FB3040   Lås och beslag Habo           40.0
+FB3050   Hänglås                       40.0
+FB3060   Inspektionsluckor Ultipro     40.0
+FB3062   Inspektionsluckor Tubman      40.0
+FB3064   Inspektionsluckor Thuresson   40.0
+FB4010   Hatthyllor Essem              40.0
+FB4020   Garderobsinredning Elfa       40.0
+FB4022   Garderobstillbehör Elfa       40.0
+FC1010   Tvättstugeutrustning          45.0
+FC1012   Sopkärl och papperskorgar     45.0
+FC1014   Strykning                     45.0
+FC1016   Städartiklar                  45.0
+FC1020   Städredskap                   45.0
+FC1022   Torkpapper                    45.0
+FC1023   Torkpapper Svenco             45.0
+FC1024   Städartiklar Vileda           45.0
+FC1028   Städartiklar Nilfisk          45.0
+FC1036   Städredskap specialartiklar   45.0
+FC1038   Städredskap Hozelock          45.0
+FC1042   Vinterprodukter               45.0
+FC1410   Sopsäckar                     60.0
+FC1411   Sopsäckar Novipro             60.0
+FC1412   Sopsäckar                     60.0
+FC2012   Städ och kem                  45.0
+FC2014   Rengöringsmedel               45.0
+FC2016   Städkem övrigt                45.0
+FC3010   Torkpapper                    45.0
+FC3012   Garderobsinredning            45.0
+FC3099   Hygienpapper övrigt           45.0
+FC3210   Dispensers                    45.0
+FC3216   Dispensers Tork               45.0
+FC3412   Hudvård                       45.0
+FC3416   Hand- och kroppsvård          45.0
+FC3424   Tvål, dusch och schampo       45.0
+FE1010   Fläktar övriga                40.0
+FE1012   Fläktar Franke Futurum        40.0
+FE1014   Fläktar reservdelar Franke Fut40.0
+FE1016   Fläktar och spiskåpor         40.0
+FE1018   Fläktar ventiler och res.delar40.0
+FE2010   Ventilation HITAC             40.0
+FE2011   Ventilationsaggregat          40.0
+FE2020   Avluftsdon Bevego             40.0
+FE3010   Luftavfuktare Altech          40.0
+FF1010   Redskap Novipro               42.0
+FF1012   Redskap                       42.0
+FF1014   Kärror                        42.0
+FF1016   Redskap övriga                42.0
+FF1018   Last- och transportvagnar     42.0
+FF1210   Vinterredskap                 42.0
+FF1212   Vinterredskap övrigt          42.0
+FF3010   Trädgårdsförbättring slask    42.0
+FF3012   Trädgårdsförbättring          42.0
+FF3020   Papperskorgar och övrigt städ 42.0
+FF4012   Snabbkopplingar vatten Hozeloc42.0
+FF4014   Strålrör Hozelock             42.0
+FH1011   Kontorsmaterial               44.0
+FH1012   Arbetsplatsutrustning övrig   44.0
+FH1099   Kontorsartiklar övriga        44.0
+FH2010   Arbetsplatsutrustning övrig   44.0
+FI1010   Brandpostskåp och armatur Kidd44.0
+FI1012   Brandpostskåp och armatur Holm44.0
+FI1014   Brandpostskåp Svebab          44.0
+FI1015   Brandposter tbh Svebab        44.0
+FI1016   Brandposter Noha              44.0
+FI1020   Brandsäkerhet                 44.0
+FI1099   Brandpostarmatur övrigt       44.0
+FI1210   Ögon- och nödduschar Krusman  44.0
+FI1212   Ögon- och nödduschar GIA      44.0
+FI1214   Ögon- och nödduschar Broen    44.0
+FJ1012   Asfalt                        42.0
+FJ1014   Färg och olja Alcro           42.0
+FJ1016   Måleriverktyg                 42.0
+FJ1018   Måleriverktyg                 42.0
+FJ2010   Alkylatbensin                 42.0
+FJ3010   Spis och kyl reservdelar      42.0
+FJ3012   Spis och kyl Electrolux       42.0
+FJ3020   Köksprodukter och tbh         42.0
+FJ4010   Förbrukningsmaterial          45.0
+FJ4014   Förbrukningsmaterial Big Bag  45.0
+FJ4016   Förbrukningsmaterial MSL      45.0
+FJ4018   Trasor Novipro                45.0
+FJ4090   Förbrukningsmaterial övriga   45.0
+FJ5010   Skyltar och dekaler           42.0
+FJ5012   Siffror och bokstäver         42.0
+FJ9010   Fastighetsartiklar övriga     42.0
+FJ9020   Anslagstavlor och register    42.0
+FK1010   Arbetsplatsutrustning Optimera40.0
+FK1011   Färg Optimera                 40.0
+FK1012   Förnödenheter Optimera        40.0
+FK1014   Lås, beslag och tbh Optimera  40.0
+FK1015   Ventilation Optimera          40.0
+FX1010   Vitvaror                      24.0
+FX2010   Media och elektronik          24.0
+GA1010   Takjärn                       65.0
+GA1011   Takjärn standard              65.0
+GA1013   Takjärn Novipro               65.0
+GA1014   Konsoler                      65.0
+GA1020   Konsoler                      65.0
+GA1030   Konsoler Novipro              65.0
+GA1099   Fästdetaljer övrigt           65.0
+GA1210   Fästdetaljer plast            62.0
+GA1211   Fästdetaljer plast            62.0
+GA1212   Fästdetaljer plast            62.0
+GA1213   Fästdetaljer plast Novipro    62.0
+GA1214   Fästdetaljer plast            62.0
+GA1215   Fästdetaljer plast GPA        62.0
+GA1216   Fästdetaljer plast            62.0
+GA1218   Fästdetaljer plast            62.0
+GA1220   Fästdetaljer plast Faluplast  62.0
+GA1222   Fästdetaljer plast Flamco     62.0
+GA1224   Fästdetaljer plast Kruge      62.0
+GA1226   Fästdetaljer plast Purus      62.0
+GA1228   Fästdetaljer av plast         62.0
+GA1409   Bult och mutter               65.0
+GA1411   Bult och mutter rfr           65.0
+GA1412   Gängstänger                   65.0
+GA1413   Gängstänger standard          65.0
+GA1414   Infästning betong             65.0
+GA1415   Gängpinnar                    65.0
+GA1416   VVS-Skruv                     65.0
+GA1417   VVS-Skruv TORX                65.0
+GA1418   Infästning betong Fischer     65.0
+GA1419   Plugg Fischer                 65.0
+GA1422   Infästning plåt               65.0
+GA1423   Infästning betong Walraven    65.0
+GA1424   Hylsor och byglar             65.0
+GA1425   Pendlar och hylsor            65.0
+GA1426   Skruv                         65.0
+GA1427   Infästning betong Novipro     65.0
+GA1430   Infästning betong             65.0
+GA1432   Infästning övrigt material    65.0
+GA1434   Skruvstift Novipro            65.0
+GA1450   Plugg Alligator               65.0
+GA1452   Plugg övriga                  65.0
+GA1460   Betongskruv EJOT              65.0
+GA1461   Expander EJOT opt7            65.0
+GA1462   Expander EJOT opt1            65.0
+GA1463   Betonginfästning EJOT         65.0
+GA1464   Gipsplugg EJOT                65.0
+GA1465   Metallexpander EJOT           65.0
+GA1466   Spikplugg EJOT                65.0
+GA1467   Slagankare EJOT               65.0
+GA1468   Slagankare mässing            65.0
+GA1469   Spikexpander EJOT             65.0
+GA1611   Tudelade svep Std             65.0
+GA1612   Klamsvep för stålrör          65.0
+GA1613   Marksvep syraf                65.0
+GA1614   Markpendlar syraf             65.0
+GA1615   Tudelade svep Novipro         65.0
+GA1616   Klamsvep Cu                   65.0
+GA1617   Syskonklamma                  65.0
+GA1618   Klammer                       65.0
+GA1619   L- och Z järn                 65.0
+GA1620   Rörklammer rfr av plåt        65.0
+GA1622   Monteringsband                65.0
+GA1623   Monteringsband Novipro        65.0
+GA1624   Klamsvep och fästdetaljer     65.0
+GA1625   Klammer rfr Swed-Hydraulic    65.0
+GA1628   Rörklammer syraf Nords        65.0
+GA1630   L- och Z järn Novipro         65.0
+GA1632   Balk- och takplåtsfästen Novip65.0
+GA1634   Fästpunkter Novipro           65.0
+GA1650   Rörstöd                       65.0
+GA1699   Klammer och svep övrigt       65.0
+GA1810   Strutkonsoler                 64.0
+GA1811   Strutskenor Novipro           64.0
+GA1812   Konsoler byggsystem           64.0
+GA1813   Konsoler byggsystem Walraven  64.0
+GA1814   Sort övrigt Walrawen          64.0
+GA1816   Gummiklädda svep Walrawen     64.0
+GA1818   Oisloerade svep               64.0
+GA1820   Sort övrigt Walrawen          64.0
+GA1822   Svep Kruge                    64.0
+GA1823   Gummiklädda svep Walraven     64.0
+GA1828   Byggsystem Eurospacers        64.0
+GA1899   Byggsystem övrigt             64.0
+GA2010   Sprinklerdetaljer             62.0
+GA2011   Sprinklerdetaljer Retherm     62.0
+GA2012   Ventilationsdetaljer          62.0
+GA2016   Ventilationsdetaljer          62.0
+GA2210   Rörklammer obehandlade SSG    62.0
+GA2212   Rörklammer rfr SSG            62.0
+GA2220   Rörklammer galv SSG           62.0
+GA2410   Isolering och tbh Armaflex Af 65.0
+GA2412   Isolering och tbh Armaflex Sh 65.0
+GA2414   Isolering och tbh Armaflex It 65.0
+GA2415   Isolering och tbh Armaflex HT 65.0
+GA2420   Isolering Isover              65.0
+GA2422   Rörupphängningar Armafix      65.0
+GA2423   Svep Armafix Ahlman           65.0
+GA2424   Distansskålar Iso             65.0
+GA2425   Isolering Armalok Bevego      65.0
+GA2426   Plastplåt och övrig isolering 65.0
+GA2428   Isolering Isofom              65.0
+GA2430   Plastplåt och övrig isolering 65.0
+GA2432   Rörisolering Ultima           65.0
+GA2434   Distanskålar Ultima           65.0
+GA2610   Brandskydd                    65.0
+GA2611   Brandskydd Novipro            65.0
+GA2612   Brandskydd                    65.0
+GA2614   Brandskydd Wavin              65.0
+GA3010   Fästdetaljer kyla             62.0
+GA4010   Rörklammer 204 C1-C4 Novipro  64.0
+GA4011   Rörklammer 205 C5 Novipro     64.0
+GA4012   Rörklammer 301 C1-C4 Novipro  64.0
+GA4013   Rörklammer 304 C1-C4 Novipro  64.0
+GA4030   Rörklammer 224 C1-C4 Novipro  64.0
+GA4031   Rörklammer 234 C1-C4 Novipro  64.0
+GA4032   Rörklammer 511 C1-C4 Novipro  64.0
+GA4033   Rörklammer 411 C1-C4 Novipro  64.0
+GA4034   Rörklammer 211 C1-C4 Novipro  64.0
+GA4035   Rörklammer 215 C5 Novipro     64.0
+GA4036   Rörklammer 314 C1-C4 Novipro  64.0
+GA4210   Strutskenor C1-C4 Novipro     64.0
+GA4211   Strutskenor C5 Novipro        64.0
+GA4220   Lättskenor C1-C4 Novipro      64.0
+GA4410   Strutkonsoler C1-C4 Novipro   64.0
+GA4411   Strutkonsoler C5 Novipro      64.0
+GA4420   Strutväggfästen C1-C4 Novipro 64.0
+GA4421   Strutväggfästen C5 Novipro    64.0
+GA4610   Bult & mutter Strut C1-C4 Novi64.0
+GA4611   Bult & mutter Strut C5 Novipro64.0
+GA4620   Montagedetaljer Strut C1-C4 No64.0
+GA4621   Montagedetaljer Strut C5 Novip64.0
+GA4624   Rörstöd och stag Strut C1-C4 N64.0
+GA4625   Monteringsfötter Strut Novipro64.0
+GA4634   Balkklämmor Strut C1-C4 Novipr64.0
+GA4640   Bult & mutter Lättsystem C1-C464.0
+GB1009   Lim och fog Novipro           58.0
+GB1010   Lim och fog                   58.0
+GB1011   Lim och fog Unipak            58.0
+GB1012   Borrfritt montage och tillbehö58.0
+GB1013   Lim och fog Bostik            58.0
+GB1014   Gängtätning Loctite           58.0
+GB1015   Lim och fog Locher            58.0
+GB1016   Smörjmedel Novipro            58.0
+GB1020   Borrfritt montage Alterna     58.0
+GB2010   Smörj- & rengöringsmedel och f58.0
+GB2020   Spolarvätska                  58.0
+GB3010   Märktejp                      58.0
+GB3020   Tejp och band                 58.0
+GB4010   Plastic padding, cement, mm   58.0
+GB4012   Cement Tubman                 58.0
+GB5010   Parkettgolv                   58.0
+GK1010   Infästning Optimera           40.0
+HA0910   Tryckrör PE100 6m             58.0
+HA0912   Tryckrör PE100                58.0
+HA0914   Tryckrör PE100 12m 400 och stö58.0
+HA0915   Tryckrör Uponor Barrier PLUS  58.0
+HA0916   Tryckrör Uponor Profuse       58.0
+HA0917   Tryckrör Uponor Profuse 250 oc58.0
+HA0920   Tryckrör PE100 Safetech       58.0
+HA0922   Tryckrör PE100 Egeplast       58.0
+HA0930   Tryckrör PE100 isolerade      58.0
+HA1010   Elsvetsmuffar 20-90 Elofit    58.0
+HA1012   Elsvetsdelar 20-90 Elofit     58.0
+HA1014   Elsvetsmuffar 110-315 Elofit  58.0
+HA1016   Elsvetsdelar 110-315 Elofit   58.0
+HA1018   Elsvetsmuffar 355- Elofit     58.0
+HA1020   Elsvetsdelar 355- Elofit      58.0
+HA1024   Elsvetsmuffar 20-90 GF        58.0
+HA1026   Elsvetsdelar 20-90 GF         58.0
+HA1028   Elsvetsmuffar 110-315 GF      58.0
+HA1030   Elsvetsdelar 110-315 GF       58.0
+HA1032   Elsvetsmuffar 355- GF         58.0
+HA1034   Elsvetsdelar 355- GF          58.0
+HA1036   Elsvetsmuffar 20-90 Frialen   58.0
+HA1038   Elsvetsdelar 20-90 Frialen    58.0
+HA1040   Elsvetsmuffar 110-315 Frialen 58.0
+HA1042   Elsvetsdelar 110-315 Frialen  58.0
+HA1044   Elsvetsmuffar 355- Frialen    58.0
+HA1046   Avskiljare GPA                58.0
+HA1048   Elmuffrördelar PE Wavin       58.0
+HA1056   Elmuffrördelar PE Durafuse    58.0
+HA1057   Elmuffrördelar PE Durafuse Ule58.0
+HA1060   Elmuffrördelar PE GF          58.0
+HA1064   Rördelar PE Elofit            58.0
+HA1066   Rördelar PE Star              58.0
+HA1070   Elmuffrördelar PE övriga      58.0
+HA1072   Anborrningsbyglar Elofit      58.0
+HA1080   Stumsvetsrördelar PE Frialen  58.0
+HA1082   Elsvetsmuffar 25-90 VOTEC     58.0
+HA1083   Elsvetsdelar 25-90 VOTEC      58.0
+HA1084   Elsvetsdelar 110-315 VOTEC    58.0
+HA1085   Elsvetsmuffar 110-315 VOTEC   58.0
+HA1086   Elsvetsmuffar 355- VOTEC      58.0
+HA1090   Rördelar PE övrigt            58.0
+HA1120   Tryckrördelar PE Armatec      58.0
+HA1210   Tryckmuffrör PVC              58.0
+HA1214   Tryckmuffrördelar PVC         58.0
+HA1411   Tryckrör VRS Belos            58.0
+HA1413   Tryckrör VRS ZinkPlus         58.0
+HA1420   Tryckrördelar VRS             58.0
+HA1421   Tryckrördelar VRS Belos       58.0
+HA1424   Tryckrördelar Tyton           58.0
+HA1426   Tryckrördelar med expresskoppl58.0
+HA1427   Flänsade TBH segjärn          58.0
+HA1430   Tryckrör VRS Belos låselement 58.0
+HA1432   Tryckrör Gustavsberg låselemen58.0
+HA1801   Kopplingar Ibeco              58.0
+HA1812   Reparationsmuffar Ulefos      58.0
+HA1814   Reparationsmuffar Belos       58.0
+HA1816   Reparationsmuffar Ibeco       58.0
+HA1818   Reparationsmuffar VOTEC       58.0
+HA1819   Reparationsmuffar Altech 400D 58.0
+HA1822   Kopplingar Kojapo             58.0
+HA1826   Anborrningsbyglar och flänsar 58.0
+HA1830   Kopplingar Multijoint         58.0
+HA1832   Kopplingar Hymax              58.0
+HA1833   Kopplingar dragfasta Ibeco    58.0
+HA1834   Kopplingar Supa Maxi          58.0
+HA1835   Rörproppar Ulefos             58.0
+HA1836   Segjärnsrör tbh               58.0
+HA1837   Segjärnsrör tbh Ibeco         58.0
+HA1838   Reparationsmuffar övriga      58.0
+HA1839   Kopplingar Ulefos Grip        58.0
+HA1842   Rörkopplingar Uniflex         58.0
+HA1844   Kopplingar Hawle Synoflex     58.0
+HA1852   Tryckrör tbh Hawle            58.0
+HA1858   Plaströrskopplingar Hawle-200058.0
+HA1859   Plaströrskopplingar Aquafast  58.0
+HA1860   Plaströrskopplingar och tbh Ib58.0
+HA1870   Förankringspackningar för segj58.0
+HB1010   Polyetenrör PEM               66.0
+HB1012   Polyetenrör PEM Gds           66.0
+HB1013   Polyetenrör PEM Wavin         66.0
+HB1014   Markkollektorer PEM           66.0
+HB1020   Polyetenrör PE100 RC 6m       66.0
+HB1022   Polyetenrör PE100 RC 12m      66.0
+HB1210   Plaströrskopplingar Plasson   62.0
+HB1211   Plaströrskopplingar Plasson Ty62.0
+HB1212   Plaströrskopplingar Vatette   62.0
+HB1214   Plaströrskopplingar PRK       62.0
+HB1215   Plaströrskopplingar PRK       62.0
+HB1216   Plaströrskopplingar Hawle     62.0
+HB1222   Plaströrskopplingar Beulco    62.0
+HB1224   Plaströrskopplingar Isiflo    62.0
+HB1225   Plaströrskopplingar Hawle fit 62.0
+HB1228   Plaströrskopplingar Ibeco     62.0
+HB1230   Plaströrskopplingar Gavatec   62.0
+HB1299   Plaströrskopplingar övriga    62.0
+HB1320   Plaströrskopplingar Altech    68.0
+HB1410   Eluppvärmda PE-rör och tbh Axj60.0
+HB1411   Eluppvärmda PE-rör och tbh TYC60.0
+HB1412   Frostskyddskablar Altech      60.0
+HB1414   Termorör                      60.0
+HB1416   Eluppvärmda PE-rör och tbh övr60.0
+HB1420   Frostskyddskablar Axjo        60.0
+HB1422   Frostskyddskablar tbh Axjo    60.0
+HB3026   Optorör                       60.0
+HB3032   Kabelskyddsrördelar PVC       60.0
+HC0616   Markrör PVC multilager        60.0
+HC0902   Markrör PVC 110-200 6m        67.0
+HC0904   Markrör PVC 110-200 3m        67.0
+HC0906   Markrör PVC 110-200           67.0
+HC0908   Markrör PVC 250 och större    67.0
+HC0910   Markrör PVC 250 och större 3m 67.0
+HC0912   Markrör PVC 250 och större 1m 67.0
+HC1016   Markavloppsrördelar PVC 110-1675.0
+HC1110   Markavloppsrördelar PVC 110   65.0
+HC1112   Markavloppsrördelar PVC 160   65.0
+HC1118   Markavloppsrördelar PVC 200   65.0
+HC1120   Markavloppsrördelar PVC 250 oc65.0
+HC1210   Markavloppsrör PP 110-200 6m  65.0
+HC1211   Markavloppsrör PP 110-200 3m  65.0
+HC1213   Markavloppsrör PP 110-200 1m  65.0
+HC1224   Markrör PP 250-400            65.0
+HC1230   Markrör PP 110-200            65.0
+HC1312   Markavloppsrördelar PP 110 2MU65.0
+HC1314   Markavloppsrördelar PP 110    65.0
+HC1316   Markavloppsövergångar PP      65.0
+HC1317   Markavloppsrördelar PP 160    65.0
+HC1318   Markavloppsrördelar PP 160 2MU65.0
+HC1320   Markavloppsrördelar PP 200    65.0
+HC1326   Markavloppsrördelar 250 -     65.0
+HC1408   Radontätningar VOTEC          62.0
+HC1410   Markavloppsrör PVC tbh        62.0
+HC1414   Markavloppsrör PVC tbh GPA    62.0
+HC1416   Markavloppsrör PVC tbh Ibeco  62.0
+HC1418   Markavloppsrör PVC tbh Packnin62.0
+HC1420   Övergångskopplingar Aband     62.0
+HC1421   Övergångskopplingar Flexseal  62.0
+HC1423   Backventiler ACO              62.0
+HC1424   Markavloppsrör PVC tbh Wavin  62.0
+HC1425   Backventiler Kombiringen      62.0
+HC1426   PVC-rör tbh Forsheda          62.0
+HC1428   PVC-rör tbh Uponor            62.0
+HC1430   PVC-rör tbh Uponor VVS        62.0
+HC1432   Anborrning Ibeco              62.0
+HC1434   Råttstopp Ibeco               62.0
+HC1435   Rörproppar Ulefos             62.0
+HC1436   Råttstopp                     62.0
+HC1438   Råttstopp Jafo                62.0
+HC1440   Manschetter Kombiringen       62.0
+HC1442   Rörkopplingar Kombiringen     62.0
+HC1444   Backventilbrunnar Kombiringen 62.0
+HC1448   Backventiler Wapro            62.0
+HC1450   Övergångskopplingar Purus     62.0
+HC1460   Övergångskopplingar Kojapo    62.0
+HC1512   Övergångskopplingar VOTEC     62.0
+HC1514   Slangklämma Altech            62.0
+HC1714   Rörkopplingar Kombiringen     59.0
+HC2010   Markavloppsrör PP 6m Opti Rib 59.0
+HC2012   Markavloppsrör PP 3m Opti Rib 59.0
+HC2014   Markrördelar PP Opti Rib      59.0
+HC2210   Markavloppsrör PP Pragma      60.0
+HC2212   Markrördelar PP Pragma        60.0
+HC2310   Rör Ultra Classic 6m 200      59.0
+HC2312   Rör Ultra Classic 1-3m 200    59.0
+HC2320   Rör Ultra Classic 6m 250 -    59.0
+HC2322   Rör Ultra Classic 1-3m 250 -  59.0
+HC2410   Markrördelar PP Ultra         59.0
+HC2414   Markavloppsrör PP Ultra Rib/Do59.0
+HC2416   Markavloppsrör PP Ultra Rib 6m59.0
+HC2418   Markavloppsrör PP Ultra Rib Bl59.0
+HC2420   Markavloppsrör PP Ultra Rib Bl59.0
+HD1010   Dagvattenrör IQ               55.0
+HD1012   Vägrör Uponor                 55.0
+HD1014   Dagvattenrör X-stream         55.0
+HD1016   Dagvattenrör Pipelife         55.0
+HD1018   Vägrör tbh Infra              55.0
+HD1020   Rördelar IQ                   55.0
+HD1024   Rördelar X-stream             55.0
+HD1030   Dagvattenrör Evopipes         55.0
+HD1031   Dagvattenrör tbh Evopipes     55.0
+HD1034   Dagvattenrör IQ Blue          55.0
+HD1099   Vägtrummor övriga             55.0
+HD2008   Dränering VOTEC               56.0
+HD2010   Dräneringsrör PVC             56.0
+HD2011   Dräneringsrör PVC Pipelife    56.0
+HD2012   Dräneringrördelar PVC         56.0
+HD2013   Dräneringsrör PVC Wavin       56.0
+HD2015   Dräneringrördelar PVC Wavin   56.0
+HD2016   Dräneringsrör PE              56.0
+HD2017   Dräneringsrör PE Wavin        56.0
+HD2018   Dräneringsrördelar PE DSA     56.0
+HD2024   Dräneringsrör PE övriga       56.0
+HD3017   Kabelbrunnar Mellby           55.0
+HD3018   Kabelbrunnar                  55.0
+HD3019   Elkabelrör PE Pipelife        55.0
+HD3020   Elkabelrör PE                 55.0
+HD3021   Elkabelrör PE                 55.0
+HD3022   Kabelskyddsrördelar PE övriga 55.0
+HD3023   Kabelskyddsrördelar PE        55.0
+HD3024   Betongvikter                  55.0
+HD3025   Kabelrör Greenpipe            55.0
+HD3028   Kabelkanaler                  55.0
+HD4010   Dagvattenkassetter Wavin      55.0
+HD4012   Dagvattenkassetter Uponor     55.0
+HD4014   Dagvattenkassetter Plastinject55.0
+HD4015   Dagvattenfilter               55.0
+HD4017   Dagvatten Pipelife            55.0
+HD4020   Dagvatten Aco                 55.0
+HD4040   Lövavskiljare och tbh         55.0
+HE2016   Isolering Styrofoam           56.0
+HE2020   Isolering Jackon              56.0
+HE2028   Isolering Sundolitt           56.0
+HE2030   Lättfyllnad                   56.0
+HE2040   Kantelement                   56.0
+HE2055   Isolering övriga              56.0
+HE2120   Byggfolie                     56.0
+HE2122   Betongmattor                  56.0
+HE2124   Markisolering skivor          56.0
+HE2210   Isolering tbh Fuktspärren     55.0
+HE2216   Radonduk tbh                  55.0
+HE2224   Isolering grunder Finnfoam    55.0
+HE2226   Armering med tbh              55.0
+HE2228   Isolering, grund tbh          55.0
+HE2255   Isolering tbh övriga          55.0
+HE2410   Isolering Fuktspärren Optidrai55.0
+HE2412   Isolering Fuktspärren Delta Bl55.0
+HE2420   Membran och tbh ITP           55.0
+HE2422   Isolering tbh Fuktspärren     55.0
+HE2426   Isolering tbh Fuktspärren Delt55.0
+HE2428   Isolering, grund              55.0
+HE3008   Dräneringsmattor Tenax        55.0
+HE3009   Dräneringsmattor              55.0
+HE3016   Geotextil övriga              55.0
+HE3021   Geonät VOTEC                  55.0
+HE3024   Fiberduk Thrace               55.0
+HE3025   Geonät Tencate                55.0
+HE3031   Geonät Thrace                 55.0
+HE3034   Gräsarmering                  55.0
+HE3035   Membraner                     55.0
+HE3037   Skyddsgeotextil               55.0
+HE3042   Membraner Sealeco             55.0
+HE3044   Asfaltsarmering               55.0
+HE3052   Geoclean                      55.0
+HE3110   Geotextil VOTEC               55.0
+HE3112   Geotextil 550m2 och större    55.0
+HE3410   Bentonitmattor VOTEC          55.0
+HE3412   Bentonitmattor tbh VOTEC      55.0
+HE3418   Bentonitmattor övriga         55.0
+HE4010   Gabioner                      55.0
+HE4012   Gabioner färdigfyllda         55.0
+HF1010   Plastbrunnar tbh Wavin        55.0
+HF1011   Rens- och spolbrunnar Wavin   55.0
+HF1012   Tillsynsbrunnar 400 Wavin     55.0
+HF1013   Plastbrunnar och tbh Wavin    55.0
+HF1014   Plastbrunnar och tbh Wavin Teg55.0
+HF1015   Plastbrunnar Wavin Basic      55.0
+HF1018   Plastbrunnar IC Wavin         55.0
+HF1020   Plastbrunnar tbh Wavin Tegra  55.0
+HF1022   Plastbrunnar 600 Wavin Tegra  55.0
+HF1110   Brunnar 600 VOTEC             55.0
+HF1120   Brunnar 1000 VOTEC            55.0
+HF1130   Brunnar 600, Övriga           55.0
+HF1132   Brunnar 1000, Övriga          55.0
+HF1134   Brunnar, övriga TBH           55.0
+HF1212   Tillsynsbrunnar Uponor        55.0
+HF1214   Nedstigningsbrunnar Uponor    55.0
+HF1216   Rens- och spolbrunnar Uponor  55.0
+HF1218   Dag- och dränbrunnar Uponor   55.0
+HF1220   Läppringar till plastbrunnar  55.0
+HF1310   Plastbrunnsbetäckningar Uponor55.0
+HF1314   Plastbrunnsbetäckningar Uponor55.0
+HF1410   Plastbrunnsbetäckningar Pipeli55.0
+HF1411   Teleskoprör övriga            55.0
+HF1412   Plastbrunnar och tbh Pipelife 55.0
+HF1510   Dagvattenbrunnar och tbh Pipel55.0
+HF1610   Granulatfångare               55.0
+HF1622   Plastbrunnar övriga           55.0
+HF1626   Betongrördelar övriga         55.0
+HF1699   Plastbrunnar och tbh övriga   55.0
+HF1710   Brunnar tbh VOTEC             55.0
+HF1720   Fallskydd VOTEC               55.0
+HF1810   Plastbrunnar Magna            55.0
+HF1910   Betäckningar Mardam           55.0
+HF1912   Betäckningar VOTEC            55.0
+HF1914   Betäckningar tbh VOTEC        55.0
+HF2012   Stigarrör plastbrunnar        55.0
+HF2013   Stigarrör plastbrunnar Wavin  55.0
+HF2014   Stigarrör plastbrunnar Ulefos 55.0
+HF2020   Brunnsämnen 400 Wavin         55.0
+HG1010   Servisventiler AVK            58.0
+HG1012   Servisventilgarnityr AVK      58.0
+HG1210   Servisventiler Hawle          58.0
+HG1212   Servisventilgarnityr Hawle    58.0
+HG1410   Servisventiler Esco           58.0
+HG1412   Servisventilgarnityr Esco     58.0
+HG1614   Servisventiler Isiflo         58.0
+HG1622   Servisventilgarnityr Isiflo   58.0
+HG1624   Servisventilgarnityr Övriga   58.0
+HG2010   Slussventiler AVK             58.0
+HG2012   Slussventilgarnityr AVK       58.0
+HG2210   Slussventiler Hawle           58.0
+HG2212   Slussventilgarnityr Hawle     58.0
+HG2410   Slussventiler Esco            58.0
+HG2412   Slussventilgarnityr Esco      58.0
+HG2413   Slussventilgarnityr syraf Esco58.0
+HG2618   Slussventilgarnityr Ekå       58.0
+HG2810   Avstängningsventil Frialoc    58.0
+HG3010   Stödhylsor AVK                58.0
+HG3012   Slussventiler tbh             58.0
+HG3016   Slussventiler tbh Esco        58.0
+HG3018   Stödhylsor Ulefos             58.0
+HG4012   Brandposter Ulefos            58.0
+HG4014   Brandposter Belos             58.0
+HG4015   Brandposter IBECO             58.0
+HG4016   Brandposter Thisab            58.0
+HG4017   Brandposter Thisab            58.0
+HG4018   Brandposter AVK               58.0
+HG4019   Brandpostkopplingar Belos     58.0
+HG4020   Gatubetäckningar Ulefos       58.0
+HG4021   Brandpostkoppling tbh Thisab  58.0
+HG4022   Brand- och spolposter övriga  58.0
+HG4023   Brandpostkoppling tbh Rödhamma58.0
+HG4040   Övergångskopplingar Kojapo    58.0
+HG4210   Vattenmätarbrunnar KZ Handels 58.0
+HG4220   Vattenmätarbrunnar Brimer     58.0
+HG4230   Vattenmätarbrunnar Pipelife   58.0
+HG4410   Ventiler Fucoli               58.0
+HG4420   Ventilgarnityrer och tbh Fucol58.0
+HG5015   Backventil Gavatec            58.0
+HG5016   Klaff- och backventil övriga  58.0
+HG5017   Klaff- och backventiler AVK   58.0
+HG5018   Luftningsventiler automatiska 58.0
+HG5019   Garnityr Gavatec              58.0
+HG5099   Övriga armaturer VA           58.0
+HH1010   Gatubetäckningar segjärn Furne57.0
+HH1012   Gatubetäckningar segjärn Furne57.0
+HH1014   Gatubetäckningar segjärn Furne57.0
+HH1016   Ventilbetäckningar segjärn Fur57.0
+HH1210   Gatubetäckningar gråjärn Furne57.0
+HH1214   Gatubetäckningar Tierp        57.0
+HH1216   Gatubetäckningar Jot          57.0
+HH1217   Gatubetäckningar Ulefos       57.0
+HH1220   Kupolsilar Mardam             57.0
+HH1410   Brunnsbetäckningar och tbh    57.0
+HH1412   Brunnsbetäckningar och tbh Fur57.0
+HH1414   Brunnsbetäckningar och tbh Fur57.0
+HH1416   Lätta betäckningar            57.0
+HH1420   Lättbetäckningar Kombi        57.0
+HH1422   Kompositbetäckningar NID      57.0
+HH1510   Plastbrunnsbetäckningar Kenrex57.0
+HH1515   Plastbrunnsbetäckningar Kombir57.0
+HH1610   Gatubetäckningar AVK          57.0
+HH1614   Betäckningar Isiflo           57.0
+HH1616   Gatubetäckningar Pekuma       57.0
+HH1618   Gatubetäckningar Belos        57.0
+HH1619   Brandpostbetäckningar Thisab  57.0
+HH1620   Gatubetäckningar Esco         57.0
+HH1622   Gatubetäckningar Alvesta      57.0
+HH1624   Gatubetäckningar Ulefos       57.0
+HH1626   Kupolsilar Mardam             57.0
+HH1699   Betäckningar och skyddsluckor 57.0
+HH2010   Gatubetäckningar tbh          57.0
+HH2011   Gatubetäckningar tbh Ulefos   57.0
+HH2012   Passramar för betäckningar    57.0
+HH2013   Underlag för betäckningar Hama57.0
+HH2014   Underlag för betäckningar     57.0
+HH2018   Passramar Mardam              57.0
+HH2410   Skyltar och tillbehör till bet57.0
+HH3010   Ytvattenrännor ACO            57.0
+HH3011   Ytvattenrännor ACO Self       57.0
+HH3012   Ytvattenrännor Meadrain       57.0
+HH3015   Linjeavvattning Anrin         57.0
+HH3022   Linjeavvattning               57.0
+HI1010   Avloppscisterner PE           54.0
+HI1012   Avloppscisterner Uponor       54.0
+HI1014   Avloppscisterner Vestfold     54.0
+HI1016   Avloppscisterner Fann         54.0
+HI1017   Avloppscisterner tbh Afriso   54.0
+HI1018   Avloppscisterner tbh Vestfold 54.0
+HI1019   Avloppscisterner tbh Porso    54.0
+HI1020   Avloppscisterner glasfiber    54.0
+HI1021   Avloppscisterner tbh Tykoflex 54.0
+HI1099   Cisterner övriga              54.0
+HI1210   Enskilt avlopp Thrace         54.0
+HI1212   Dieseltankar PE               54.0
+HI1218   Enskilt avlopp Wavin          54.0
+HI1220   Enskilt avlopp Altech         54.0
+HI1240   VA paket Wavin                54.0
+HI2010   Regnvattentank Fann           54.0
+HI2011   Avskiljare och tankar tbh Cipa54.0
+HI2014   Slamavskiljare Uponor         54.0
+HI2018   Slamavskiljare och infiltratio54.0
+HI2020   Slamavskiljare Wavin          54.0
+HI2021   Slamavskiljare Altech         54.0
+HI2022   Slamavskiljare Uponor         54.0
+HI2024   Infiltrationssystem övriga    54.0
+HI2026   Infiltrationssystem Fann      54.0
+HI2028   Infiltrationssystem Fann      54.0
+HI2029   Infiltrationssystem tbh Fann  54.0
+HI2030   Slamavskiljare PTC            54.0
+HI2032   Ekotoaletter Alltoa           54.0
+HI2035   Infiltrationssystem Pipelife  54.0
+HI2040   Avskiljare och tankar Cipax   54.0
+HI2041   Infiltrationspaket VOTEC      54.0
+HI3010   Minireningsverk Fann          54.0
+HI3012   Minireningsverk Baga          54.0
+HI3014   Minireningsverk Kwh           54.0
+HI3015   Minireningsverk Kingspan      54.0
+HI3017   Avskiljare Kingspan           54.0
+HI3018   Minireningsverk Uponor        54.0
+HI3020   Minireningsverk Altech        54.0
+HI3021   Minireningsverk Brenntag      54.0
+HI3030   Minireningsverk tbh           54.0
+HI3032   Minireningsverk tbh Baga      54.0
+HI3034   Minireningsverk tbh Uponor    54.0
+HI3050   Större reningsverk Fann       54.0
+HI3052   Större reningsverk Baga       54.0
+HI3054   Större reningsverk Uponor     54.0
+HI3212   Fosforbrunnar                 54.0
+HI4002   Oljeavskiljare tillval ACO    54.0
+HI4003   Oljeavskiljare mindre ACO     54.0
+HI4004   Oljeavskiljare BAGA           54.0
+HI4005   Oljeavskiljare stora ACO      54.0
+HI4006   Fettavskiljare BAGA           54.0
+HI4007   Fettavskiljare Wavin          54.0
+HI4008   Avskiljare tbh BAGA           54.0
+HI4010   Avskiljare tbh Wavin          54.0
+HI4014   Oljeavskiljare Wavin          54.0
+HI4018   Fettavskiljare Vestfold       54.0
+HI4022   Avskiljare tbh ACO            54.0
+HI4030   Avskiljare tbh Labkotec       54.0
+HI4090   Oljeavskiljare övriga         54.0
+HI4091   Oljeavskiljare Uponor         54.0
+HI4092   Oljeavskiljare tbh Uponor     54.0
+HI4093   Oljeavskiljare större Uponor  54.0
+HI4099   Fettavskiljare övriga         54.0
+HI5008   Pumpstationer tbh SKT         54.0
+HI5010   Pumpstationer SKT             54.0
+HI5012   Avloppssystem lätt trycksatta 54.0
+HJ1012   Pumpstationer Baga            50.0
+HJ1014   Infiltrationssystem VOTEC     50.0
+HJ1016   Pumpstationer Grundfos        50.0
+HJ1018   Pumpstationer Wilo            50.0
+HJ1019   Pumpstationer tbh Wilo        50.0
+IA1010   Stålrör svarta EN10255M       63.0
+IA1011   Stålrör svarta EN10255M       63.0
+IA1012   Stålrör blå gängade EN10255M  63.0
+IA1014   Stålrör galv gängade EN10255M 63.0
+IA1016   Stålrör galv ogängade EN10255M63.0
+IA1018   Stålrör svarta tjocka EN10255H63.0
+IA1020   Stålrör svarta gängade Borrör 63.0
+IA1110   Sprinklerhuvud Victaulic      63.0
+IA1112   Sprinklerhuvud torrör Victauli63.0
+IA1120   Sprinklerkopplingar Victaulic 63.0
+IA1130   UMC Victaulic                 63.0
+IA1210   Tubrör rillade tunnväggiga Alv62.0
+IA1414   Rördelar rillade Atusa        63.0
+IA1420   Kopplingar Victaulic          63.0
+IA1422   Rördelar Victaulic            63.0
+IA1424   Mek T Victaulic               63.0
+IA1425   Mek-T Virotec                 63.0
+IA1426   Kopplingsslangar Victaulic    63.0
+IA1428   Kopplingsslang Victaulic Dryfl63.0
+IA1430   Rördelar rfr prefab Victaulic 63.0
+IA1436   Glykolkärl galvaniserat       63.0
+IA1440   Kopplingar Alvenius           63.0
+IA1442   Rördelar Alvenius             63.0
+IA1450   Kopplingar Victaulic Strengthi63.0
+IA1452   Rördelar Victaulic Strengthin 63.0
+IA1458   Nipplar Victaulic Strengthin  63.0
+IA1510   Ändlock och Plattor rfr 4301  64.0
+IA1520   Stång rfr 4301 Vinkel/Platt/Ru64.0
+IA1550   Plåt rfr 4301                 64.0
+IA1560   Plåt syraf 4404               64.0
+IA1628   Rör rfr 4307 metriska         64.0
+IA1630   Rör syraf 4404 metriska       64.0
+IA1632   Rör syraf 4432 metriska       64.0
+IA1634   Rör rfr 4307 ISO              64.0
+IA1635   Rör rfr 4307 ANSI             64.0
+IA1636   Rör syraf 4404 ISO            64.0
+IA1637   Rör syraf 4404 ANSI           64.0
+IA1638   Rör syraf 4432 ISO            64.0
+IA1640   Gängrör rfr 4307 ISO          64.0
+IA1642   Gängrör syraf 4404 ISO        64.0
+IA1654   Livsmedelsrör rfr 4307 SMS    64.0
+IA1656   Livsmedelsrör syraf 4404 SMS  64.0
+IA1658   Hydraulikrör syraf 4404       64.0
+IA1660   Rör rfr Victaulic Strengthin  64.0
+IA1662   Rör Duplex 4462 ISO           64.0
+IA1674   Profilrör rfr 4301            64.0
+IA1676   Profilrör Syrafast 4404       64.0
+IA1680   Aluminiumrör                  64.0
+IA1698   Övriga rostfria rör           64.0
+IA1820   Böjar rfr 4307 metriska R=1,5X65.0
+IA1821   Böjar rfr 4307 ISO R=1,5Xd    65.0
+IA1822   Böjar rfr 4307 metriska D+100 65.0
+IA1826   Böjar syraf 4404 metriska R=1,65.0
+IA1827   Böjar syraf 4404 ISO R=1,5Xd  65.0
+IA1830   Böjar syraf 4432 metriska R=1,65.0
+IA1831   Böjar syraf 4432 ISO R=1,5Xd  65.0
+IA1834   Böjar syraf 4432 metriska D+1065.0
+IA1836   Böjar syraf 4S                65.0
+IA1840   Böjar Duplex 4462 ISO         65.0
+IA1910   Gängrördelar syraf            65.0
+IA1912   Slangnipplar syraf            65.0
+IA1914   Kopplingar, gäng- och svetsans65.0
+IA1916   Insticksrördelar syraf        65.0
+IA2010   Konor cc rfr 4307 metriska    65.0
+IA2011   Konor cc rfr 4307 ISO         65.0
+IA2012   Konor exc rfr 4307 metriska   65.0
+IA2013   Konor exc rfr 4307 ISO        65.0
+IA2016   Konor exc syraf 4432 metriska 65.0
+IA2017   Konor exc syraf 4432 ISO      65.0
+IA2020   Konor konc Duplex ISO         65.0
+IA2022   Konor exc Duplex ISO          65.0
+IA2024   Vinkelstångskragar syraf      65.0
+IA2025   Svetsringar plana syraf       65.0
+IA2028   Gavlar kupade syraf           65.0
+IA2030   T-rör pressade rfr            65.0
+IA2031   T-rör pressade syraf          65.0
+IA2034   Konor cc syraf 4432 metriska  65.0
+IA2037   Konor cc syraf 4432 ISO       65.0
+IA2046   T-rör P rfr 4307 metriska     65.0
+IA2047   T-rör P rfr 4307 ISO          65.0
+IA2048   T-rör P syraf 4432 metriska   65.0
+IA2049   T-rör P syraf 4432 ISO        65.0
+IA2050   T-rör syraf 4404 metriska U   65.0
+IA2051   T-rör syraf 4404 ISO U        65.0
+IA2052   T-rör Duplex ISO              65.0
+IA2060   Gavlar kupade syraf 4432 metri65.0
+IA2061   Gavlar kupade syraf 4432 ISO  65.0
+IA2070   Gavlar kupade syraf 4404 metri65.0
+IA2071   Gavlar kupade syraf 4404 ISO  65.0
+IA2080   Kragar pressade syraf metriska65.0
+IA2081   Kragar pressade syraf ISO     65.0
+IA2083   Vinkelstångskragar syraf metri65.0
+IA2084   Vinkelstångskragar syraf ISO  65.0
+IA2125   Svetsringar plana syraf       65.0
+IA2141   Svetsringar med krage syraf 4465.0
+IA2143   Svetsringar med krage syraf 4465.0
+IA2144   Svetsringar med krage rfr 430765.0
+IA2145   Svetsringar med krage Duplex  65.0
+IA2161   Skärringskopplingar syraf     65.0
+IA2166   Rörhållare rfr livsmedel SMS  65.0
+IA2168   Instrumentkopplingar          65.0
+IA2212   Lösflänsar syraf              65.0
+IA2216   Lösflänsar pressade rfr       65.0
+IA2222   Flänsar övriga syraf          65.0
+IA2224   Svetsflänsar med krage syraf  65.0
+IA2225   Svetsflänsar Duplex ISO       65.0
+IA2228   Blindflänsar syraf            65.0
+IA2234   Lösflänsar galv din 2642 metri65.0
+IA2236   Lösflänsar galv din 2642 ISO  65.0
+IA2238   Lösflänsar galv för plaströr  65.0
+IA2240   Lösflänsar galv ssg           65.0
+IA2244   Lösflänsar Silumin Pn10       65.0
+IA2246   Lösflänsar Silumin Ss 2049    65.0
+IA2250   Lösflänsar rfr                65.0
+IA2252   Svetsflänsar plana rfr        65.0
+IA2254   Övriga flänsar rfr            65.0
+IA2410   Tubrör handels tom 159,0      63.0
+IA2412   Tubrör handels tom 114,3      63.0
+IA2414   Tubrör handels tom 139,7      63.0
+IA2420   Tubrör handelskvalitet rillade63.0
+IA2421   Tubrör handelskvalitet rillade63.0
+IA2422   Rillade rör                   63.0
+IA2426   Rillade rör med två uttag för 63.0
+IA2610   Tubrör sömlösa tr-kv          65.0
+IA2612   Tubrör sömlösa P215NL         65.0
+IA2614   Tubrör svetsade tr-kv         65.0
+IA2618   Tubrör svetsade tr-kv 610,0 oc65.0
+IA2810   Tubböjar handelskvalitet S235 67.0
+IA2812   Tubböjar tryckk-kval P235GH   67.0
+IA2814   Tubböjar tryckk-kval P215NL   67.0
+IA2816   Övriga tubrördelar            67.0
+IA2818   Insvetsböjar för tub P235GH   67.0
+IA3010   Förminskningskonor tub P235GH 67.0
+IA3012   Förminskningskonor tub P215NL 67.0
+IA3014   T-rör för tub P235GH          67.0
+IA3016   T-rör för tub P215NL          67.0
+IA3018   Gavlar för tub kupade P265    67.0
+IA3022   Sadelstudsar för tub P235GH   67.0
+IA3210   Gängflänsar                   67.0
+IA3212   Svetsflänsar                  67.0
+IA3214   Svetsflänsar utan krage 01A S267.0
+IA3218   Blindflänsar                  67.0
+IA3220   Lösflänsar                    67.0
+IA3222   Svetsholkar typ 34            67.0
+IA3224   Flänspackningar asbestfria    67.0
+IA3225   Smörjmedel                    67.0
+IA3230   Flänspackningar övriga        67.0
+IA3232   Packningar Gavatec            67.0
+IA3410   Kompensatorer Elaflex         63.0
+IA3411   Kompensatorer Slangkompaniet  63.0
+IA3412   Kompensatorer NBR             63.0
+IA3413   Kompensatorer EPDM            63.0
+IA3415   Kompensatorer VITON           63.0
+IA3417   Kompensatorer Syrafast VITON  63.0
+IA3418   Kompensatorer Syrafast EPDM   63.0
+IA3419   Kompensatorer dricksvatten EPD63.0
+IA3420   Kompensatorer dricksvatten UNI63.0
+IA3421   Kompensatorer UNION EPDM      63.0
+IA3610   Hydraulikrör stål din         62.0
+IA3814   Snabbkopplingar Kamlock       62.0
+IA3816   Snabbkopplingar Kamlock       62.0
+IA3820   Klämringskopplingar rfr       62.0
+IA4010   Rör sömlösa ASTM kolstål      62.0
+IA4012   Livsmedelsrördelar rfr        62.0
+IA4014   Livsmedelsrördelar syraf      62.0
+IA4016   Livsmedel rörhållare          62.0
+IA4018   Livsmedel manlucka            62.0
+IA4020   Livsmedel packningar          62.0
+IA4022   Livsmedel slangar             62.0
+IA4024   Livsmedel ventiler            62.0
+IA4030   Rördelar för svetsn rfr livsme62.0
+IA4032   Rördelar för svetsn syraf livs62.0
+IA4034   Vridspjällventiler livsmedel A62.0
+IA4036   Rörhållare rfr livsmedel SMS  62.0
+IA4038   Packningar till livsmedelsrörd62.0
+IA4210   Rördelar smidda ASTM kolstål  62.0
+IA4212   Rördelar sömlösa ASTM kolstål 62.0
+IA4214   Svetsflänsar m krage smidda AS62.0
+IA4216   Blindflänsar smidda ASTM kolst62.0
+IA4218   Planflänsar smidda ASTM kolstå62.0
+IA4220   Svetsflänsar u krage smidda AS62.0
+IA4222   Gängflänsar smidda ASTM kolstå62.0
+IA4224   Rördelar för insv smidda ASTM 62.0
+IA4226   Rördelar gängade smidda ASTM k62.0
+IA4228   Sadelstycken smidda ASTM kolst62.0
+IA4230   Nipplar sömlösa ASTM kolstål  62.0
+IB1020   Vridspjällventiler Vexve      60.0
+IB1024   Vridspjällventiler Ari        60.0
+IB1026   Skjutspjällsventiler          60.0
+IB1030   Vridspjäll sprinkler Victaulic60.0
+IB1032   Ventiler Victaulic Strengthin 60.0
+IB1034   Vridspjällsventiler Victaulic 60.0
+IB1036   Kulventiler rillade           60.0
+IB1040   Vridspjällsventiler Armatec   60.0
+IB1099   Vridspjällsventiler övriga    60.0
+IB1110   Vridspjällsventiler Altech    65.0
+IB1112   Vridspjällsventiler Altech    65.0
+IB1114   Vridspjällsventiler NBR Altech65.0
+IB1210   Backventiler rillade Victaulic60.0
+IB1227   Backventiler Haitima          60.0
+IB1228   Backventiler Gestra           60.0
+IB1229   Klaffbackventiler Industriarma60.0
+IB1230   Discobackventiler AWS         60.0
+IB1231   Klaffbackventiler AWS         60.0
+IB1232   Kägelbackventil AWS           60.0
+IB1233   Kägelbackventil Socla         60.0
+IB1234   Spjällbackventiler Zubi       60.0
+IB1235   Backventiler industri watts   60.0
+IB1236   Skjutspjäll Zubi              60.0
+IB1238   Backventiler Comeval          60.0
+IB1250   Backventiler övriga           60.0
+IB1310   Larmventiler sprinkler Victaul60.0
+IB1412   Kulventiler fjv Ballomax      60.0
+IB1414   Kulventiler fjv stål Naval    60.0
+IB1416   Kulventiler fjv rfr Naval     60.0
+IB1418   Kulventiler Duplex            60.0
+IB1420   Kulventiler fjv stål Vexve    60.0
+IB1421   Kulventiler fjv stål större Ve60.0
+IB1422   Kulventiler fjv syraf Vexve   60.0
+IB1424   Injusteringsventiler stål Vexv60.0
+IB1426   Injusteringsventiler syraf Vex60.0
+IB1610   Nålventiler metall            60.0
+IB1612   Nålventiler rostfritt stål    60.0
+IB1710   Nålventiler Altech            60.0
+IB1810   Kägelventiler Ari DN15-50     60.0
+IB1812   Kägelventiler Ari DN65-150    60.0
+IB1814   Kägelventiler Ari DN150-      60.0
+IB1816   Spjällbackventil CMO <DN400   60.0
+IB1818   Spjällbackventil CMO >=DN400  60.0
+IB1820   Kägelventiler för ånga        60.0
+IB1830   Skjutspjäll <DN400            60.0
+IB1899   Övriga armaturer              60.0
+IB2018   Kilslidvent fläns Pn10 gj-järn60.0
+IB2020   Kilslidventiler EURO-WEDI     60.0
+IB2024   Kilslidsventiler Comeval      60.0
+IB2412   Kulventiler Belimo            60.0
+IB2416   Kulventiler Ego-2006          60.0
+IB2422   Kulventiler tredelade 2012M 2060.0
+IB2424   Kulventiler rostfria övriga   60.0
+IB2610   Kulventiler dricksvatten rfr A60.0
+IB2620   Kulventiler tbh rfr Altech    60.0
+IB2810   Kulventiler avtappning        60.0
+IB2820   Kulventiler Övriga Dricksvatte60.0
+IB3010   Membranventiler för tryckluft 60.0
+IB4212   Vattenståndsställ och tbh     60.0
+IB4214   Vattenståndsställ och tbh Alte60.0
+IB4610   Kondensatavledare Mankenberg  60.0
+IB4611   Kondensatavledare ARI         60.0
+IB4810   Luftningsventiler Mankenberg  60.0
+IB5010   Smutsfilter med svetsändar Alt60.0
+IB5011   Smutsfilter med svetsändar    60.0
+IB5012   Smutsfilter stål              60.0
+IB5013   Smutsfilter Victaulic         60.0
+IB5014   Smutsfilter gjutjärn fläns    60.0
+IB5015   Smutsfilter Socla             60.0
+IB5016   Smutsfilter rostfria Ego      60.0
+IB5020   Smutsfilter metall Altech     60.0
+IB5022   Smutsfilter metall            60.0
+IB5024   Smutsfilter stål fläns        60.0
+IB5030   Smutsfilter Armatec           60.0
+IB5039   Smutsfilter övriga            60.0
+IB5040   Säkerhetsventiler Ari         60.0
+IB5210   Kulventiler PVC               60.0
+IB5410   Flottörventiler               60.0
+IB6010   Manöverdon typ Wm             60.0
+IB6012   Manöverdon typ Wm             60.0
+IB6014   Manöverdon typ Wm             60.0
+IB6090   Reglerventiler Industri ARI   60.0
+IB6099   Övriga reglerventiler Industri60.0
+IB8010   Industriventiler monterade Wir60.0
+ID1011   Kemirör GPA                   60.0
+ID1012   Tryckrör PE GPA               60.0
+ID1210   Kemirördelar                  60.0
+ID1212   Stumsvetsrördelar PE GPA      60.0
+IE1210   Tryckluftskopplingar          60.0
+IE1212   Tryckluftskopplingar          60.0
+IE1215   Tryckluft Cejn                60.0
+IE1220   Tryckluftsrör Transair        60.0
+IE1221   Tryckluftsrördelar Transair   60.0
+IE1222   Tryckluftstillbehör Transair  60.0
+IF1010   Kulventiler stål              20.0
+IF1012   Kulventiler rfr               20.0
+IF1610   Kägel och växelventiler Meson 20.0
+IF1810   Skjutventiler Meson           20.0
+IF2010   Kilslidventiler Meson         20.0
+IF2020   Kilslidventiler Armatury      20.0
+IF2410   Y-backventiler Meson          20.0
+IF2610   Klaffbackventiler Meson       20.0
+IF2810   Kägelbackventiler Meson       20.0
+IF3210   Smutsfilter och bottenventiler20.0
+IF4020   Säkerhetsventiler Goetze      20.0
+IF5610   Vridspjäll Ghibson            20.0
+IF6010   Kulventiler Starline          20.0
+IX1010   Specialartiklar rör rfr        0.0
+IX1012   Specialartiklar rördelar rfr   0.0
+IX1014   Fästdetaljer och specialartikl 0.0
+KA1010   Kompressorer Danfoss          50.0
+KA1011   Kompressorer Danfoss          50.0
+KA1013   Kompressorer reservdelar Danfo50.0
+KA1014   Kompressorer Aspera           50.0
+KA1015   Reservdelar Danfoss Optyma    50.0
+KA1016   Kompressorer SECOP            50.0
+KA1019   Propankompressorer Embraco    50.0
+KA1020   Kompressorer Panasonic CO2    50.0
+KA1021   Reservdelar Panasonic CO2     50.0
+KA1210   Kompressorer Maneurop         50.0
+KA1215   Condensing unit Optyma        50.0
+KA1216   Condensing unit Danfoss A2L   50.0
+KA1218   Lyftkylda aggregat CO2 Panason50.0
+KA1219   Lyftkylda aggregat CO2 tbh Pan50.0
+KA1220   Luftkylda aggregat SECOP      50.0
+KA1240   Kyl och frysrumspaket Quick Se50.0
+KA1410   Ventiler och ställdon Flowguar50.0
+KA1412   Pressostater Johnson Control  50.0
+KA1415   Ventiler Danfoss              50.0
+KA1416   Ventiler Johnson Control      50.0
+KA1418   Ventiler Castel               50.0
+KA1419   Säkerhetsventiler Refrigera   50.0
+KA1420   Ventiler Ite                  50.0
+KA1422   Ventiler Virginia             50.0
+KA1425   Torkfilter Danfoss            50.0
+KA1426   Torkfilter Virginia           50.0
+KA1428   Ventiler Refrigera            50.0
+KA1435   Synglas Danfoss               50.0
+KA1436   Synglas Virginia              50.0
+KA1445   Systemkomponenter Danfoss     50.0
+KA1448   Systemkomponenter 1 Virginia  50.0
+KA1450   Kulventiler CO2 Danfoss       50.0
+KA1457   Termostater Danfoss           50.0
+KA1458   Termostater Johnson Control   50.0
+KA1460   Systemkomponenter 1 Castel    50.0
+KA1463   Expansionsventiler Danfoss    50.0
+KA1464   Pressostater Danfoss          50.0
+KA1465   Pressostater Danfoss          50.0
+KA1470   Torkfilter Temprite           50.0
+KA1472   Säkerhetsventiler Castel      50.0
+KA1473   Avstängningsventiler Castel   50.0
+KA1474   Torkfilter CO2 Castel         50.0
+KA1475   Ventiler 80bar Castel         50.0
+KA1492   Köldbärarventiler Nicab       50.0
+KA1613   Regulatorer Danfoss           50.0
+KA1614   Regulatorer AKO               50.0
+KA1615   Instängningslarm AKO          50.0
+KA1616   Gaslarm AKO                   50.0
+KA1617   Kitt AKO                      50.0
+KA1620   Tillbehör AKO                 50.0
+KA1622   Givare Every Control          50.0
+KA1624   Givare Johnson Control        50.0
+KA1628   Automatik Danfoss             50.0
+KA1629   Automatik Danfoss             50.0
+KA1633   Kyla startpaket               50.0
+KA1634   Gaslarm Danfoss               50.0
+KA1640   Larm Punos                    50.0
+KA1642   Expansionsventiler Castel     50.0
+KA1810   N motorer                     50.0
+KA1812   Universalmotorer              50.0
+KA1814   Fläktar Tga,Tgo,Tgd           50.0
+KA1816   Korgfläktar                   50.0
+KA1818   Kompaktfläktar                50.0
+KA1820   EBM Axialfläktar ESM          50.0
+KA1823   Kondensvattenpumpar Lowara    50.0
+KA1824   Kondensvattenpumpar           50.0
+KA1826   Dräneringsvärmare             50.0
+KA1828   Kondensvattenpumpar Refco     50.0
+KA1830   Kondensvattenpumpar Saniflo   50.0
+KA1834   Fläktmotorer                  50.0
+KA2010   Förångare Küba                50.0
+KA2011   Förångare KCD                 50.0
+KA2012   Förångare KSC Kelvion A2L     50.0
+KA2022   Egenkonvektion Küba           50.0
+KA2024   Förångare tbh Küba            50.0
+KA2028   Förångare KSC Kelvion         50.0
+KA2029   Förångare KSC Kelvion CO2     50.0
+KA2032   Förångare MCC Kelvion HFC     50.0
+KA2033   Fläktluftkylare MCC Kelvion   50.0
+KA2034   Förångare MCC Kelvion CO2     50.0
+KA2040   Förångare Kubiska Frigabohn   50.0
+KA2041   Förångare MF Frigabohn        50.0
+KA2042   Förångare MR Frigabohn        50.0
+KA2043   Förångare MH Frigabohn        50.0
+KA2044   Förångare Co2 Kubiska Frigaboh50.0
+KA2045   Förångare Co2 NTA Frigabohn   50.0
+KA2046   Förångare NTA Frigabohn       50.0
+KA2047   Förångare Tillbehör Frigabohn 50.0
+KA2048   Förångare Co2 MR Frigabohn    50.0
+KA2049   Förångare Co2 MH Frigabohn    50.0
+KA2050   Förångare KCC KCB Kelvion     50.0
+KA2210   Luftkonditionering portabel   50.0
+KA2416   Luftkonditionering tbh        50.0
+KA2710   IP Norm                       50.0
+KA2712   Isolerskålar                  50.0
+KA2826   Kopparrörsdelar               50.0
+KA2828   Co2 löddelar                  50.0
+KA2830   Flarekopplingar mässing       50.0
+KA2831   Flarekopplingar mässing CPS   50.0
+KA2834   Impulsslang Ite               50.0
+KA2838   Lödadapter Castel             50.0
+KA2910   Isolerade rör Cupori          50.0
+KA2916   Kylkopparrör raka Altech      50.0
+KA2918   Kylrör slings isol Altech     50.0
+KA2919   Kylrör slings dub Altech      50.0
+KA2920   Kylkopparrör slingor Altech   50.0
+KA2922   Kylkopparrör färdigisolerade A50.0
+KA2924   Kylkopparrör färdigisolerade A50.0
+KA2928   Kapillärrör                   50.0
+KA2930   Rör 80-130 bars K65           50.0
+KA2940   Rör 130 bars Altech           50.0
+KA2942   Rör 80 bars Altech            50.0
+KA3010   Installationskanaler och slang58.0
+KA3012   Installationskanaler och slang58.0
+KA3016   Vägggenomföring Trolleflex Gm 58.0
+KA3018   Vibrationsdämpare             58.0
+KA3022   Maskinskor Limo               58.0
+KA3110   Presskopplingar kyla Altech   50.0
+KA3222   Köldmedium Dahl               50.0
+KA3223   Köldmedium Dahl Retur         50.0
+KA3230   Köldmedium engångcylinder     50.0
+KA3310   Olja Emkarat                  50.0
+KA3312   Olja Danfoss                  50.0
+KA3314   Olja Dahl                     50.0
+KA3320   Övrigt Ite                    50.0
+KA3322   Köldmedium tbh Dahl           50.0
+KA3324   Cylindrar Ite                 50.0
+KA3330   Rengöring Kyla                50.0
+KA3428   Nitrogen Dahl                 50.0
+KA3430   Cylinder CO2 Dahl             50.0
+KA3510   Konsoler                      50.0
+KA3512   Värmepumpstak och hus Altech  50.0
+KA3514   Vibrationsdämpare Altech      50.0
+KA3818   Kondensatorer Nordicold       50.0
+KA3820   Kondensorer Küba              50.0
+KA3826   Kondensorer platt vvx Swep    50.0
+KA3827   Kondensorer platt vvx tbh Swep50.0
+KA3849   Kylaggregat övriga            50.0
+KA4010   Detektorer Samon              50.0
+KA4012   Tillbehör Samon               50.0
+KA4014   Testgas Samon                 50.0
+KA4016   Sensorer Samon                50.0
+KA5014   Datalykare Systemair          50.0
+KA6010   Vätskekylare Rhoss            50.0
+KX1010   Prefab Styr                   25.0
+LA1010   Odexrör                       55.0
+LA1012   Kollektorer Altech            55.0
+LA1014   Brunnsborrningsmaterial övrigt55.0
+LA1016   Samlingsbrunnar Altech        55.0
+LA1018   Samlingsbrunnar tbh Altech    55.0
+LA1026   Brunnsborrningsmaterial Altech55.0
+LA1112   Kollektorer Uponor            45.0
+LA1113   Kollektorer övriga            45.0
+LA1126   Brunnsborrningsmaterial övriga45.0
+LA1134   Brunnsborrningsmaterial Lunden45.0
+LA1138   Brunnsborrningsmaterial Svets 45.0
+LA2010   Glykol                        45.0
+LA4010   Köldbärarvätskor              67.0
+LA4012   Adblue                        67.0
+LA5010   Djupbrunnspumpar Grundfos     45.0
+LA5011   Djupbrunnspumpar Grundfos     45.0
+LA5012   Djupbrunnspumpar Wilo         45.0
+LA5013   Djupbrunnspumpar Xylem        45.0
+LA5014   Djupbrunnspumpar tbh Grundfos 45.0
+LA5016   Djupbrunnspumpar Debe         45.0
+LA5018   Kabel&Wire med tbh för djupbr-45.0
+LA5020   Djupbrunnspumpar tbh          45.0
+LA5022   Kabel&Wire med tbh för djupbr-45.0
+LA5024   Kabel&Wire med tbh för djupbr-45.0
+LA5028   Kabel&Wire med tbh för djupbr-45.0
+LA5032   Djupbrunnspumpar tbh Debe     45.0
+LA5034   Djupbrunnspumpar tbh Drivtekni45.0
+LA5038   Djupbrunnspumpar tbh Altech   45.0
+LA5040   Pumppaket Dahl                45.0
+LA5210   Djupbrunnspumpar Altech       47.0
+LA6010   Centrifugalpumpar Grundfos    48.0
+LA6012   Centrifugalpumpar tbh Grundfos48.0
+LA6014   Centrifugalpumpar Xylem       48.0
+LA6017   Centrifugalpumpar automationst48.0
+LA6018   Centrifugalpumpar Wilo        48.0
+LA6019   Centrifugalpumpar tbh Wilo    48.0
+LA6020   Ejektorpumpar Debe            48.0
+LA6024   Ejektorpumpar Gävle Tryckkärl 48.0
+LA6026   Ejektorpumpar Altech          48.0
+LA6210   Rörspetsar, botten- och mellan54.0
+LA6212   Bottenventiler Altech         54.0
+MA3010   Butiksprodukter 3010           0.0
+MA3015   Butiksprodukter 3015           0.0
+MA3020   Butiksprodukter 3020           0.0
+MA3025   Butiksprodukter 3025           0.0
+MA3035   Butiksprodukter 3035           0.0
+MA3040   Butiksprodukter 3040           0.0
+MA3045   Butiksprodukter 3045           0.0
+MA3050   Butiksprodukter 3050           0.0
+MA4012   Butiksprodukter 4012           0.0
+MA4014   Butiksprodukter 4014           0.0
+MA4016   Butiksprodukter 4016           0.0
+MA4018   Butiksprodukter 4018           0.0
+MA4020   Butiksprodukter 4020           0.0
+MA4022   Butiksprodukter 4022           0.0
+MA4024   Butiksprodukter 4024           0.0
+MA4026   Butiksprodukter 4026           0.0
+MA4030   Butiksprodukter 4030           0.0
+MA4032   Butiksprodukter 4032           0.0
+MA4034   Butiksprodukter 4034           0.0
+MA4036   Butiksprodukter 4036           0.0
+MA4038   Butiksprodukter 4038           0.0
+MA4040   Butiksprodukter 4040           0.0
+MA4042   Butiksprodukter 4042           0.0
+MA4044   Butiksprodukter 4044           0.0
+MA4046   Butiksprodukter 4046           0.0
+MA4050   Butiksprodukter 4050           0.0
+MA4052   Butiksprodukter 4052           0.0
+MA5010   Butiksprodukter 5010           0.0
+MA5012   Butiksprodukter 5012           0.0
+MA5014   Butiksprodukter 5014           0.0
+MA5016   Butiksprodukter 5016           0.0
+MA5018   Butiksprodukter 5018           0.0
+MA5020   Butiksprodukter 5020           0.0
+MA5022   Butiksprodukter 5022           0.0
+MA5024   Butiksprodukter 5024           0.0
+MA5028   Butiksprodukter 5028           0.0
+MA5030   Butiksprodukter 5030           0.0
+MA5032   Butiksprodukter 5032           0.0
+MA5034   Butiksprodukter 5034           0.0
+MA5036   Butiksprodukter 5036           0.0
+MA5038   Butiksprodukter 5038           0.0
+MA5042   Butiksprodukter 5042           0.0
+MA5044   Butiksprodukter 5044           0.0
+MA5046   Butiksprodukter 5046           0.0
+MA5048   Butiksprodukter 5048           0.0
+MA8010   Butiksprodukter 8010           0.0
+MA9010   Säljmaterial                   0.0
+MA9050   Förpackningsmaterial           0.0
+MA9999   Utgångna artiklar              0.0
+MB1010   Bauhaus                        0.0
+MB2010   GG unika artiklar              0.0
+MB8010   Ingående artiklar B-pack       0.0
+PA1210   Våtrumskassetter övriga        0.0
+PA2010   Badrumssystem                  0.0
+PA5010   Våtrumskassetter Knappens      0.0
+SA1000   Påsar                          0.0
+SA2010   Kalibrering                    0.0
+SL9999   Slaskartiklar                  0.0
+SU1010   Pressbackar                    0.0
+SU1011   Presslingor                    0.0
+SU1012   Pressmaskiner                  0.0
+SU1110   Gängverktyg                    0.0
+SU1111   Rillverktyg                    0.0
+SU1210   Elsvetsar                      0.0
+SU1211   Elsvetsar tbh                  0.0
+SU1212   Muffsvetsar                    0.0
+SU1310   Rörbockare                     0.0
+SU1311   Slipmaskiner                   0.0
+SU1312   Rörkapmaskiner                 0.0
+SU1313   Rörkapmaskiner tbh             0.0
+SU1314   Sticksågar                     0.0
+SU1315   Tigersågar                     0.0
+SU1316   Vinkelslipar                   0.0
+SU1410   Arbetsel                       0.0
+SU1412   Övrig arbetsplatsutrustning    0.0
+SU1413   Stegar och ställningar         0.0
+SU1414   Kärror och pirror              0.0
+SU1415   VA-maskiner                    0.0
+SU1510   Golvfräsar                     0.0
+SU1511   Slangvindor                    0.0
+SU1512   Byggpannor                     0.0
+SU1513   Värmeknivar                    0.0
+SU1610   Provtryckningspumpar           0.0
+SU1611   Kameror                        0.0
+SU1612   Justeringsverktyg radiatorer   0.0
+SU1613   Flödesmätning                  0.0
+SU1614   Mäta                           0.0
+SU1710   Frysmaskiner                   0.0
+SU1711   Notap                          0.0
+SU1810   Container                      0.0
+SU2010   Tvätt- och ångmaskiner         0.0
+SU2011   Motorkapar                     0.0
+SU2210   Borrhammare                    0.0
+SU2211   SDS-Max tillbehör              0.0
+SU2212   Diamantborrar                  0.0
+SU2510   Avloppsrensmaskiner            0.0
+SU2610   Expanderverktyg                0.0
+TA1010   Snus och tbh                   0.0
+YK1010   Marknadskostnader              0.0
+YY1010   GG Produkter                   0.0

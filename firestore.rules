@@ -1,0 +1,175 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper function to get user data
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    // Helper function to check if user belongs to organization
+    function belongsToOrg(orgId) {
+      return request.auth != null && getUserData().organizationId == orgId;
+    }
+
+    // Helper function to check if user is admin
+    function isAdmin() {
+      return request.auth != null && getUserData().role == 'admin';
+    }
+
+    // Users collection
+    match /users/{userId} {
+      // Users can read their own document
+      allow read: if request.auth != null && request.auth.uid == userId;
+
+      // Users can read other users in their organization
+      allow read: if request.auth != null &&
+                     resource.data.organizationId == getUserData().organizationId;
+
+      // Only the user themselves can create their own document
+      allow create: if request.auth != null && request.auth.uid == userId;
+
+      // Users can update their own document, admins can update users in their org
+      allow update: if request.auth != null &&
+                       (request.auth.uid == userId ||
+                        (isAdmin() && resource.data.organizationId == getUserData().organizationId));
+
+      // Only admins can delete users in their organization
+      allow delete: if isAdmin() && resource.data.organizationId == getUserData().organizationId;
+    }
+
+    // Organizations collection
+    match /organizations/{orgId} {
+      // Users can only read their own organization
+      allow read: if belongsToOrg(orgId);
+
+      // Only allow creation during signup (handled by Cloud Functions ideally)
+      allow create: if request.auth != null;
+
+      // Only admins can update their organization
+      allow update: if isAdmin() && belongsToOrg(orgId);
+
+      // No one can delete organizations (should be done via Cloud Functions)
+      allow delete: if false;
+    }
+
+    // Orders collection
+    match /orders/{orderId} {
+      // Users can read orders from their organization
+      allow read: if request.auth != null &&
+                     resource.data.organizationId == getUserData().organizationId;
+
+      // Users can create orders with their organizationId
+      allow create: if request.auth != null &&
+                       request.resource.data.organizationId == getUserData().organizationId;
+
+      // Users can update orders in their organization
+      allow update: if request.auth != null &&
+                       resource.data.organizationId == getUserData().organizationId &&
+                       request.resource.data.organizationId == getUserData().organizationId;
+
+      // Only admins can delete orders
+      allow delete: if isAdmin() && resource.data.organizationId == getUserData().organizationId;
+    }
+
+    // Customers collection
+    match /customers/{customerId} {
+      // Users can read customers from their organization
+      allow read: if request.auth != null &&
+                     resource.data.organizationId == getUserData().organizationId;
+
+      // Users can create customers with their organizationId
+      allow create: if request.auth != null &&
+                       request.resource.data.organizationId == getUserData().organizationId;
+
+      // Users can update customers in their organization
+      allow update: if request.auth != null &&
+                       resource.data.organizationId == getUserData().organizationId &&
+                       request.resource.data.organizationId == getUserData().organizationId;
+
+      // Only admins can delete customers
+      allow delete: if isAdmin() && resource.data.organizationId == getUserData().organizationId;
+    }
+
+    // Time reports collection
+    match /tidsrapporter/{reportId} {
+      // Users can read time reports from their organization
+      allow read: if request.auth != null &&
+                     resource.data.organizationId == getUserData().organizationId;
+
+      // Users can create time reports with their organizationId
+      allow create: if request.auth != null &&
+                       request.resource.data.organizationId == getUserData().organizationId;
+
+      // Users can update their own time reports, admins can update any in their org
+      allow update: if request.auth != null &&
+                       resource.data.organizationId == getUserData().organizationId &&
+                       (resource.data.userId == request.auth.uid || isAdmin());
+
+      // Users can delete their own reports, admins can delete any in their org
+      allow delete: if request.auth != null &&
+                       resource.data.organizationId == getUserData().organizationId &&
+                       (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // Schedulable users collection
+    match /schedulableUsers/{userId} {
+      // Users can read schedulable users from their organization
+      allow read: if request.auth != null &&
+                     resource.data.organizationId == getUserData().organizationId;
+
+      // Only admins can create schedulable users
+      allow create: if isAdmin() &&
+                       request.resource.data.organizationId == getUserData().organizationId;
+
+      // Only admins can update schedulable users in their organization
+      allow update: if isAdmin() &&
+                       resource.data.organizationId == getUserData().organizationId;
+
+      // Only admins can delete schedulable users
+      allow delete: if isAdmin() && resource.data.organizationId == getUserData().organizationId;
+    }
+
+    // Scheduled order jobs collection
+    match /scheduledOrderJobs/{jobId} {
+      // Users can read scheduled jobs from their organization
+      allow read: if request.auth != null &&
+                     resource.data.organizationId == getUserData().organizationId;
+
+      // Users can create scheduled jobs with their organizationId
+      allow create: if request.auth != null &&
+                       request.resource.data.organizationId == getUserData().organizationId;
+
+      // Users can update scheduled jobs in their organization
+      allow update: if request.auth != null &&
+                       resource.data.organizationId == getUserData().organizationId;
+
+      // Users can delete scheduled jobs in their organization
+      allow delete: if request.auth != null &&
+                       resource.data.organizationId == getUserData().organizationId;
+    }
+
+    // Time codes collection
+    match /timeCodes/{codeId} {
+      // Users can read time codes from their organization
+      allow read: if request.auth != null &&
+                     resource.data.organizationId == getUserData().organizationId;
+
+      // Only admins can create time codes
+      allow create: if isAdmin() &&
+                       request.resource.data.organizationId == getUserData().organizationId;
+
+      // Only admins can update time codes
+      allow update: if isAdmin() &&
+                       resource.data.organizationId == getUserData().organizationId;
+
+      // Only admins can delete time codes
+      allow delete: if isAdmin() && resource.data.organizationId == getUserData().organizationId;
+    }
+
+    // Default deny all other collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
