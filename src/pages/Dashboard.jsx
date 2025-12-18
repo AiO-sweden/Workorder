@@ -313,10 +313,11 @@ export default function Dashboard() {
             display: "flex",
             gap: spacing[4],
             flexWrap: "wrap",
-            alignItems: "center"
+            alignItems: "center",
+            justifyContent: "space-between"
           }}>
             {/* Search */}
-            <div style={{ position: "relative", flex: "1 1 300px" }}>
+            <div style={{ position: "relative", flex: "0 1 280px", minWidth: "200px" }}>
               <Search
                 size={18}
                 style={{
@@ -353,6 +354,13 @@ export default function Dashboard() {
               />
             </div>
 
+            {/* Filter Group - Right Side */}
+            <div style={{
+              display: "flex",
+              gap: spacing[4],
+              alignItems: "center",
+              flexWrap: "wrap"
+            }}>
             {/* Priority Filter */}
             <select
               value={filter.priority}
@@ -439,6 +447,7 @@ export default function Dashboard() {
               <CheckCircle size={18} />
               {showClosed ? `Visa aktiva (${activeOrders.length})` : `Visa avslutade (${closedOrdersCount})`}
             </button>
+            </div>
           </div>
         </div>
 
@@ -618,9 +627,17 @@ function StatusBadge({ status, orderId, onChange }) {
 
     if (!isOpen && buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
+      const dropdownHeight = 300; // Max height of dropdown
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const spaceAbove = rect.top;
+
+      // Open upward if not enough space below
+      const shouldOpenUpward = spaceBelow < dropdownHeight && spaceAbove > spaceBelow;
+
       setPosition({
-        top: rect.bottom + 4,
-        left: rect.left
+        top: shouldOpenUpward ? rect.top - dropdownHeight - 4 : rect.bottom + 4,
+        left: rect.left,
+        openUpward: shouldOpenUpward
       });
     }
     setIsOpen(!isOpen);
@@ -668,7 +685,8 @@ function StatusBadge({ status, orderId, onChange }) {
           onClick={(e) => e.stopPropagation()}
           style={{
             position: "fixed",
-            top: `${position.top}px`,
+            top: position.openUpward ? "auto" : `${position.top}px`,
+            bottom: position.openUpward ? `${window.innerHeight - position.top}px` : "auto",
             left: `${position.left}px`,
             backgroundColor: "white",
             borderRadius: borderRadius.lg,
@@ -736,9 +754,17 @@ function PriorityBadge({ priority, orderId, onChange }) {
 
     if (!isOpen && buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
+      const dropdownHeight = 200; // Max height of dropdown
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const spaceAbove = rect.top;
+
+      // Open upward if not enough space below
+      const shouldOpenUpward = spaceBelow < dropdownHeight && spaceAbove > spaceBelow;
+
       setPosition({
-        top: rect.bottom + 4,
-        left: rect.left
+        top: shouldOpenUpward ? rect.top - dropdownHeight - 4 : rect.bottom + 4,
+        left: rect.left,
+        openUpward: shouldOpenUpward
       });
     }
     setIsOpen(!isOpen);
@@ -786,7 +812,8 @@ function PriorityBadge({ priority, orderId, onChange }) {
           onClick={(e) => e.stopPropagation()}
           style={{
             position: "fixed",
-            top: `${position.top}px`,
+            top: position.openUpward ? "auto" : `${position.top}px`,
+            bottom: position.openUpward ? `${window.innerHeight - position.top}px` : "auto",
             left: `${position.left}px`,
             backgroundColor: "white",
             borderRadius: borderRadius.lg,
@@ -795,7 +822,7 @@ function PriorityBadge({ priority, orderId, onChange }) {
             zIndex: 9999,
             minWidth: "120px",
             border: `1px solid ${colors.neutral[200]}`,
-            maxHeight: "300px",
+            maxHeight: "200px",
             overflowY: "auto"
           }}>
           {priorityOptions.map((option) => (

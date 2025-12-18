@@ -41,6 +41,7 @@ export const inputStyle = {
   backgroundColor: "white",
   fontFamily: typography.fontFamily.sans,
   fontWeight: typography.fontWeight.normal,
+  boxSizing: "border-box",
 };
 
 export const inputFocusStyle = {

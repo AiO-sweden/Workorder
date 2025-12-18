@@ -26,16 +26,25 @@ import { colors, spacing, shadows, borderRadius, typography } from "../component
 export default function NewCustomer() {
   const navigate = useNavigate();
   const { userDetails } = useAuth();
+  const [customerType, setCustomerType] = useState("Privatperson"); // Privatperson, Företag, Förening
   const [form, setForm] = useState({
+    customerType: "Privatperson",
+    // Privatperson fields
+    firstName: "",
+    lastName: "",
+    personnummer: "",
+    // Company/Organization fields
     name: "",
+    orgNr: "",
+    vatNr: "",
+    alias: "",
+    // Common fields
     customerNumber: "",
     address: "",
     zipCity: "",
     country: "Sverige",
     phone: "",
     email: "",
-    orgNr: "",
-    vatNr: "",
     paymentTerms: "30 dagar",
     invoiceBy: "E-post",
     invoiceAddress: "",
@@ -79,10 +88,8 @@ export default function NewCustomer() {
     return /^\d{10}$/.test(cleaned);
   };
 
-  // Fetch company data from organization number using allabolag.se
+  // Fetch company data from organization number using Cloud Function
   const fetchCompanyData = async () => {
-    const cleaned = form.orgNr.replace(/[\s-]/g, '');
-
     if (!isValidOrgNr(form.orgNr)) {
       setToast({ type: 'error', message: 'Ange ett giltigt organisationsnummer (10 siffror)' });
       return;
@@ -92,54 +99,50 @@ export default function NewCustomer() {
     setCompanyDataFetched(false);
 
     try {
-      // Try using allabolag.se scraping endpoint (public data)
-      const response = await fetch(`https://www.allabolag.se/${cleaned}`, {
-        method: 'GET',
+      // Call Firebase Cloud Function
+      const functionUrl = process.env.NODE_ENV === 'production'
+        ? 'https://fetchcompanydata-klmkx4t7rq-ew.a.run.app'
+        : 'http://127.0.0.1:5001/aio-arbetsorder/europe-west1/fetchCompanyData';
+
+      const response = await fetch(functionUrl, {
+        method: 'POST',
         headers: {
-          'Accept': 'text/html',
-        }
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ orgNr: form.orgNr })
       });
 
-      if (response.ok) {
-        const html = await response.text();
-
-        // Parse company name from title tag
-        const nameMatch = html.match(/<title>([^|]+)/);
-        const name = nameMatch ? nameMatch[1].trim() : null;
-
-        // Parse address from structured data
-        const addressMatch = html.match(/"streetAddress":"([^"]+)"/);
-        const address = addressMatch ? addressMatch[1] : null;
-
-        const postalCodeMatch = html.match(/"postalCode":"([^"]+)"/);
-        const cityMatch = html.match(/"addressLocality":"([^"]+)"/);
-        const zipCity = postalCodeMatch && cityMatch
-          ? `${postalCodeMatch[1]} ${cityMatch[1]}`
-          : null;
-
-        // Only update if we found data
-        if (name || address || zipCity) {
-          setForm(prev => ({
-            ...prev,
-            name: name || prev.name,
-            address: address || prev.address,
-            zipCity: zipCity || prev.zipCity,
-            country: "Sverige"
-          }));
-
-          setCompanyDataFetched(true);
-          setToast({ type: 'success', message: 'Företagsuppgifter hämtade!' });
-          setTimeout(() => setCompanyDataFetched(false), 3000);
-        } else {
-          throw new Error('Kunde inte hitta företagsuppgifter');
-        }
-      } else {
-        throw new Error('Företaget kunde inte hittas');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Företaget kunde inte hittas');
       }
+
+      const result = await response.json();
+      const companyData = result.data;
+
+      if (!companyData || !companyData.name) {
+        throw new Error('Kunde inte hitta företagsuppgifter');
+      }
+
+      // Update form with fetched data
+      setForm(prev => ({
+        ...prev,
+        name: companyData.name || prev.name,
+        address: companyData.address || prev.address,
+        zipCity: companyData.zipCity || prev.zipCity,
+        country: companyData.country || "Sverige"
+      }));
+
+      setCompanyDataFetched(true);
+      setToast({ type: 'success', message: 'Företagsuppgifter hämtade!' });
+      setTimeout(() => setCompanyDataFetched(false), 3000);
 
     } catch (error) {
       console.error('Error fetching company data:', error);
-      setToast({ type: 'error', message: 'Kunde inte hämta företagsuppgifter. Fyll i uppgifterna manuellt.' });
+      setToast({
+        type: 'error',
+        message: 'Kunde inte hämta företagsuppgifter. Kontrollera organisationsnumret eller fyll i uppgifterna manuellt.'
+      });
     } finally {
       setFetchingCompanyData(false);
     }
@@ -147,6 +150,11 @@ export default function NewCustomer() {
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleCustomerTypeChange = (type) => {
+    setCustomerType(type);
+    setForm({ ...form, customerType: type });
   };
 
   const handleSubmit = async (e) => {
@@ -249,105 +257,365 @@ export default function NewCustomer() {
       </div>
 
       <form onSubmit={handleSubmit}>
-        {/* Allmän Information */}
+        {/* Customer Type Selection */}
         <div style={cardStyle}>
           <div style={sectionHeaderStyle}>
             <User size={20} />
-            Allmän information
+            Kunduppgifter
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[6] }}>
-            <FormField label="Kundnamn" required>
-              <input
-                name="name"
-                value={form.name}
-                onChange={handleChange}
-                style={inputStyle}
-                placeholder="Ange kundnamn"
-                required
-              />
-            </FormField>
-
-            <FormField label="Kundnummer" helper="Genereras automatiskt">
-              <input
-                name="customerNumber"
-                value={form.customerNumber}
-                readOnly
-                style={{
-                  ...inputStyle,
-                  backgroundColor: colors.neutral[50],
-                  color: colors.neutral[500],
-                  cursor: 'not-allowed'
-                }}
-              />
-            </FormField>
-          </div>
-
-          <FormField label="Organisationsnummer" helper="Klicka på 'Hämta uppgifter' för att automatiskt fylla i företagsdata">
-            <div style={{ display: "flex", gap: spacing[3], alignItems: "flex-start" }}>
-              <input
-                name="orgNr"
-                value={form.orgNr}
-                onChange={handleChange}
-                style={{
-                  ...inputStyle,
-                  flex: 1,
-                  borderColor: companyDataFetched ? colors.success[500] : colors.neutral[200],
-                  borderWidth: companyDataFetched ? '2px' : '2px',
-                  boxShadow: companyDataFetched ? shadows.glowSuccess : 'none'
-                }}
-                placeholder="XXXXXX-XXXX"
-              />
-              <button
-                type="button"
-                onClick={fetchCompanyData}
-                disabled={!isValidOrgNr(form.orgNr) || fetchingCompanyData}
-                style={{
-                  padding: `${spacing[3]} ${spacing[5]}`,
-                  borderRadius: borderRadius.lg,
-                  border: "none",
-                  fontWeight: typography.fontWeight.semibold,
-                  fontSize: typography.fontSize.base,
-                  cursor: !isValidOrgNr(form.orgNr) || fetchingCompanyData ? "not-allowed" : "pointer",
-                  transition: "all 0.2s ease",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: spacing[2],
-                  justifyContent: "center",
-                  background: fetchingCompanyData ? colors.neutral[400] : colors.gradients.blue,
-                  color: "white",
-                  opacity: !isValidOrgNr(form.orgNr) || fetchingCompanyData ? 0.6 : 1,
-                  whiteSpace: "nowrap",
-                  boxShadow: shadows.md
-                }}
-              >
-                {fetchingCompanyData ? (
-                  <>
-                    <Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} />
-                    <span>Hämtar...</span>
-                    <style>
-                      {`
-                        @keyframes spin {
-                          from { transform: rotate(0deg); }
-                          to { transform: rotate(360deg); }
-                        }
-                      `}
-                    </style>
-                  </>
-                ) : companyDataFetched ? (
-                  <>
-                    <Check size={18} />
-                    <span>Hämtat!</span>
-                  </>
-                ) : (
-                  <>
-                    <Building2 size={18} />
-                    <span>Hämta uppgifter</span>
-                  </>
-                )}
-              </button>
+          {/* Radio buttons for customer type */}
+          <div style={{ marginBottom: spacing[6] }}>
+            <label style={{
+              display: "block",
+              fontSize: typography.fontSize.sm,
+              fontWeight: typography.fontWeight.semibold,
+              color: colors.neutral[700],
+              marginBottom: spacing[3]
+            }}>
+              Kundtyp
+            </label>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: spacing[4] }}>
+              {["Privatperson", "Företag", "Förening"].map((type) => (
+                <label
+                  key={type}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: spacing[3],
+                    padding: spacing[4],
+                    borderRadius: borderRadius.lg,
+                    border: `2px solid ${customerType === type ? colors.primary[500] : colors.neutral[200]}`,
+                    backgroundColor: customerType === type ? colors.primary[50] : "white",
+                    cursor: "pointer",
+                    transition: "all 0.2s ease"
+                  }}
+                >
+                  <input
+                    type="radio"
+                    name="customerType"
+                    value={type}
+                    checked={customerType === type}
+                    onChange={() => handleCustomerTypeChange(type)}
+                    style={{
+                      width: "20px",
+                      height: "20px",
+                      cursor: "pointer",
+                      accentColor: colors.primary[500]
+                    }}
+                  />
+                  <span style={{
+                    fontWeight: typography.fontWeight.medium,
+                    color: customerType === type ? colors.primary[700] : colors.neutral[700]
+                  }}>
+                    {type}
+                  </span>
+                </label>
+              ))}
             </div>
-          </FormField>
+          </div>
+
+          {/* Privatperson Fields */}
+          {customerType === "Privatperson" && (
+            <>
+              <div style={{ marginBottom: spacing[4] }}>
+                <h3 style={{
+                  fontSize: typography.fontSize.lg,
+                  fontWeight: typography.fontWeight.semibold,
+                  color: colors.neutral[800],
+                  margin: `0 0 ${spacing[4]} 0`
+                }}>
+                  Primärkontakt
+                </h3>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[6] }}>
+                <FormField label="Förnamn" required>
+                  <input
+                    name="firstName"
+                    value={form.firstName}
+                    onChange={handleChange}
+                    style={inputStyle}
+                    placeholder="Förnamn"
+                    required
+                  />
+                </FormField>
+
+                <FormField label="Efternamn" required>
+                  <input
+                    name="lastName"
+                    value={form.lastName}
+                    onChange={handleChange}
+                    style={inputStyle}
+                    placeholder="Efternamn"
+                    required
+                  />
+                </FormField>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[6] }}>
+                <FormField label="Telefonnummer">
+                  <input
+                    name="phone"
+                    value={form.phone}
+                    onChange={handleChange}
+                    style={inputStyle}
+                    placeholder="070-123 45 67"
+                  />
+                </FormField>
+
+                <FormField label="E-post">
+                  <input
+                    type="email"
+                    name="email"
+                    value={form.email}
+                    onChange={handleChange}
+                    style={inputStyle}
+                    placeholder="namn@example.com"
+                  />
+                </FormField>
+              </div>
+
+              <FormField label="Personnummer">
+                <input
+                  name="personnummer"
+                  value={form.personnummer}
+                  onChange={handleChange}
+                  style={inputStyle}
+                  placeholder="ÅÅÅÅMMDD-XXXX"
+                />
+              </FormField>
+
+              <div style={{ marginTop: spacing[6], marginBottom: spacing[4] }}>
+                <h3 style={{
+                  fontSize: typography.fontSize.lg,
+                  fontWeight: typography.fontWeight.semibold,
+                  color: colors.neutral[800],
+                  margin: `0 0 ${spacing[4]} 0`
+                }}>
+                  Grunduppgifter
+                </h3>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[6] }}>
+                <FormField label="Kundnamn" required>
+                  <input
+                    name="name"
+                    value={form.name || `${form.firstName} ${form.lastName}`.trim()}
+                    onChange={handleChange}
+                    style={inputStyle}
+                    placeholder="Autofylls från för- och efternamn"
+                    required
+                  />
+                </FormField>
+
+                <FormField label="Kundnummer" helper="Genereras automatiskt">
+                  <input
+                    name="customerNumber"
+                    value={form.customerNumber}
+                    readOnly
+                    style={{
+                      ...inputStyle,
+                      backgroundColor: colors.neutral[50],
+                      color: colors.neutral[500],
+                      cursor: 'not-allowed'
+                    }}
+                  />
+                </FormField>
+              </div>
+            </>
+          )}
+
+          {/* Företag Fields */}
+          {customerType === "Företag" && (
+            <>
+              <div style={{ marginBottom: spacing[4] }}>
+                <h3 style={{
+                  fontSize: typography.fontSize.lg,
+                  fontWeight: typography.fontWeight.semibold,
+                  color: colors.neutral[800],
+                  margin: `0 0 ${spacing[4]} 0`
+                }}>
+                  Företagsuppgifter
+                </h3>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[6] }}>
+                <FormField label="Kundnamn" required>
+                  <input
+                    name="name"
+                    value={form.name}
+                    onChange={handleChange}
+                    style={inputStyle}
+                    placeholder="Företagsnamn AB"
+                    required
+                  />
+                </FormField>
+
+                <FormField label="Kundnummer" helper="Genereras automatiskt">
+                  <input
+                    name="customerNumber"
+                    value={form.customerNumber}
+                    readOnly
+                    style={{
+                      ...inputStyle,
+                      backgroundColor: colors.neutral[50],
+                      color: colors.neutral[500],
+                      cursor: 'not-allowed'
+                    }}
+                  />
+                </FormField>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[6] }}>
+                <FormField label="Alias">
+                  <input
+                    name="alias"
+                    value={form.alias}
+                    onChange={handleChange}
+                    style={inputStyle}
+                    placeholder="Kortnamn"
+                  />
+                </FormField>
+
+                <FormField label="Momsregistreringsnummer (VAT)">
+                  <input
+                    name="vatNr"
+                    value={form.vatNr}
+                    onChange={handleChange}
+                    style={inputStyle}
+                    placeholder="SE123456789001"
+                  />
+                </FormField>
+              </div>
+
+              <FormField label="Organisationsnummer" helper="Klicka på 'Hämta uppgifter' för automatisk ifyllning">
+                <div style={{ display: "flex", gap: spacing[3], alignItems: "flex-start" }}>
+                  <input
+                    name="orgNr"
+                    value={form.orgNr}
+                    onChange={handleChange}
+                    style={{
+                      ...inputStyle,
+                      flex: 1,
+                      borderColor: companyDataFetched ? colors.success[500] : colors.neutral[200],
+                      boxShadow: companyDataFetched ? shadows.glowSuccess : 'none'
+                    }}
+                    placeholder="XXXXXX-XXXX"
+                  />
+                  <button
+                    type="button"
+                    onClick={fetchCompanyData}
+                    disabled={!isValidOrgNr(form.orgNr) || fetchingCompanyData}
+                    style={{
+                      padding: `${spacing[3]} ${spacing[5]}`,
+                      borderRadius: borderRadius.lg,
+                      border: "none",
+                      fontWeight: typography.fontWeight.semibold,
+                      fontSize: typography.fontSize.base,
+                      cursor: !isValidOrgNr(form.orgNr) || fetchingCompanyData ? "not-allowed" : "pointer",
+                      transition: "all 0.2s ease",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: spacing[2],
+                      justifyContent: "center",
+                      background: fetchingCompanyData ? colors.neutral[400] : colors.gradients.blue,
+                      color: "white",
+                      opacity: !isValidOrgNr(form.orgNr) || fetchingCompanyData ? 0.6 : 1,
+                      whiteSpace: "nowrap",
+                      boxShadow: shadows.md
+                    }}
+                  >
+                    {fetchingCompanyData ? (
+                      <>
+                        <Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} />
+                        <span>Hämtar...</span>
+                        <style>
+                          {`
+                            @keyframes spin {
+                              from { transform: rotate(0deg); }
+                              to { transform: rotate(360deg); }
+                            }
+                          `}
+                        </style>
+                      </>
+                    ) : companyDataFetched ? (
+                      <>
+                        <Check size={18} />
+                        <span>Hämtat!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Building2 size={18} />
+                        <span>Hämta uppgifter</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </FormField>
+            </>
+          )}
+
+          {/* Förening Fields */}
+          {customerType === "Förening" && (
+            <>
+              <div style={{ marginBottom: spacing[4] }}>
+                <h3 style={{
+                  fontSize: typography.fontSize.lg,
+                  fontWeight: typography.fontWeight.semibold,
+                  color: colors.neutral[800],
+                  margin: `0 0 ${spacing[4]} 0`
+                }}>
+                  Organisationsuppgifter
+                </h3>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[6] }}>
+                <FormField label="Kundnamn" required>
+                  <input
+                    name="name"
+                    value={form.name}
+                    onChange={handleChange}
+                    style={inputStyle}
+                    placeholder="Föreningsnamn"
+                    required
+                  />
+                </FormField>
+
+                <FormField label="Kundnummer" helper="Genereras automatiskt">
+                  <input
+                    name="customerNumber"
+                    value={form.customerNumber}
+                    readOnly
+                    style={{
+                      ...inputStyle,
+                      backgroundColor: colors.neutral[50],
+                      color: colors.neutral[500],
+                      cursor: 'not-allowed'
+                    }}
+                  />
+                </FormField>
+              </div>
+
+              <FormField label="Organisationsnummer">
+                <input
+                  name="orgNr"
+                  value={form.orgNr}
+                  onChange={handleChange}
+                  style={inputStyle}
+                  placeholder="XXXXXX-XXXX"
+                />
+              </FormField>
+            </>
+          )}
+        </div>
+
+        {/* Adress - Common for all types */}
+        <div style={cardStyle}>
+          <div style={sectionHeaderStyle}>
+            <Home size={20} />
+            Fakturaadress
+          </div>
 
           <FormField label="Adress">
             <input
@@ -379,29 +647,6 @@ export default function NewCustomer() {
               />
             </FormField>
           </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[6] }}>
-            <FormField label="Telefon">
-              <input
-                name="phone"
-                value={form.phone}
-                onChange={handleChange}
-                style={inputStyle}
-                placeholder="070-123 45 67"
-              />
-            </FormField>
-
-            <FormField label="E-post">
-              <input
-                type="email"
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                style={inputStyle}
-                placeholder="namn@example.com"
-              />
-            </FormField>
-          </div>
         </div>
 
         {/* Fakturering */}
@@ -410,16 +655,6 @@ export default function NewCustomer() {
             <CreditCard size={20} />
             Fakturering
           </div>
-
-          <FormField label="Momsregistreringsnummer (VAT)" helper="För internationella kunder">
-            <input
-              name="vatNr"
-              value={form.vatNr}
-              onChange={handleChange}
-              style={inputStyle}
-              placeholder="SE123456789001"
-            />
-          </FormField>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[6] }}>
             <FormField label="Betalningsvillkor">
@@ -481,12 +716,13 @@ export default function NewCustomer() {
           </FormField>
         </div>
 
-        {/* ROT & RUT */}
-        <div style={cardStyle}>
-          <div style={sectionHeaderStyle}>
-            <Home size={20} />
-            ROT & RUT-avdrag
-          </div>
+        {/* ROT & RUT - Only for Privatperson */}
+        {customerType === "Privatperson" && (
+          <div style={cardStyle}>
+            <div style={sectionHeaderStyle}>
+              <Home size={20} />
+              ROT & RUT-avdrag
+            </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[6], marginBottom: spacing[6] }}>
             <FormField label="ROT-kund" helper="Renovering, Ombyggnad, Tillbyggnad">
@@ -507,8 +743,6 @@ export default function NewCustomer() {
           {form.rotCustomer === "Ja" && (
             <div style={{
               padding: spacing[6],
-              background: colors.gradients.success,
-              opacity: 0.1,
               backgroundColor: colors.success[50],
               border: `2px solid ${colors.success[300]}`,
               borderRadius: borderRadius.xl,
@@ -546,8 +780,6 @@ export default function NewCustomer() {
           {form.rutCustomer === "Ja" && (
             <div style={{
               padding: spacing[6],
-              background: colors.gradients.purple,
-              opacity: 0.1,
               backgroundColor: colors.primary[50],
               border: `2px solid ${colors.primary[300]}`,
               borderRadius: borderRadius.xl,
@@ -572,7 +804,8 @@ export default function NewCustomer() {
               </FormField>
             </div>
           )}
-        </div>
+          </div>
+        )}
 
         {/* Submit Button */}
         <div style={{ display: "flex", gap: spacing[4] }}>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../firebase/config";
-import { collection, addDoc, getDocs, serverTimestamp, query, where } from "firebase/firestore";
+import { collection, addDoc, getDocs, serverTimestamp, query, where, doc, getDoc } from "firebase/firestore";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import {
@@ -21,7 +21,16 @@ import {
   Briefcase,
   Tag,
   FileCheck,
-  UserCircle
+  UserCircle,
+  Hammer,
+  Zap,
+  Shield,
+  Cpu,
+  Home,
+  Wrench,
+  Building,
+  MoreHorizontal,
+  Settings
 } from "lucide-react";
 
 // Import shared components and styles
@@ -40,11 +49,30 @@ import ActionButton from '../components/shared/ActionButton';
 import FormField from '../components/shared/FormField';
 import Toast from '../components/shared/Toast';
 
+// Available icons for work types
+const AVAILABLE_ICONS = {
+  Hammer, Zap, Shield, Cpu, Home, Wrench, Building, MoreHorizontal,
+  Briefcase, User, Settings, DollarSign, Clock
+};
+
+// Default work types fallback
+const DEFAULT_WORK_TYPES = [
+  { id: "bygg", name: "Bygg", icon: "Hammer", color: "#f59e0b" },
+  { id: "el", name: "El", icon: "Zap", color: "#eab308" },
+  { id: "garanti", name: "Garanti", icon: "Shield", color: "#10b981" },
+  { id: "it", name: "IT", icon: "Cpu", color: "#3b82f6" },
+  { id: "rivning", name: "Rivning", icon: "Home", color: "#ef4444" },
+  { id: "vvs", name: "VVS", icon: "Wrench", color: "#06b6d4" },
+  { id: "anlaggning", name: "Anläggning", icon: "Building", color: "#8b5cf6" },
+  { id: "ovrigt", name: "Övrigt", icon: "MoreHorizontal", color: "#64748b" }
+];
+
 export default function NewOrder() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { userDetails } = useAuth();
   const [customers, setCustomers] = useState([]);
+  const [workTypes, setWorkTypes] = useState(DEFAULT_WORK_TYPES);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [toast, setToast] = useState(null);
@@ -99,6 +127,22 @@ export default function NewOrder() {
       }
     };
 
+    const fetchWorkTypes = async () => {
+      if (!userDetails?.organizationId) return;
+
+      try {
+        const settingsRef = doc(db, "settings", userDetails.organizationId);
+        const settingsDoc = await getDoc(settingsRef);
+
+        if (settingsDoc.exists() && settingsDoc.data().workTypes) {
+          setWorkTypes(settingsDoc.data().workTypes);
+        }
+      } catch (error) {
+        console.error("Error fetching work types:", error);
+        // Keep using default work types on error
+      }
+    };
+
     const generateOrderNumber = async () => {
       if (!userDetails?.organizationId) return;
 
@@ -117,6 +161,7 @@ export default function NewOrder() {
     };
 
     fetchCustomers();
+    fetchWorkTypes();
     generateOrderNumber();
   }, [searchParams, userDetails]);
 
@@ -131,7 +176,7 @@ export default function NewOrder() {
 
   const handleWorkTypeChange = (type) => {
     // Om Garanti väljs, sätt billable till false automatiskt
-    if (type === "Garanti") {
+    if (type.toLowerCase() === "garanti") {
       setForm({
         ...form,
         workType: type,
@@ -215,19 +260,8 @@ export default function NewOrder() {
 
   const selectedCustomer = () => customers.find(c => c.id === form.customerId);
 
-  const workTypes = [
-    { value: "Bygg", icon: "🏗️" },
-    { value: "El", icon: "⚡" },
-    { value: "Garanti", icon: "🛡️" },
-    { value: "IT", icon: "💻" },
-    { value: "Rivning", icon: "🔨" },
-    { value: "VVS", icon: "🚰" },
-    { value: "Anläggning", icon: "🏭" },
-    { value: "Övrigt", icon: "📦" }
-  ];
-
   // Kontrollera om fakturering ska vara disabled (för Garanti-jobb)
-  const isBillingDisabled = form.workType === "Garanti";
+  const isBillingDisabled = form.workType.toLowerCase() === "garanti";
 
   return (
     <div className="page-enter" style={{
@@ -416,10 +450,10 @@ export default function NewOrder() {
             }}>
               {workTypes.map(type => (
                 <WorkTypeButton
-                  key={type.value}
+                  key={type.id}
                   type={type}
-                  selected={form.workType === type.value}
-                  onClick={() => handleWorkTypeChange(type.value)}
+                  selected={form.workType === type.name}
+                  onClick={() => handleWorkTypeChange(type.name)}
                 />
               ))}
             </div>
@@ -443,33 +477,31 @@ export default function NewOrder() {
             {errors.description && <ErrorMessage message={errors.description} />}
           </FormField>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[4] }}>
-            <FormField label="Uppskattad tid">
-              <div style={{ position: "relative" }}>
-                <Clock size={18} style={iconInInputStyle} />
-                <input
-                  name="estimatedTime"
-                  value={form.estimatedTime}
-                  onChange={handleChange}
-                  style={{ ...inputStyle, paddingLeft: spacing[10] }}
-                  placeholder="T.ex. 4 timmar"
-                />
-              </div>
-            </FormField>
+          <FormField label="Uppskattad tid">
+            <div style={{ position: "relative" }}>
+              <Clock size={18} style={iconInInputStyle} />
+              <input
+                name="estimatedTime"
+                value={form.estimatedTime}
+                onChange={handleChange}
+                style={{ ...inputStyle, paddingLeft: spacing[10] }}
+                placeholder="T.ex. 4 timmar"
+              />
+            </div>
+          </FormField>
 
-            <FormField label="Tilldelad till">
-              <div style={{ position: "relative" }}>
-                <UserCircle size={18} style={iconInInputStyle} />
-                <input
-                  name="assignedTo"
-                  value={form.assignedTo}
-                  onChange={handleChange}
-                  style={{ ...inputStyle, paddingLeft: spacing[10] }}
-                  placeholder="Namn på ansvarig"
-                />
-              </div>
-            </FormField>
-          </div>
+          <FormField label="Tilldelad till">
+            <div style={{ position: "relative" }}>
+              <UserCircle size={18} style={iconInInputStyle} />
+              <input
+                name="assignedTo"
+                value={form.assignedTo}
+                onChange={handleChange}
+                style={{ ...inputStyle, paddingLeft: spacing[10] }}
+                placeholder="Namn på ansvarig"
+              />
+            </div>
+          </FormField>
 
           <FormField label="Material / Utrustning">
             <textarea
@@ -499,45 +531,43 @@ export default function NewOrder() {
             <span>Status & Prioritet</span>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: spacing[4] }}>
-            <FormField label="Status">
-              <select
-                name="status"
-                value={form.status}
-                onChange={handleChange}
-                style={inputStyle}
-              >
-                <option value="Planerad">Planerad</option>
-                <option value="Ej påbörjad">Ej påbörjad</option>
-                <option value="Pågående">Pågående</option>
-                <option value="Klar för fakturering">Klar för fakturering</option>
-                <option value="Full fakturerad">Full fakturerad</option>
-              </select>
-            </FormField>
+          <FormField label="Status">
+            <select
+              name="status"
+              value={form.status}
+              onChange={handleChange}
+              style={inputStyle}
+            >
+              <option value="Planerad">Planerad</option>
+              <option value="Ej påbörjad">Ej påbörjad</option>
+              <option value="Pågående">Pågående</option>
+              <option value="Klar för fakturering">Klar för fakturering</option>
+              <option value="Full fakturerad">Full fakturerad</option>
+            </select>
+          </FormField>
 
-            <FormField label="Prioritet">
-              <select
-                name="priority"
-                value={form.priority}
-                onChange={handleChange}
-                style={inputStyle}
-              >
-                <option value="Låg">Låg</option>
-                <option value="Mellan">Mellan</option>
-                <option value="Hög">Hög</option>
-              </select>
-            </FormField>
+          <FormField label="Prioritet">
+            <select
+              name="priority"
+              value={form.priority}
+              onChange={handleChange}
+              style={inputStyle}
+            >
+              <option value="Låg">Låg</option>
+              <option value="Mellan">Mellan</option>
+              <option value="Hög">Hög</option>
+            </select>
+          </FormField>
 
-            <FormField label="Deadline">
-              <input
-                type="date"
-                name="deadline"
-                value={form.deadline}
-                onChange={handleChange}
-                style={inputStyle}
-              />
-            </FormField>
-          </div>
+          <FormField label="Deadline">
+            <input
+              type="date"
+              name="deadline"
+              value={form.deadline}
+              onChange={handleChange}
+              style={inputStyle}
+            />
+          </FormField>
         </div>
 
         {/* Billing Card */}
@@ -749,6 +779,7 @@ function ErrorMessage({ message }) {
 
 function WorkTypeButton({ type, selected, onClick }) {
   const [isHovered, setIsHovered] = useState(false);
+  const Icon = AVAILABLE_ICONS[type.icon] || MoreHorizontal;
 
   return (
     <button
@@ -759,9 +790,9 @@ function WorkTypeButton({ type, selected, onClick }) {
       style={{
         padding: spacing[3],
         borderRadius: borderRadius.lg,
-        border: `2px solid ${selected ? colors.primary[500] : colors.neutral[200]}`,
-        backgroundColor: selected ? colors.primary[50] : (isHovered ? colors.neutral[50] : "white"),
-        color: selected ? colors.primary[700] : colors.neutral[600],
+        border: `2px solid ${selected ? type.color : colors.neutral[200]}`,
+        backgroundColor: selected ? `${type.color}20` : (isHovered ? colors.neutral[50] : "white"),
+        color: selected ? type.color : colors.neutral[600],
         cursor: "pointer",
         transition: `all ${transitions.base}`,
         fontSize: typography.fontSize.sm,
@@ -773,8 +804,8 @@ function WorkTypeButton({ type, selected, onClick }) {
         boxShadow: selected ? shadows.sm : "none"
       }}
     >
-      <span style={{ fontSize: typography.fontSize['2xl'] }}>{type.icon}</span>
-      <span>{type.value}</span>
+      <Icon size={24} color={selected ? type.color : colors.neutral[500]} />
+      <span>{type.name}</span>
     </button>
   );
 }
