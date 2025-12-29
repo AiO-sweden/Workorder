@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { db } from "../firebase/config";
-import { collection, addDoc, getDocs, serverTimestamp, query, where } from "firebase/firestore";
+import { supabase } from "../supabase";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import {
@@ -61,20 +60,34 @@ export default function NewCustomer() {
 
   useEffect(() => {
     const generateCustomerNumber = async () => {
-      if (!userDetails?.organizationId) return;
+      if (!userDetails) {
+        console.log('⏳ NewCustomer: Waiting for userDetails to load...');
+        return;
+      }
+
+      if (!userDetails.organizationId) {
+        console.log('⚠️ NewCustomer: No organizationId, using default customer number');
+        setForm(prev => ({ ...prev, customerNumber: '0001' }));
+        return;
+      }
+
+      console.log('🔍 NewCustomer: Generating customer number...');
 
       try {
-        const customersQuery = query(
-          collection(db, "customers"),
-          where("organizationId", "==", userDetails.organizationId)
-        );
-        const snapshot = await getDocs(customersQuery);
-        const nextNumber = snapshot.size + 1;
+        const { data, error } = await supabase
+          .from('customers')
+          .select('id')
+          .eq('organization_id', userDetails.organizationId);
+
+        if (error) throw error;
+
+        const nextNumber = (data?.length || 0) + 1;
         // Format with 4-digit padding: 0001, 0002, 0003, etc.
         const paddedNumber = nextNumber.toString().padStart(4, '0');
         setForm(prev => ({ ...prev, customerNumber: paddedNumber }));
+        console.log('✅ NewCustomer: Generated customer number:', paddedNumber);
       } catch (error) {
-        console.error("Error generating customer number:", error);
+        console.error("❌ NewCustomer: Error generating customer number:", error);
         setForm(prev => ({ ...prev, customerNumber: '0001' }));
       }
     };
@@ -99,38 +112,55 @@ export default function NewCustomer() {
     setCompanyDataFetched(false);
 
     try {
-      // Call Firebase Cloud Function
-      const functionUrl = process.env.NODE_ENV === 'production'
-        ? 'https://fetchcompanydata-klmkx4t7rq-ew.a.run.app'
-        : 'http://127.0.0.1:5001/aio-arbetsorder/europe-west1/fetchCompanyData';
+      // TEMPORARY: Fetch directly from Allabolag using CORS proxy
+      const cleanedOrgNr = form.orgNr.replace(/[\s-]/g, '');
+      const allabolagUrl = `https://www.allabolag.se/${cleanedOrgNr}`;
 
-      const response = await fetch(functionUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ orgNr: form.orgNr })
+      // Use CORS proxy to bypass CORS restrictions (temporary solution)
+      const corsProxy = 'https://api.allorigins.win/raw?url=';
+      const url = corsProxy + encodeURIComponent(allabolagUrl);
+
+      const response = await fetch(url, {
+        method: 'GET',
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Företaget kunde inte hittas');
+        throw new Error('Företaget kunde inte hittas');
       }
 
-      const result = await response.json();
-      const companyData = result.data;
+      const html = await response.text();
 
-      if (!companyData || !companyData.name) {
+      // Extract JSON data from __NEXT_DATA__ script tag
+      const nextDataMatch = html.match(/<script id="__NEXT_DATA__"[^>]*>(.*?)<\/script>/);
+
+      if (!nextDataMatch) {
+        throw new Error('Kunde inte hämta företagsdata');
+      }
+
+      const nextData = JSON.parse(nextDataMatch[1]);
+      const company = nextData?.props?.pageProps?.company;
+
+      if (!company || !company.name) {
         throw new Error('Kunde inte hitta företagsuppgifter');
       }
+
+      // Extract and format the data using correct Allabolag field names
+      const companyData = {
+        name: company.name || '',
+        address: company.postalAddress?.addressLine || company.visitingAddress?.street || company.address?.street || '',
+        zipCode: company.postalAddress?.zipCode || company.visitingAddress?.postalCode || company.address?.postalCode || '',
+        city: company.postalAddress?.postPlace || company.visitingAddress?.city || company.address?.city || '',
+      };
+
+      console.log('✅ Extracted company data:', companyData);
 
       // Update form with fetched data
       setForm(prev => ({
         ...prev,
         name: companyData.name || prev.name,
         address: companyData.address || prev.address,
-        zipCity: companyData.zipCity || prev.zipCity,
-        country: companyData.country || "Sverige"
+        zipCity: `${companyData.zipCode} ${companyData.city}`.trim() || prev.zipCity,
+        country: "Sverige"
       }));
 
       setCompanyDataFetched(true);
@@ -177,19 +207,38 @@ export default function NewCustomer() {
     }
 
     if (!userDetails?.organizationId) {
+      console.error('❌ No organizationId:', userDetails);
       setToast({ type: 'error', message: 'Du måste vara inloggad för att skapa en kund.' });
       return;
     }
 
     try {
-      const docRef = await addDoc(collection(db, "customers"), {
-        ...form,
-        organizationId: userDetails.organizationId,
-        createdAt: serverTimestamp()
-      });
+      const { data, error } = await supabase
+        .from('customers')
+        .insert([{
+          customer_number: form.customerNumber,
+          name: form.customerType === "Privatperson"
+            ? `${form.firstName} ${form.lastName}`.trim()
+            : form.name,
+          org_nr: form.orgNr,
+          address: form.address,
+          zip_code: form.zipCity?.split(' ')[0] || '',
+          city: form.zipCity?.split(' ').slice(1).join(' ') || '',
+          phone: form.phone,
+          email: form.email,
+          invoice_by: form.invoiceBy,
+          payment_terms: form.paymentTerms,
+          reference_person: form.customerType === "Privatperson" ? `${form.firstName} ${form.lastName}` : '',
+          organization_id: userDetails.organizationId,
+          created_at: new Date().toISOString()
+        }])
+        .select();
+
+      if (error) throw error;
+
       setToast({ type: 'success', message: 'Kund sparad!' });
       setTimeout(() => {
-        navigate(`/customers/${docRef.id}`);
+        navigate(`/customers/${data[0].id}`);
       }, 1500);
     } catch (err) {
       setToast({ type: 'error', message: 'Fel vid sparande: ' + err.message });

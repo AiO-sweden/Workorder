@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { db, storage } from '../firebase/config';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { supabase } from '../supabase';
 
 const OrganizationSettings = () => {
   const [companyName, setCompanyName] = useState('');
@@ -22,27 +20,34 @@ const OrganizationSettings = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState('');
 
-  const orgDetailsRef = doc(db, 'organization', 'details');
-
   useEffect(() => {
     const fetchOrgDetails = async () => {
       try {
-        const docSnap = await getDoc(orgDetailsRef);
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          setCompanyName(data.companyName || '');
+        const { data, error } = await supabase
+          .from('organization')
+          .select('*')
+          .eq('id', 'details')
+          .single();
+
+        if (error) {
+          if (error.code !== 'PGRST116') { // Not a "no rows" error
+            throw error;
+          }
+          // No data exists yet, keep defaults
+        } else if (data) {
+          setCompanyName(data.company_name || '');
           setAddress(data.address || '');
-          setZipCode(data.zipCode || '');
+          setZipCode(data.zip_code || '');
           setCity(data.city || '');
-          setOrgEmail(data.orgEmail || '');
-          setOrgNumber(data.orgNumber || '');
-          setOrgPhone(data.orgPhone || '');
-          setVatNumber(data.vatNumber || '');
-          setIsFAproved(data.isFAproved || false); // Fetch F-skatt status
-          setBankGiro(data.bankGiro || '');
+          setOrgEmail(data.org_email || '');
+          setOrgNumber(data.org_number || '');
+          setOrgPhone(data.org_phone || '');
+          setVatNumber(data.vat_number || '');
+          setIsFAproved(data.is_f_approved || false);
+          setBankGiro(data.bank_giro || '');
           setSwift(data.swift || '');
           setIban(data.iban || '');
-          setLogoUrl(data.logoUrl || '');
+          setLogoUrl(data.logo_url || '');
         }
       } catch (error) {
         console.error("Error fetching organization details:", error);
@@ -72,12 +77,21 @@ const OrganizationSettings = () => {
     let uploadedLogoUrl = logoUrl;
 
     if (logoFile) {
-      const logoStorageRef = ref(storage, `organization_logos/${logoFile.name}_${Date.now()}`);
+      const filePath = `organization_logos/${logoFile.name}_${Date.now()}`;
       try {
-        const snapshot = await uploadBytes(logoStorageRef, logoFile);
-        uploadedLogoUrl = await getDownloadURL(snapshot.ref);
-        setLogoUrl(uploadedLogoUrl); // Update state with final URL
-        setLogoFile(null); // Reset file input
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('organization-logos')
+          .upload(filePath, logoFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage
+          .from('organization-logos')
+          .getPublicUrl(filePath);
+
+        uploadedLogoUrl = urlData.publicUrl;
+        setLogoUrl(uploadedLogoUrl);
+        setLogoFile(null);
       } catch (error) {
         console.error("Error uploading logo:", error);
         setMessage('Fel vid uppladdning av logotyp. Spara igen för att spara textdata.');
@@ -87,24 +101,30 @@ const OrganizationSettings = () => {
     }
 
     const orgData = {
-      companyName,
+      id: 'details',
+      company_name: companyName,
       address,
-      zipCode,
+      zip_code: zipCode,
       city,
-      orgEmail,
-      orgNumber,
-      orgPhone,
-      vatNumber,
-      isFAproved, // Save F-skatt status
-      bankGiro,
+      org_email: orgEmail,
+      org_number: orgNumber,
+      org_phone: orgPhone,
+      vat_number: vatNumber,
+      is_f_approved: isFAproved,
+      bank_giro: bankGiro,
       swift,
       iban,
-      logoUrl: uploadedLogoUrl, // Use potentially new URL
-      updatedAt: new Date(),
+      logo_url: uploadedLogoUrl,
+      updated_at: new Date().toISOString(),
     };
 
     try {
-      await setDoc(orgDetailsRef, orgData, { merge: true });
+      const { error } = await supabase
+        .from('organization')
+        .upsert(orgData, { onConflict: 'id' });
+
+      if (error) throw error;
+
       setMessage('Företagsuppgifter sparade!');
     } catch (error) {
       console.error("Error saving organization details:", error);

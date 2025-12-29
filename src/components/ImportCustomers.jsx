@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import * as XLSX from 'xlsx';
 import Papa from 'papaparse';
-import { db } from '../firebase/config';
-import { collection, writeBatch, doc, query, where, getDocs } from 'firebase/firestore';
+import { supabase } from '../supabase';
 import { useAuth } from '../contexts/AuthContext';
 import {
   Upload,
@@ -274,22 +273,19 @@ export default function ImportCustomers({ isOpen, onClose, onSuccess }) {
     // Check for duplicates
     if (userDetails?.organizationId) {
       try {
-        const existingCustomersQuery = query(
-          collection(db, 'customers'),
-          where('organizationId', '==', userDetails.organizationId)
-        );
-        const existingSnapshot = await getDocs(existingCustomersQuery);
-        const existingCustomers = existingSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
+        const { data: existingCustomers, error } = await supabase
+          .from('customers')
+          .select('*')
+          .eq('organization_id', userDetails.organizationId);
+
+        if (error) throw error;
 
         const foundDuplicates = [];
         processed.forEach(customer => {
           const duplicate = existingCustomers.find(existing =>
             existing.name.toLowerCase() === customer.name.toLowerCase() ||
             (customer.email && existing.email && existing.email.toLowerCase() === customer.email.toLowerCase()) ||
-            (customer.orgNr && existing.orgNr && existing.orgNr === customer.orgNr)
+            (customer.orgNr && existing.org_nr && existing.org_nr === customer.orgNr)
           );
 
           if (duplicate) {
@@ -317,81 +313,101 @@ export default function ImportCustomers({ isOpen, onClose, onSuccess }) {
   };
 
   const handleImport = async () => {
-    if (!userDetails?.organizationId) {
-      setErrors(['Du måste vara inloggad och ha en organisation för att importera kunder']);
-      return;
-    }
+    console.log('🚀 Starting import...', {
+      userDetails,
+      validatedDataLength: validatedData.length,
+      organizationId: userDetails?.organizationId
+    });
 
     setImporting(true);
     setStep(3);
     setImportProgress(0);
 
     try {
+      // Get organizationId - either from userDetails or fetch from database
+      let organizationId = userDetails?.organizationId;
+
+      if (!organizationId) {
+        console.log('⏳ userDetails not loaded, fetching organizationId from database...');
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (user) {
+          const { data: userData, error: userError } = await supabase
+            .from('schedulable_users')
+            .select('organization_id')
+            .eq('id', user.id)
+            .single();
+
+          if (userError) {
+            console.error('❌ Error fetching user data:', userError);
+          } else {
+            organizationId = userData?.organization_id;
+            console.log('✅ Fetched organizationId:', organizationId);
+          }
+        }
+      }
+
+      console.log('📊 Getting customer count...');
       // Get current customer count to generate sequential numbers
-      const customersQuery = query(
-        collection(db, 'customers'),
-        where('organizationId', '==', userDetails.organizationId)
-      );
-      const existingSnapshot = await getDocs(customersQuery);
-      let customerNumber = existingSnapshot.size + 1;
+      let countQuery = supabase
+        .from('customers')
+        .select('*', { count: 'exact', head: true });
 
-      const customersRef = collection(db, 'customers');
-      const batchSize = 50; // Firestore batch limit is 500, but we'll be conservative
-      const batches = [];
-      let currentBatch = writeBatch(db);
-      let operationCount = 0;
+      // Only filter by organizationId if we have one
+      if (organizationId) {
+        countQuery = countQuery.eq('organization_id', organizationId);
+      }
 
-      // Prepare batches
-      validatedData.forEach((customer, index) => {
-        const docRef = doc(customersRef);
+      const { count, error: countError } = await countQuery;
+
+      console.log('📊 Count result:', { count, countError });
+      if (countError) throw countError;
+
+      let customerNumber = (count || 0) + 1;
+
+      // Prepare customer records for batch insert
+      const customersToInsert = validatedData.map((customer, index) => {
         // Format with 4-digit padding: 0001, 0002, 0003, etc.
         const paddedNumber = customerNumber.toString().padStart(4, '0');
-
-        currentBatch.set(docRef, {
-          name: customer.name,
-          email: customer.email || '',
-          phone: customer.phone || '',
-          address: customer.address || '',
-          zipCode: customer.zipCode || '',
-          city: customer.city || '',
-          orgNr: customer.orgNr || '',
-          personnummer: customer.personnummer || '',
-          rotCustomer: customer.rotCustomer,
-          rutCustomer: customer.rutCustomer,
-          organizationId: userDetails.organizationId,
-          customerNumber: paddedNumber,
-          createdAt: new Date(),
-          importedAt: new Date(),
-          importedFrom: file.name
-        });
-
         customerNumber++;
-        operationCount++;
-
-        // Commit batch when reaching batch size
-        if (operationCount === batchSize) {
-          batches.push(currentBatch);
-          currentBatch = writeBatch(db);
-          operationCount = 0;
-        }
 
         // Update progress
         const progress = Math.round(((index + 1) / validatedData.length) * 90);
         setImportProgress(progress);
+
+        return {
+          name: customer.name,
+          email: customer.email || '',
+          phone: customer.phone || '',
+          address: customer.address || '',
+          zip_code: customer.zipCode || '',
+          city: customer.city || '',
+          org_nr: customer.orgNr || customer.personnummer || '',
+          rot_customer: customer.rotCustomer || 'Nej',
+          rut_customer: customer.rutCustomer || 'Nej',
+          organization_id: organizationId || null,
+          customer_number: paddedNumber,
+          created_at: new Date().toISOString()
+        };
       });
 
-      // Add any remaining operations
-      if (operationCount > 0) {
-        batches.push(currentBatch);
+      // Insert all customers in batch
+      console.log('💾 Inserting customers...', { count: customersToInsert.length });
+      console.log('📝 First customer data:', customersToInsert[0]);
+
+      const { data: insertedData, error: insertError } = await supabase
+        .from('customers')
+        .insert(customersToInsert)
+        .select();
+
+      console.log('💾 Insert result:', { insertedData, insertError });
+
+      if (insertError) {
+        console.error('❌ Insert error:', insertError);
+        throw insertError;
       }
 
-      // Commit all batches
-      for (let i = 0; i < batches.length; i++) {
-        await batches[i].commit();
-        const progress = 90 + Math.round((i + 1) / batches.length * 10);
-        setImportProgress(progress);
-      }
-
+      console.log('✅ Import successful!');
       setImportProgress(100);
       setStep(4);
 
@@ -400,8 +416,8 @@ export default function ImportCustomers({ isOpen, onClose, onSuccess }) {
         handleClose();
       }, 2000);
     } catch (error) {
-      console.error('Import error:', error);
-      setErrors([`Fel vid import: ${error.message}`]);
+      console.error('❌ Import error:', error);
+      setErrors([`Fel vid import: ${error.message || JSON.stringify(error)}`]);
       setStep(2);
     } finally {
       setImporting(false);

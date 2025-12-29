@@ -45,12 +45,13 @@ const CreateAccountPage = () => {
 
       navigate('/dashboard');
     } catch (err) {
-      if (err.code === 'auth/email-already-in-use') {
+      // Supabase error handling
+      if (err.message?.includes('already registered') || err.message?.includes('already been registered')) {
         setError('E-postadressen används redan.');
-      } else if (err.code === 'auth/weak-password') {
+      } else if (err.message?.includes('Password should be at least')) {
         setError('Lösenordet är för svagt. Det måste vara minst 6 tecken.');
       } else {
-        setError('Kunde inte skapa konto. Försök igen: ' + err.message);
+        setError('Kunde inte skapa konto. Försök igen: ' + (err.message || ''));
       }
       console.error("Error creating account:", err);
     }

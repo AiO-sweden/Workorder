@@ -18,20 +18,41 @@ export default function SidebarLayout() {
   const [isExpanded, setIsExpanded] = useState(false);
   const { logout, userDetails } = useAuth();
 
-  // Check if user needs migration
-  React.useEffect(() => {
-    if (userDetails && !userDetails.organizationId) {
-      navigate('/migration');
-    }
-  }, [userDetails, navigate]);
+  // Check if user needs migration - TEMPORARILY DISABLED
+  // React.useEffect(() => {
+  //   if (userDetails && !userDetails.organizationId) {
+  //     navigate('/migration');
+  //   }
+  // }, [userDetails, navigate]);
 
   const handleLogout = async () => {
+    console.log("🔴 Logout button clicked!");
     try {
-      await logout();
-      navigate("/");
-      console.log("User signed out successfully");
+      console.log("🔴 Calling logout function...");
+
+      // Timeout efter 2 sekunder
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Logout timeout')), 2000)
+      );
+
+      try {
+        await Promise.race([logout(), timeoutPromise]);
+        console.log("✅ Logout successful");
+      } catch (e) {
+        console.warn("⚠️ Logout timed out or failed, forcing logout anyway:", e);
+      }
+
+      console.log("✅ Clearing storage...");
+      localStorage.clear();
+      sessionStorage.clear();
+      console.log("✅ Storage cleared, navigating to home...");
+      window.location.href = '/';
     } catch (error) {
-      console.error("Error signing out: ", error);
+      console.error("❌ Error signing out:", error);
+      // Logga ut ändå
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.href = '/';
     }
   };
 
@@ -106,7 +127,10 @@ export default function SidebarLayout() {
           <SidebarNavItem to="/orders/new" icon={FileText} label="Ny arbetsorder" isExpanded={isExpanded} />
           <SidebarNavItem to="/customers" icon={Users} label="Kunder" isExpanded={isExpanded} />
           <SidebarNavItem to="/reports" icon={BarChart3} label="Rapporter" isExpanded={isExpanded} />
-          <SidebarNavItem to="/settings" icon={Settings} label="Inställningar" isExpanded={isExpanded} />
+          {/* Only show settings for admin users */}
+          {userDetails?.role === 'admin' && (
+            <SidebarNavItem to="/settings" icon={Settings} label="Inställningar" isExpanded={isExpanded} />
+          )}
         </nav>
 
         {/* Logout Button */}

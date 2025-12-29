@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import ReactDOM from "react-dom";
 import { useParams, useNavigate } from "react-router-dom";
-import { db } from "../firebase/config";
+import { supabase } from "../supabase";
 import { useAuth } from "../contexts/AuthContext";
-import { doc, getDoc, deleteDoc, updateDoc, collection, getDocs, query, where, addDoc, Timestamp } from "firebase/firestore";
 import {
   FileText,
   User,
@@ -68,7 +68,7 @@ export default function OrderDetails() {
     startTid: "",
     slutTid: "",
     antalTimmar: "",
-    timeCode: "normal",
+    timeCode: "",
     fakturerbar: true,
     kommentar: ""
   });
@@ -83,69 +83,193 @@ export default function OrderDetails() {
     let isMounted = true;
 
     const fetchOrder = async () => {
-      if (!isMounted || !userDetails?.organizationId) return;
+      if (!isMounted) return;
+
+      if (!userDetails) {
+        console.log('⏳ OrderDetails: Waiting for userDetails to load...');
+        return;
+      }
+
+      console.log('🔍 OrderDetails: Fetching order...');
 
       try {
-        const ref = doc(db, "orders", id);
-        const snapshot = await getDoc(ref);
-        if (snapshot.exists()) {
-          setOrder({ id: snapshot.id, ...snapshot.data() });
+        const { data, error } = await supabase
+          .from('orders')
+          .select('*')
+          .eq('id', id)
+          .single();
+
+        if (error) throw error;
+
+        if (data) {
+          // Convert snake_case to camelCase
+          setOrder({
+            id: data.id,
+            orderNumber: data.order_number,
+            customerId: data.customer_id,
+            organizationId: data.organization_id,
+            title: data.title,
+            description: data.description,
+            address: data.address,
+            workType: data.work_type,
+            status: data.status,
+            priority: data.priority,
+            billingType: data.billing_type,
+            deadline: data.deadline,
+            estimatedTime: data.estimated_time,
+            assignedTo: data.assigned_to,
+            billable: data.billable,
+            fixedPrice: data.fixed_price,
+            closed: data.closed,
+            closedAt: data.closed_at,
+            createdAt: data.created_at,
+            updatedAt: data.updated_at
+          });
+          console.log('✅ OrderDetails: Order fetched:', data.title);
         } else {
           setToast({ message: "Arbetsorder hittades inte.", type: "error" });
           setTimeout(() => navigate("/dashboard"), 2000);
         }
       } catch (error) {
-        console.error("Error fetching order:", error);
+        console.error("❌ OrderDetails: Error fetching order:", error);
       }
     };
     fetchOrder();
 
     const fetchCustomers = async () => {
-      if (!isMounted || !userDetails?.organizationId) return;
+      if (!isMounted) return;
+
+      if (!userDetails) {
+        console.log('⏳ OrderDetails: Waiting for userDetails to load customers...');
+        return;
+      }
+
+      if (!userDetails.organizationId) {
+        console.log('⚠️ OrderDetails: No organizationId, skipping customers fetch');
+        return;
+      }
+
+      console.log('🔍 OrderDetails: Fetching customers...');
 
       try {
-        const q = query(
-          collection(db, "customers"),
-          where("organizationId", "==", userDetails.organizationId)
-        );
-        const snapshot = await getDocs(q);
-        const list = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const { data, error } = await supabase
+          .from('customers')
+          .select('*')
+          .eq('organization_id', userDetails.organizationId);
+
+        if (error) throw error;
+
+        const list = (data || []).map(customer => ({
+          id: customer.id,
+          name: customer.name,
+          customerNumber: customer.customer_number,
+          address: customer.address,
+          phone: customer.phone,
+          email: customer.email,
+          organizationId: customer.organization_id,
+          invoiceBy: customer.invoice_by,
+          paymentTerms: customer.payment_terms,
+          referencePerson: customer.reference_person
+        }));
         setCustomers(list);
+        console.log('✅ OrderDetails: Fetched', list.length, 'customers');
       } catch (error) {
-        console.error("Error fetching customers:", error);
+        console.error("❌ OrderDetails: Error fetching customers:", error);
       }
     };
     fetchCustomers();
 
     const fetchTimeCodes = async () => {
-      if (!isMounted || !userDetails?.organizationId) return;
+      if (!isMounted) return;
+
+      if (!userDetails) {
+        console.log('⏳ OrderDetails: Waiting for userDetails to load time codes...');
+        return;
+      }
+
+      if (!userDetails.organizationId) {
+        console.log('⚠️ OrderDetails: No organizationId, using default time codes');
+        return;
+      }
+
+      console.log('🔍 OrderDetails: Fetching time codes...');
 
       try {
-        const settingsRef = doc(db, "settings", userDetails.organizationId);
-        const settingsDoc = await getDoc(settingsRef);
-        if (settingsDoc.exists() && settingsDoc.data().timeCodes) {
-          setTimeCodes(settingsDoc.data().timeCodes);
+        const { data, error } = await supabase
+          .from('time_codes')
+          .select('*')
+          .order('code', { ascending: true });
+
+        if (error) throw error;
+
+        if (data && data.length > 0) {
+          // Convert time_codes table format to component format
+          const convertedTimeCodes = data.map(tc => ({
+            id: tc.code || tc.id,
+            name: tc.name,
+            color: "#3b82f6", // Default color, could be added to time_codes table later
+            billable: tc.type === 'Arbetstid',
+            hourlyRate: tc.rate || 0
+          }));
+          setTimeCodes(convertedTimeCodes);
+          console.log('✅ OrderDetails: Fetched', convertedTimeCodes.length, 'time codes');
         }
       } catch (error) {
-        console.error("Error fetching time codes:", error);
+        console.error("❌ OrderDetails: Error fetching time codes:", error);
+        // Fallback to default time codes if settings don't exist
       }
     };
     fetchTimeCodes();
 
     const fetchTimeReports = async () => {
-      if (!isMounted || !userDetails?.organizationId || !id) return;
+      if (!isMounted || !id) return;
+
+      if (!userDetails) {
+        console.log('⏳ OrderDetails: Waiting for userDetails to load time reports...');
+        setLoading(false);
+        return;
+      }
+
+      if (!userDetails.organizationId) {
+        console.log('⚠️ OrderDetails: No organizationId, skipping time reports fetch');
+        setLoading(false);
+        return;
+      }
+
+      console.log('🔍 OrderDetails: Fetching time reports...');
 
       try {
-        const q = query(
-          collection(db, "tidsrapporteringar"),
-          where("organizationId", "==", userDetails.organizationId),
-          where("arbetsorder", "==", id)
-        );
-        const snapshot = await getDocs(q);
-        const reports = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const { data, error } = await supabase
+          .from('tidsrapporteringar')
+          .select('*')
+          .eq('organization_id', userDetails.organizationId)
+          .eq('arbetsorder', id);
+
+        if (error) throw error;
+
+        const reports = (data || []).map(report => ({
+          id: report.id,
+          arbetsorder: report.arbetsorder,
+          datum: report.datum,
+          startTid: report.start_tid,
+          slutTid: report.slut_tid,
+          antalTimmar: report.antal_timmar,
+          timeCode: report.time_code,
+          timeCodeName: report.time_code_name,
+          timeCodeColor: report.time_code_color,
+          fakturerbar: report.fakturerbar,
+          kommentar: report.kommentar,
+          organizationId: report.organization_id,
+          userId: report.user_id,
+          userName: report.user_name,
+          godkand: report.godkand,
+          hourlyRate: report.hourly_rate,
+          timestamp: report.timestamp
+        }));
         setTimeReports(reports.sort((a, b) => new Date(b.datum) - new Date(a.datum)));
+        console.log('✅ OrderDetails: Fetched', reports.length, 'time reports');
       } catch (error) {
-        console.error("Error fetching time reports:", error);
+        console.error("❌ OrderDetails: Error fetching time reports:", error);
       } finally {
         setLoading(false);
       }
@@ -157,10 +281,26 @@ export default function OrderDetails() {
     };
   }, [id, navigate, userDetails]);
 
+  // Set default timeCode when timeCodes are loaded
+  useEffect(() => {
+    if (timeCodes.length > 0 && !timeForm.timeCode) {
+      setTimeForm(prev => ({
+        ...prev,
+        timeCode: timeCodes[0].id
+      }));
+    }
+  }, [timeCodes, timeForm.timeCode]);
+
   const handleDelete = async () => {
     if (window.confirm("Är du säker på att du vill radera denna arbetsorder?")) {
       try {
-        await deleteDoc(doc(db, "orders", id));
+        const { error } = await supabase
+          .from('orders')
+          .delete()
+          .eq('id', id);
+
+        if (error) throw error;
+
         setToast({ message: "Arbetsorder raderad.", type: "success" });
         setTimeout(() => navigate("/dashboard"), 1500);
       } catch (error) {
@@ -179,8 +319,32 @@ export default function OrderDetails() {
 
   const handleSave = async () => {
     try {
-      const ref = doc(db, "orders", id);
-      await updateDoc(ref, order);
+      // Convert camelCase to snake_case for database
+      const updateData = {
+        order_number: order.orderNumber,
+        customer_id: order.customerId,
+        title: order.title,
+        description: order.description,
+        address: order.address,
+        work_type: order.workType,
+        status: order.status,
+        priority: order.priority,
+        billing_type: order.billingType,
+        deadline: order.deadline,
+        estimated_time: order.estimatedTime,
+        assigned_to: order.assignedTo,
+        billable: order.billable,
+        fixed_price: order.fixedPrice,
+        updated_at: new Date().toISOString()
+      };
+
+      const { error } = await supabase
+        .from('orders')
+        .update(updateData)
+        .eq('id', id);
+
+      if (error) throw error;
+
       setToast({ message: "Arbetsorder uppdaterad.", type: "success" });
       setIsEditing(false);
     } catch (error) {
@@ -190,20 +354,34 @@ export default function OrderDetails() {
 
   const handleQuickStatusChange = async (newStatus) => {
     try {
-      const ref = doc(db, "orders", id);
-      const updateData = { status: newStatus };
+      const updateData = {
+        status: newStatus,
+        updated_at: new Date().toISOString()
+      };
 
       // If status is "Full fakturerad", automatically mark as closed
       if (newStatus === "Full fakturerad" || newStatus === "Avslutad") {
         updateData.closed = true;
-        updateData.closedAt = new Date().toISOString();
+        updateData.closed_at = new Date().toISOString();
       } else {
         updateData.closed = false;
-        updateData.closedAt = null;
+        updateData.closed_at = null;
       }
 
-      await updateDoc(ref, updateData);
-      setOrder(prev => ({ ...prev, ...updateData }));
+      const { error } = await supabase
+        .from('orders')
+        .update(updateData)
+        .eq('id', id);
+
+      if (error) throw error;
+
+      // Update local state with camelCase
+      setOrder(prev => ({
+        ...prev,
+        status: newStatus,
+        closed: updateData.closed,
+        closedAt: updateData.closed_at
+      }));
       setToast({ message: `Status uppdaterad till: ${newStatus}`, type: "success" });
     } catch (error) {
       setToast({ message: "Kunde inte uppdatera status.", type: "error" });
@@ -257,13 +435,33 @@ export default function OrderDetails() {
 
   const refreshTimeReports = async () => {
     try {
-      const q = query(
-        collection(db, "tidsrapporteringar"),
-        where("organizationId", "==", userDetails.organizationId),
-        where("arbetsorder", "==", id)
-      );
-      const snapshot = await getDocs(q);
-      const reports = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const { data, error } = await supabase
+        .from('tidsrapporteringar')
+        .select('*')
+        .eq('organization_id', userDetails.organizationId)
+        .eq('arbetsorder', id);
+
+      if (error) throw error;
+
+      const reports = (data || []).map(report => ({
+        id: report.id,
+        arbetsorder: report.arbetsorder,
+        datum: report.datum,
+        startTid: report.start_tid,
+        slutTid: report.slut_tid,
+        antalTimmar: report.antal_timmar,
+        timeCode: report.time_code,
+        timeCodeName: report.time_code_name,
+        timeCodeColor: report.time_code_color,
+        fakturerbar: report.fakturerbar,
+        kommentar: report.kommentar,
+        organizationId: report.organization_id,
+        userId: report.user_id,
+        userName: report.user_name,
+        godkand: report.godkand,
+        hourlyRate: report.hourly_rate,
+        timestamp: report.timestamp
+      }));
       setTimeReports(reports.sort((a, b) => new Date(b.datum) - new Date(a.datum)));
     } catch (error) {
       console.error("Error refreshing time reports:", error);
@@ -288,29 +486,56 @@ export default function OrderDetails() {
       }
 
       if (editingTimeReport) {
-        // Update existing time report
-        await updateDoc(doc(db, "tidsrapporteringar", editingTimeReport.id), {
-          ...timeForm,
-          timeCodeName: timeCodeInfo?.name || "Normal tid",
-          timeCodeColor: timeCodeInfo?.color || "#3b82f6",
-          hourlyRate: timeCodeInfo?.hourlyRate || 650,
-        });
+        // Update existing time report - convert to snake_case
+        const updateData = {
+          datum: timeForm.datum,
+          start_tid: timeForm.startTid || null,
+          slut_tid: timeForm.slutTid || null,
+          antal_timmar: parseFloat(timeForm.antalTimmar) || 0,
+          time_code: timeForm.timeCode,
+          time_code_name: timeCodeInfo?.name || "Normal tid",
+          time_code_color: timeCodeInfo?.color || "#3b82f6",
+          hourly_rate: timeCodeInfo?.hourlyRate || 650,
+          fakturerbar: timeForm.fakturerbar,
+          kommentar: timeForm.kommentar
+        };
+
+        const { error } = await supabase
+          .from('tidsrapporteringar')
+          .update(updateData)
+          .eq('id', editingTimeReport.id);
+
+        if (error) throw error;
+
         setTimeSuccess("Tidsrapporten har uppdaterats!");
         setEditingTimeReport(null);
       } else {
-        // Create new time report
-        await addDoc(collection(db, "tidsrapporteringar"), {
-          ...timeForm,
+        // Create new time report - convert to snake_case
+        const insertData = {
+          datum: timeForm.datum,
+          start_tid: timeForm.startTid || null,
+          slut_tid: timeForm.slutTid || null,
+          antal_timmar: parseFloat(timeForm.antalTimmar) || 0,
+          time_code: timeForm.timeCode,
+          time_code_name: timeCodeInfo?.name || "Normal tid",
+          time_code_color: timeCodeInfo?.color || "#3b82f6",
+          hourly_rate: timeCodeInfo?.hourlyRate || 650,
+          fakturerbar: timeForm.fakturerbar,
+          kommentar: timeForm.kommentar,
           arbetsorder: id,
-          organizationId: userDetails.organizationId,
-          userId: currentUser.uid,
-          userName: userDetails.displayName || userDetails.email || "Användare",
-          godkand: false,
-          timeCodeName: timeCodeInfo?.name || "Normal tid",
-          timeCodeColor: timeCodeInfo?.color || "#3b82f6",
-          hourlyRate: timeCodeInfo?.hourlyRate || 650,
-          timestamp: Timestamp.now()
-        });
+          organization_id: userDetails.organizationId,
+          user_id: currentUser.uid,
+          user_name: userDetails.displayName || userDetails.email || "Användare",
+          godkand: true,
+          timestamp: new Date().toISOString()
+        };
+
+        const { error } = await supabase
+          .from('tidsrapporteringar')
+          .insert([insertData]);
+
+        if (error) throw error;
+
         setTimeSuccess("Tiden har rapporterats!");
       }
 
@@ -359,13 +584,47 @@ export default function OrderDetails() {
     }
 
     try {
-      await deleteDoc(doc(db, "tidsrapporteringar", reportId));
+      const { error } = await supabase
+        .from('tidsrapporteringar')
+        .delete()
+        .eq('id', reportId);
+
+      if (error) throw error;
+
       setTimeSuccess("Tidsrapporten har raderats!");
       await refreshTimeReports();
       setTimeout(() => setTimeSuccess(null), 2000);
     } catch (error) {
       console.error("Error deleting time report:", error);
       setTimeError("Kunde inte radera tidsrapporten");
+      setTimeout(() => setTimeError(null), 3000);
+    }
+  };
+
+  const handleApprovalChange = async (reportId, newApproval) => {
+    try {
+      const { error } = await supabase
+        .from('tidsrapporteringar')
+        .update({
+          godkand: newApproval,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', reportId);
+
+      if (error) throw error;
+
+      // Update local state
+      setTimeReports(prevReports =>
+        prevReports.map(report =>
+          report.id === reportId ? { ...report, godkand: newApproval } : report
+        )
+      );
+
+      setTimeSuccess(`Rapporten ${newApproval ? 'godkänd' : 'nekad'}!`);
+      setTimeout(() => setTimeSuccess(null), 2000);
+    } catch (err) {
+      console.error("Fel vid uppdatering av godkännandestatus:", err);
+      setTimeError("Fel vid uppdatering. Försök igen.");
       setTimeout(() => setTimeError(null), 3000);
     }
   };
@@ -893,13 +1152,12 @@ export default function OrderDetails() {
 
                     <FormField label="Antal timmar" required>
                       <input
-                        type="number"
+                        type="text"
+                        inputMode="decimal"
                         name="antalTimmar"
                         value={timeForm.antalTimmar}
                         onChange={handleTimeChange}
                         required
-                        step="0.25"
-                        min="0.01"
                         placeholder="0.00"
                         style={inputStyle}
                       />
@@ -1142,12 +1400,11 @@ export default function OrderDetails() {
                           gap: spacing[2],
                           alignItems: "flex-end"
                         }}>
-                          <Badge
-                            variant={report.godkand ? "success" : "warning"}
-                            icon={report.godkand ? <CheckCircle size={12} /> : <AlertCircle size={12} />}
-                          >
-                            {report.godkand ? "Godkänd" : "Väntande"}
-                          </Badge>
+                          <ApprovalBadge
+                            approved={report.godkand}
+                            reportId={report.id}
+                            onChange={handleApprovalChange}
+                          />
 
                           <div style={{ display: "flex", gap: spacing[2] }}>
                             <ActionButton
@@ -1220,7 +1477,7 @@ export default function OrderDetails() {
                             color: "white"
                           }}>
                             {timeReports
-                              .filter(r => r.fakturerbar !== false)
+                              .filter(r => r.fakturerbar !== false && r.godkand === true)
                               .reduce((sum, r) => sum + parseFloat(r.antalTimmar || 0), 0)
                               .toFixed(2)}h
                           </div>
@@ -1242,7 +1499,7 @@ export default function OrderDetails() {
                             color: "white"
                           }}>
                             {timeReports
-                              .filter(r => r.fakturerbar !== false)
+                              .filter(r => r.fakturerbar !== false && r.godkand === true)
                               .reduce((sum, r) => sum + (parseFloat(r.antalTimmar || 0) * (r.hourlyRate || 650)), 0)
                               .toLocaleString('sv-SE')} kr
                           </div>
@@ -1257,5 +1514,129 @@ export default function OrderDetails() {
         </div>
       )}
     </div>
+  );
+}
+
+// ApprovalBadge component for changing approval status
+function ApprovalBadge({ approved, reportId, onChange }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [position, setPosition] = useState({ top: 0, left: 0 });
+  const buttonRef = useRef(null);
+
+  const approvalOptions = [
+    { value: true, label: "Godkänd", variant: "success", icon: <CheckCircle size={12} /> },
+    { value: false, label: "Nekad", variant: "error", icon: <X size={12} /> }
+  ];
+
+  const currentOption = approvalOptions.find(opt => opt.value === approved) || approvalOptions[0];
+
+  const handleToggle = (e) => {
+    e.stopPropagation();
+
+    if (!isOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const dropdownHeight = 120;
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const spaceAbove = rect.top;
+
+      const shouldOpenUpward = spaceBelow < dropdownHeight && spaceAbove > spaceBelow;
+
+      setPosition({
+        top: shouldOpenUpward ? rect.top - dropdownHeight - 4 : rect.bottom + 4,
+        left: rect.left,
+        openUpward: shouldOpenUpward
+      });
+    }
+    setIsOpen(!isOpen);
+  };
+
+  const handleChange = (newApproval) => {
+    onChange(reportId, newApproval);
+    setIsOpen(false);
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleClickOutside = (e) => {
+      if (buttonRef.current && buttonRef.current.contains(e.target)) return;
+      setIsOpen(false);
+    };
+
+    setTimeout(() => {
+      document.addEventListener('click', handleClickOutside);
+    }, 0);
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [isOpen]);
+
+  return (
+    <>
+      <div style={{ position: "relative" }}>
+        <div
+          ref={buttonRef}
+          onClick={handleToggle}
+          style={{ cursor: "pointer", display: "inline-block" }}
+        >
+          <Badge variant={currentOption.variant} icon={currentOption.icon}>
+            {currentOption.label} ▾
+          </Badge>
+        </div>
+      </div>
+
+      {isOpen && ReactDOM.createPortal(
+        <div
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            position: "fixed",
+            top: position.openUpward ? "auto" : `${position.top}px`,
+            bottom: position.openUpward ? `${window.innerHeight - position.top}px` : "auto",
+            left: `${position.left}px`,
+            backgroundColor: "white",
+            borderRadius: borderRadius.lg,
+            boxShadow: shadows.lg,
+            padding: spacing[2],
+            zIndex: 9999,
+            minWidth: "150px",
+            border: `1px solid ${colors.neutral[200]}`
+          }}>
+          {approvalOptions.map((option) => (
+            <div
+              key={option.label}
+              onClick={() => handleChange(option.value)}
+              style={{
+                padding: spacing[2],
+                cursor: "pointer",
+                borderRadius: borderRadius.md,
+                backgroundColor: approved === option.value ? colors.neutral[100] : "transparent",
+                transition: "background-color 0.15s",
+                display: "flex",
+                alignItems: "center",
+                gap: spacing[2],
+                fontSize: typography.fontSize.sm,
+                fontWeight: approved === option.value ? typography.fontWeight.semibold : typography.fontWeight.normal,
+                color: colors.neutral[900]
+              }}
+              onMouseEnter={(e) => {
+                if (approved !== option.value) {
+                  e.currentTarget.style.backgroundColor = colors.neutral[50];
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (approved !== option.value) {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                }
+              }}
+            >
+              {option.icon}
+              {option.label}
+            </div>
+          ))}
+        </div>,
+        document.body
+      )}
+    </>
   );
 }

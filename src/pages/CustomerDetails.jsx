@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { db } from "../firebase/config";
-import { doc, getDoc, updateDoc, deleteDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { supabase } from "../supabase";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import {
@@ -102,7 +101,7 @@ function TabButton({ active, onClick, children, icon }) {
 export default function CustomerDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { userDetails } = useAuth();
+  const { userDetails, currentUser } = useAuth();
   const [customer, setCustomer] = useState(null);
   const [orders, setOrders] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
@@ -112,58 +111,155 @@ export default function CustomerDetails() {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!userDetails?.organizationId) return;
+      // Wait for BOTH currentUser AND userDetails to ensure auth session is ready
+      if (!currentUser) {
+        console.log('⏳ CustomerDetails: Waiting for currentUser (auth session) to load...');
+        return;
+      }
+
+      if (!userDetails) {
+        console.log('⏳ CustomerDetails: Waiting for userDetails to load...');
+        return;
+      }
+
+      console.log('🔍 CustomerDetails: Fetching customer details for ID:', id);
 
       try {
         // Fetch customer
-        const docRef = doc(db, "customers", id);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setCustomer(docSnap.data());
-        } else {
+        const { data: customerData, error: customerError } = await supabase
+          .from("customers")
+          .select("*")
+          .eq("id", id)
+          .single();
+
+        if (customerError) {
+          console.error("❌ Error fetching customer:", customerError);
           setToast({ message: "Kunden hittades inte.", type: "error" });
           return;
         }
 
-        // Fetch orders for this customer with organizationId filter
-        const ordersQuery = query(
-          collection(db, "orders"),
-          where("customerId", "==", id),
-          where("organizationId", "==", userDetails.organizationId)
-        );
-        const ordersSnap = await getDocs(ordersQuery);
-        const ordersList = ordersSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setOrders(ordersList);
+        console.log('✅ Customer fetched successfully:', customerData.name);
+
+        // Convert snake_case to camelCase
+        const camelCaseCustomer = {
+          name: customerData.name,
+          customerNumber: customerData.customer_number,
+          orgNr: customerData.org_nr,
+          address: customerData.address,
+          zipCity: customerData.zip_city,
+          country: customerData.country,
+          phone: customerData.phone,
+          email: customerData.email,
+          vatNr: customerData.vat_nr,
+          paymentTerms: customerData.payment_terms,
+          invoiceBy: customerData.invoice_by,
+          invoiceEmail: customerData.invoice_email,
+          invoiceAddress: customerData.invoice_address,
+          rotCustomer: customerData.rot_customer,
+          rotPersonnummer: customerData.rot_personnummer,
+          propertyId: customerData.property_id,
+          rutCustomer: customerData.rut_customer,
+          rutPersonnummer: customerData.rut_personnummer,
+          organizationId: customerData.organization_id,
+          createdAt: customerData.created_at,
+          updatedAt: customerData.updated_at
+        };
+        setCustomer(camelCaseCustomer);
+
+        // Fetch orders for this customer
+        // If organizationId is available, filter by it; otherwise fetch all orders for customer
+        let ordersQuery = supabase
+          .from("orders")
+          .select("*")
+          .eq("customer_id", id);
+
+        if (userDetails.organizationId) {
+          ordersQuery = ordersQuery.eq("organization_id", userDetails.organizationId);
+        }
+
+        const { data: ordersData, error: ordersError } = await ordersQuery;
+
+        if (ordersError) {
+          console.error("❌ Error fetching orders:", ordersError);
+          setToast({ message: "Kunde inte hämta ordrar.", type: "error" });
+          return;
+        }
+
+        console.log('✅ Orders fetched successfully:', ordersData?.length || 0, 'orders');
+
+        // Convert snake_case to camelCase for orders
+        const camelCaseOrders = (ordersData || []).map(order => ({
+          id: order.id,
+          orderNumber: order.order_number,
+          customerId: order.customer_id,
+          title: order.title,
+          description: order.description,
+          status: order.status,
+          priority: order.priority,
+          workType: order.work_type,
+          billingType: order.billing_type,
+          fixedPrice: order.fixed_price,
+          deadline: order.deadline,
+          estimatedTime: order.estimated_time,
+          assignedTo: order.assigned_to,
+          billable: order.billable,
+          organizationId: order.organization_id,
+          createdAt: order.created_at,
+          updatedAt: order.updated_at
+        }));
+        setOrders(camelCaseOrders);
       } catch (err) {
-        console.error("Error fetching data:", err);
+        console.error("❌ Error fetching data:", err);
         setToast({ message: "Kunde inte hämta data.", type: "error" });
       }
     };
     fetchData();
-  }, [id, userDetails]);
+  }, [id, userDetails, currentUser]);
 
   const handleChange = (e) => {
     setCustomer(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSave = async () => {
-    // Validation
-    if (customer.rotCustomer === "Ja" && (!customer.rotPersonnummer?.trim() || !customer.propertyId?.trim())) {
-      setToast({ message: "Fyll i både personnummer och fastighetsbeteckning för ROT-kund.", type: "error" });
-      return;
-    }
-
-    if (customer.rutCustomer === "Ja" && !customer.rutPersonnummer?.trim()) {
-      setToast({ message: "Fyll i personnummer för RUT-kund.", type: "error" });
-      return;
-    }
-
     try {
-      const docRef = doc(db, "customers", id);
-      await updateDoc(docRef, customer);
+      console.log('💾 Saving customer:', customer);
+
+      // Convert camelCase to snake_case for database
+      // Only include fields that exist in the database schema
+      const snakeCaseData = {
+        name: customer.name || '',
+        customer_number: customer.customerNumber || '',
+        org_nr: customer.orgNr || '',
+        address: customer.address || '',
+        zip_code: customer.zipCode || '',
+        city: customer.city || '',
+        phone: customer.phone || '',
+        email: customer.email || '',
+        payment_terms: customer.paymentTerms || '',
+        invoice_by: customer.invoiceBy || '',
+        reference_person: customer.referencePerson || '',
+        rot_customer: customer.rotCustomer || 'Nej',
+        rut_customer: customer.rutCustomer || 'Nej',
+        updated_at: new Date().toISOString()
+      };
+
+      console.log('💾 Data to save:', snakeCaseData);
+
+      const { error } = await supabase
+        .from("customers")
+        .update(snakeCaseData)
+        .eq("id", id);
+
+      if (error) {
+        console.error('❌ Save error:', error);
+        throw error;
+      }
+
+      console.log('✅ Customer saved successfully');
       setToast({ message: "Kund sparad!", type: "success" });
       setIsEditing(false);
     } catch (err) {
+      console.error('❌ Error saving customer:', err);
       setToast({ message: "Fel vid sparande: " + err.message, type: "error" });
     }
   };
@@ -180,7 +276,15 @@ export default function CustomerDetails() {
     }
 
     try {
-      await deleteDoc(doc(db, "customers", id));
+      const { error } = await supabase
+        .from("customers")
+        .delete()
+        .eq("id", id);
+
+      if (error) {
+        throw error;
+      }
+
       setToast({ message: "Kund borttagen!", type: "success" });
       setTimeout(() => navigate("/customers"), 1000);
     } catch (err) {

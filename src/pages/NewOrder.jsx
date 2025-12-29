@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { db } from "../firebase/config";
-import { collection, addDoc, getDocs, serverTimestamp, query, where, doc, getDoc } from "firebase/firestore";
+import { supabase } from "../supabase";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import {
@@ -98,16 +97,37 @@ export default function NewOrder() {
 
   useEffect(() => {
     const fetchCustomers = async () => {
-      if (!userDetails?.organizationId) return;
+      if (!userDetails) {
+        console.log('⏳ NewOrder: Waiting for userDetails to load...');
+        return;
+      }
+
+      if (!userDetails.organizationId) {
+        console.log('⚠️ NewOrder: No organizationId, skipping customer fetch');
+        return;
+      }
+
+      console.log('🔍 NewOrder: Fetching customers...');
 
       try {
-        const customersQuery = query(
-          collection(db, "customers"),
-          where("organizationId", "==", userDetails.organizationId)
-        );
-        const snapshot = await getDocs(customersQuery);
-        const list = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const { data, error } = await supabase
+          .from('customers')
+          .select('*')
+          .eq('organization_id', userDetails.organizationId);
+
+        if (error) throw error;
+
+        // Convert from snake_case to camelCase
+        const list = (data || []).map(customer => ({
+          id: customer.id,
+          customerNumber: customer.customer_number,
+          name: customer.name,
+          address: customer.address,
+          orgNr: customer.org_nr
+        }));
+
         setCustomers(list);
+        console.log('✅ NewOrder: Fetched', list.length, 'customers');
 
         // Check if customerId is in URL params and pre-select customer
         const preselectedCustomerId = searchParams.get('customerId');
@@ -122,40 +142,71 @@ export default function NewOrder() {
           }
         }
       } catch (error) {
-        console.error("Error fetching customers:", error);
+        console.error("❌ NewOrder: Error fetching customers:", error);
         setToast({ message: "Kunde inte hämta kundlista", type: "error" });
       }
     };
 
     const fetchWorkTypes = async () => {
-      if (!userDetails?.organizationId) return;
+      if (!userDetails) {
+        console.log('⏳ NewOrder: Waiting for userDetails to load work types...');
+        return;
+      }
+
+      if (!userDetails.organizationId) {
+        console.log('⚠️ NewOrder: No organizationId, using default work types');
+        return;
+      }
+
+      console.log('🔍 NewOrder: Fetching work types...');
 
       try {
-        const settingsRef = doc(db, "settings", userDetails.organizationId);
-        const settingsDoc = await getDoc(settingsRef);
+        const { data, error } = await supabase
+          .from('settings')
+          .select('work_types')
+          .eq('organization_id', userDetails.organizationId)
+          .single();
 
-        if (settingsDoc.exists() && settingsDoc.data().workTypes) {
-          setWorkTypes(settingsDoc.data().workTypes);
+        if (error) throw error;
+
+        if (data && data.work_types) {
+          setWorkTypes(data.work_types);
+          console.log('✅ NewOrder: Fetched', data.work_types.length, 'work types');
         }
       } catch (error) {
-        console.error("Error fetching work types:", error);
+        console.error("❌ NewOrder: Error fetching work types:", error);
         // Keep using default work types on error
       }
     };
 
     const generateOrderNumber = async () => {
-      if (!userDetails?.organizationId) return;
+      if (!userDetails) {
+        console.log('⏳ NewOrder: Waiting for userDetails to generate order number...');
+        return;
+      }
+
+      if (!userDetails.organizationId) {
+        console.log('⚠️ NewOrder: No organizationId, using default order number');
+        setForm(prev => ({ ...prev, orderNumber: '0001' }));
+        return;
+      }
+
+      console.log('🔍 NewOrder: Generating order number...');
 
       try {
-        const ordersQuery = query(
-          collection(db, "orders"),
-          where("organizationId", "==", userDetails.organizationId)
-        );
-        const snapshot = await getDocs(ordersQuery);
-        const nextNumber = snapshot.size + 1;
-        setForm(prev => ({ ...prev, orderNumber: nextNumber.toString().padStart(4, '0') }));
+        const { data, error } = await supabase
+          .from('orders')
+          .select('id')
+          .eq('organization_id', userDetails.organizationId);
+
+        if (error) throw error;
+
+        const nextNumber = (data?.length || 0) + 1;
+        const paddedNumber = nextNumber.toString().padStart(4, '0');
+        setForm(prev => ({ ...prev, orderNumber: paddedNumber }));
+        console.log('✅ NewOrder: Generated order number:', paddedNumber);
       } catch (error) {
-        console.error("Error generating order number:", error);
+        console.error("❌ NewOrder: Error generating order number:", error);
         setForm(prev => ({ ...prev, orderNumber: '0001' }));
       }
     };
@@ -237,11 +288,29 @@ export default function NewOrder() {
     setLoading(true);
 
     try {
-      await addDoc(collection(db, "orders"), {
-        ...form,
-        organizationId: userDetails.organizationId,
-        createdAt: serverTimestamp()
-      });
+      const { data, error } = await supabase
+        .from('orders')
+        .insert([{
+          order_number: form.orderNumber,
+          customer_id: form.customerId,
+          address: form.address,
+          title: form.title,
+          description: form.description,
+          work_type: form.workType,
+          estimated_time: form.estimatedTime ? parseFloat(form.estimatedTime) : null,
+          billable: form.billable,
+          billing_type: form.billingType,
+          fixed_price: form.fixedPrice ? parseFloat(form.fixedPrice) : null,
+          status: form.status,
+          priority: form.priority,
+          deadline: form.deadline || null,
+          assigned_to: form.assignedTo ? [form.assignedTo] : [],
+          organization_id: userDetails.organizationId,
+          created_at: new Date().toISOString()
+        }])
+        .select();
+
+      if (error) throw error;
 
       setToast({ message: "Arbetsorder skapad!", type: "success" });
 

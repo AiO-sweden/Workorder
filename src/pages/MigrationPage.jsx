@@ -1,17 +1,25 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { db } from '../firebase/config';
-import { collection, getDocs, updateDoc, doc, addDoc, writeBatch } from 'firebase/firestore';
-import { AlertCircle, CheckCircle, Loader } from 'lucide-react';
+import { supabase } from '../supabase';
+import { AlertCircle, CheckCircle, Loader, LogOut } from 'lucide-react';
 
 export default function MigrationPage() {
   const navigate = useNavigate();
-  const { currentUser, userDetails } = useAuth();
+  const { currentUser, userDetails, logout } = useAuth();
   const [migrating, setMigrating] = useState(false);
   const [progress, setProgress] = useState('');
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
 
   const handleMigration = async () => {
     if (!currentUser) {
@@ -26,25 +34,37 @@ export default function MigrationPage() {
     try {
       // Step 1: Create organization
       setProgress('Skapar organisation...');
-      const orgRef = await addDoc(collection(db, 'organizations'), {
-        name: userDetails?.companyName || 'Min Organisation',
-        createdAt: new Date(),
-        createdBy: currentUser.uid,
-        settings: {
-          currency: 'SEK',
-          timezone: 'Europe/Stockholm',
-          language: 'sv'
-        }
-      });
-      const organizationId = orgRef.id;
+      const { data: orgData, error: orgError } = await supabase
+        .from('organizations')
+        .insert({
+          name: userDetails?.company_name || 'Min Organisation',
+          created_at: new Date().toISOString(),
+          created_by: currentUser.id,
+          settings: {
+            currency: 'SEK',
+            timezone: 'Europe/Stockholm',
+            language: 'sv'
+          }
+        })
+        .select()
+        .single();
+
+      if (orgError) throw orgError;
+
+      const organizationId = orgData.id;
       console.log('Organisation skapad:', organizationId);
 
       // Step 2: Update user with organizationId and role
       setProgress('Uppdaterar användarkonto...');
-      await updateDoc(doc(db, 'users', currentUser.uid), {
-        organizationId: organizationId,
-        role: 'admin'
-      });
+      const { error: userError } = await supabase
+        .from('users')
+        .update({
+          organization_id: organizationId,
+          role: 'admin'
+        })
+        .eq('id', currentUser.id);
+
+      if (userError) throw userError;
       console.log('Användare uppdaterad');
 
       // Step 3: Migrate all collections
@@ -52,35 +72,35 @@ export default function MigrationPage() {
         'orders',
         'customers',
         'tidsrapporteringar',
-        'schedulableUsers',
-        'scheduledOrderJobs',
-        'timeCodes'
+        'schedulable_users',
+        'scheduled_order_jobs',
+        'time_codes'
       ];
 
-      for (const collectionName of collections) {
-        setProgress(`Migrerar ${collectionName}...`);
+      for (const tableName of collections) {
+        setProgress(`Migrerar ${tableName}...`);
         try {
-          const snapshot = await getDocs(collection(db, collectionName));
+          // First check if there are any records
+          const { count } = await supabase
+            .from(tableName)
+            .select('*', { count: 'exact', head: true });
 
-          if (snapshot.empty) {
-            console.log(`Inga dokument i ${collectionName}`);
+          if (!count || count === 0) {
+            console.log(`Inga dokument i ${tableName}`);
             continue;
           }
 
-          // Use batch for better performance
-          const batch = writeBatch(db);
-          let count = 0;
+          // Update all records in the table with organizationId
+          const { error: updateError } = await supabase
+            .from(tableName)
+            .update({ organization_id: organizationId })
+            .is('organization_id', null);
 
-          snapshot.docs.forEach((docSnapshot) => {
-            const docRef = doc(db, collectionName, docSnapshot.id);
-            batch.update(docRef, { organizationId: organizationId });
-            count++;
-          });
+          if (updateError) throw updateError;
 
-          await batch.commit();
-          console.log(`${count} dokument uppdaterade i ${collectionName}`);
+          console.log(`Dokument uppdaterade i ${tableName}`);
         } catch (err) {
-          console.error(`Fel vid migration av ${collectionName}:`, err);
+          console.error(`Fel vid migration av ${tableName}:`, err);
           // Continue with next collection even if this one fails
         }
       }
@@ -88,7 +108,7 @@ export default function MigrationPage() {
       setProgress('Migration klar!');
       setSuccess(true);
 
-      // Force a full reload to get new userDetails from Firestore
+      // Force a full reload to get new userDetails from Supabase
       setTimeout(() => {
         window.location.reload();
       }, 2000);
@@ -101,7 +121,7 @@ export default function MigrationPage() {
   };
 
   // If user already has organizationId, redirect to dashboard
-  if (userDetails?.organizationId) {
+  if (userDetails?.organization_id) {
     navigate('/dashboard');
     return null;
   }
@@ -114,8 +134,43 @@ export default function MigrationPage() {
       justifyContent: 'center',
       backgroundColor: '#f8fafc',
       padding: '2rem',
-      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+      position: 'relative'
     }}>
+      {/* Logout Button - Top Right */}
+      <button
+        onClick={handleLogout}
+        style={{
+          position: 'absolute',
+          top: '1.5rem',
+          right: '1.5rem',
+          backgroundColor: 'white',
+          color: '#ef4444',
+          border: '1px solid rgba(239, 68, 68, 0.3)',
+          padding: '0.75rem 1.25rem',
+          borderRadius: '8px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          cursor: 'pointer',
+          transition: 'all 0.2s ease',
+          fontSize: '0.9rem',
+          fontWeight: '600',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.05)';
+          e.currentTarget.style.borderColor = '#ef4444';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = 'white';
+          e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+        }}
+      >
+        <LogOut size={18} />
+        <span>Logga ut</span>
+      </button>
+
       <div style={{
         maxWidth: '600px',
         width: '100%',

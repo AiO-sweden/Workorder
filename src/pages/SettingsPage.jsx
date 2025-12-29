@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { db } from "../firebase/config";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "../supabase";
 import { useAuth } from "../contexts/AuthContext";
-import { doc, getDoc, setDoc, collection, getDocs, query, where, deleteDoc, addDoc } from "firebase/firestore";
 import {
   Settings,
   DollarSign,
@@ -22,8 +22,7 @@ import {
   Building,
   MoreHorizontal,
   Mail,
-  UserPlus,
-  Crown
+  UserPlus
 } from "lucide-react";
 import { cardStyle, sectionHeaderStyle, inputStyle, colors, spacing, typography, shadows, borderRadius, transitions } from "../components/shared/styles";
 import ActionButton from "../components/shared/ActionButton";
@@ -65,6 +64,7 @@ const IconComponent = ({ iconName, size = 20, color }) => {
 
 export default function SettingsPage() {
   const { userDetails } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("timeCodes"); // timeCodes, users, workTypes
   const [timeCodes, setTimeCodes] = useState([]);
   const [users, setUsers] = useState([]);
@@ -74,6 +74,13 @@ export default function SettingsPage() {
   const [editingId, setEditingId] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [invitingUser, setInvitingUser] = useState(false);
+
+  // Redirect non-admin users to dashboard
+  useEffect(() => {
+    if (userDetails && userDetails.role !== 'admin') {
+      navigate('/dashboard');
+    }
+  }, [userDetails, navigate]);
 
   // Form states
   const [newTimeCode, setNewTimeCode] = useState({
@@ -98,33 +105,115 @@ export default function SettingsPage() {
 
   useEffect(() => {
     fetchSettings();
+    fetchTimeCodes();
     fetchUsers();
   }, [userDetails]);
 
+  const fetchTimeCodes = async () => {
+    if (!userDetails?.organizationId) {
+      console.log('⚠️ SettingsPage: No organizationId, using default time codes');
+      setTimeCodes(DEFAULT_TIME_CODES);
+      return;
+    }
+
+    try {
+      console.log('🔍 SettingsPage: Fetching time codes for organization:', userDetails.organizationId);
+      const { data, error } = await supabase
+        .from('time_codes')
+        .select('*')
+        .eq('organization_id', userDetails.organizationId)
+        .order('code', { ascending: true });
+
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        // Convert from database format to UI format
+        const convertedTimeCodes = data.map(tc => ({
+          id: tc.code,
+          name: tc.name,
+          color: tc.color || "#3b82f6",
+          billable: tc.type === 'Arbetstid',
+          hourlyRate: tc.rate || 0
+        }));
+        setTimeCodes(convertedTimeCodes);
+        console.log('✅ SettingsPage: Fetched', convertedTimeCodes.length, 'time codes from database');
+      } else {
+        // No time codes found - create defaults in database
+        console.log('⚠️ SettingsPage: No time codes found, creating defaults in database...');
+
+        const defaultDbTimeCodes = DEFAULT_TIME_CODES.map(tc => ({
+          code: tc.id,
+          name: tc.name,
+          type: tc.billable ? 'Arbetstid' : 'Interntid',
+          rate: tc.hourlyRate || 0,
+          color: tc.color || '#3b82f6',
+          organization_id: userDetails.organizationId
+        }));
+
+        const { error: insertError } = await supabase
+          .from('time_codes')
+          .insert(defaultDbTimeCodes);
+
+        if (insertError) {
+          console.error('❌ SettingsPage: Error creating default time codes:', insertError);
+          setTimeCodes(DEFAULT_TIME_CODES);
+        } else {
+          console.log('✅ SettingsPage: Default time codes created in database');
+          setTimeCodes(DEFAULT_TIME_CODES);
+        }
+      }
+    } catch (err) {
+      console.error("❌ SettingsPage: Error fetching time codes:", err);
+      setTimeCodes(DEFAULT_TIME_CODES);
+    }
+  };
+
   const fetchSettings = async () => {
-    if (!userDetails?.organizationId) return;
+    if (!userDetails) {
+      console.log('⏳ SettingsPage: Waiting for userDetails to load...');
+      return;
+    }
+
+    if (!userDetails.organizationId) {
+      console.log('⚠️ SettingsPage: No organizationId, using default settings');
+      setWorkTypes(DEFAULT_WORK_TYPES);
+      setLoading(false);
+      return;
+    }
+
+    console.log('🔍 SettingsPage: Fetching settings...');
 
     try {
       setLoading(true);
-      const settingsRef = doc(db, "settings", userDetails.organizationId);
-      const settingsDoc = await getDoc(settingsRef);
+      const { data: settingsData, error } = await supabase
+        .from('settings')
+        .select('*')
+        .eq('organization_id', userDetails.organizationId)
+        .single();
 
-      if (settingsDoc.exists()) {
-        const data = settingsDoc.data();
-        setTimeCodes(data.timeCodes || DEFAULT_TIME_CODES);
-        setWorkTypes(data.workTypes || DEFAULT_WORK_TYPES);
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
+
+      if (settingsData) {
+        setWorkTypes(settingsData.work_types || DEFAULT_WORK_TYPES);
+        console.log('✅ SettingsPage: Settings fetched successfully');
       } else {
         // Initialize with defaults
-        setTimeCodes(DEFAULT_TIME_CODES);
         setWorkTypes(DEFAULT_WORK_TYPES);
-        await setDoc(settingsRef, {
-          timeCodes: DEFAULT_TIME_CODES,
-          workTypes: DEFAULT_WORK_TYPES,
-          organizationId: userDetails.organizationId
-        });
+        console.log('⚠️ SettingsPage: No settings found, creating defaults...');
+        const { error: insertError } = await supabase
+          .from('settings')
+          .insert({
+            work_types: DEFAULT_WORK_TYPES,
+            organization_id: userDetails.organizationId
+          });
+
+        if (insertError) throw insertError;
+        console.log('✅ SettingsPage: Default settings created');
       }
     } catch (err) {
-      console.error("Error fetching settings:", err);
+      console.error("❌ SettingsPage: Error fetching settings:", err);
       setToast({ message: "Kunde inte hämta inställningar", type: "error" });
     } finally {
       setLoading(false);
@@ -132,12 +221,27 @@ export default function SettingsPage() {
   };
 
   const fetchUsers = async () => {
+    if (!userDetails?.organizationId) {
+      console.log('⚠️ SettingsPage: No organizationId, skipping user fetch');
+      setUsers([]);
+      return;
+    }
+
     try {
-      const usersRef = collection(db, "schedulableUsers");
-      const usersSnapshot = await getDocs(usersRef);
-      const usersList = usersSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
+      console.log('🔍 SettingsPage: Fetching users for organization:', userDetails.organizationId);
+      const { data: usersData, error } = await supabase
+        .from('schedulable_users')
+        .select('*')
+        .eq('organization_id', userDetails.organizationId);
+
+      if (error) throw error;
+
+      const usersList = usersData.map(user => ({
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        uid: user.uid
       }));
       setUsers(usersList);
     } catch (err) {
@@ -145,18 +249,21 @@ export default function SettingsPage() {
     }
   };
 
-  const saveSettings = async (updatedTimeCodes, updatedWorkTypes) => {
+  const saveSettings = async (updatedWorkTypes) => {
     if (!userDetails?.organizationId) return;
 
     try {
-      const settingsRef = doc(db, "settings", userDetails.organizationId);
-      await setDoc(settingsRef, {
-        timeCodes: updatedTimeCodes || timeCodes,
-        workTypes: updatedWorkTypes || workTypes,
-        organizationId: userDetails.organizationId
-      });
+      const { error } = await supabase
+        .from('settings')
+        .upsert({
+          work_types: updatedWorkTypes || workTypes,
+          organization_id: userDetails.organizationId
+        }, {
+          onConflict: 'organization_id'
+        });
 
-      if (updatedTimeCodes) setTimeCodes(updatedTimeCodes);
+      if (error) throw error;
+
       if (updatedWorkTypes) setWorkTypes(updatedWorkTypes);
       setToast({ message: "Inställningar sparade!", type: "success" });
     } catch (err) {
@@ -174,8 +281,38 @@ export default function SettingsPage() {
   };
 
   const handleSaveTimeCode = async () => {
-    await saveSettings(timeCodes, null);
-    setEditingId(null);
+    try {
+      const timeCode = timeCodes.find(tc => tc.id === editingId);
+      if (!timeCode) return;
+
+      if (!userDetails?.organizationId) {
+        setToast({ message: "Kunde inte hitta organisations-ID", type: "error" });
+        return;
+      }
+
+      // Convert UI format to database format
+      const dbData = {
+        name: timeCode.name,
+        type: timeCode.billable ? 'Arbetstid' : 'Interntid',
+        rate: timeCode.hourlyRate || 0,
+        color: timeCode.color || '#3b82f6'
+      };
+
+      const { error } = await supabase
+        .from('time_codes')
+        .update(dbData)
+        .eq('code', editingId)
+        .eq('organization_id', userDetails.organizationId);
+
+      if (error) throw error;
+
+      setToast({ message: "Tidkod uppdaterad!", type: "success" });
+      setEditingId(null);
+      await fetchTimeCodes();
+    } catch (err) {
+      console.error("Error updating time code:", err);
+      setToast({ message: "Kunde inte uppdatera tidkod", type: "error" });
+    }
   };
 
   const handleAddTimeCode = async () => {
@@ -184,28 +321,72 @@ export default function SettingsPage() {
       return;
     }
 
+    if (!userDetails?.organizationId) {
+      setToast({ message: "Kunde inte hitta organisations-ID", type: "error" });
+      return;
+    }
+
     if (timeCodes.find(tc => tc.id === newTimeCode.id)) {
       setToast({ message: "En tidkod med detta ID finns redan", type: "error" });
       return;
     }
 
-    const updated = [...timeCodes, { ...newTimeCode }];
-    await saveSettings(updated, null);
+    try {
+      // Convert UI format to database format
+      const dbData = {
+        code: newTimeCode.id,
+        name: newTimeCode.name,
+        type: newTimeCode.billable ? 'Arbetstid' : 'Interntid',
+        rate: newTimeCode.hourlyRate || 0,
+        color: newTimeCode.color || '#3b82f6',
+        organization_id: userDetails.organizationId
+      };
 
-    setNewTimeCode({
-      id: "",
-      name: "",
-      color: "#3b82f6",
-      billable: true,
-      hourlyRate: 650
-    });
-    setShowAddForm(false);
+      const { error } = await supabase
+        .from('time_codes')
+        .insert([dbData]);
+
+      if (error) throw error;
+
+      setToast({ message: "Tidkod tillagd!", type: "success" });
+      setNewTimeCode({
+        id: "",
+        name: "",
+        color: "#3b82f6",
+        billable: true,
+        hourlyRate: 650
+      });
+      setShowAddForm(false);
+      await fetchTimeCodes();
+    } catch (err) {
+      console.error("Error adding time code:", err);
+      setToast({ message: "Kunde inte lägga till tidkod", type: "error" });
+    }
   };
 
   const handleDeleteTimeCode = async (id) => {
     if (!window.confirm("Är du säker på att du vill ta bort denna tidkod?")) return;
-    const updated = timeCodes.filter(tc => tc.id !== id);
-    await saveSettings(updated, null);
+
+    if (!userDetails?.organizationId) {
+      setToast({ message: "Kunde inte hitta organisations-ID", type: "error" });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('time_codes')
+        .delete()
+        .eq('code', id)
+        .eq('organization_id', userDetails.organizationId);
+
+      if (error) throw error;
+
+      setToast({ message: "Tidkod borttagen!", type: "success" });
+      await fetchTimeCodes();
+    } catch (err) {
+      console.error("Error deleting time code:", err);
+      setToast({ message: "Kunde inte ta bort tidkod", type: "error" });
+    }
   };
 
   // Work Type handlers
@@ -217,7 +398,7 @@ export default function SettingsPage() {
   };
 
   const handleSaveWorkType = async () => {
-    await saveSettings(null, workTypes);
+    await saveSettings(workTypes);
     setEditingId(null);
   };
 
@@ -233,7 +414,7 @@ export default function SettingsPage() {
     }
 
     const updated = [...workTypes, { ...newWorkType }];
-    await saveSettings(null, updated);
+    await saveSettings(updated);
 
     setNewWorkType({
       id: "",
@@ -247,7 +428,7 @@ export default function SettingsPage() {
   const handleDeleteWorkType = async (id) => {
     if (!window.confirm("Är du säker på att du vill ta bort denna arbetstyp?")) return;
     const updated = workTypes.filter(wt => wt.id !== id);
-    await saveSettings(null, updated);
+    await saveSettings(updated);
   };
 
   // User handlers
@@ -257,39 +438,84 @@ export default function SettingsPage() {
       return;
     }
 
+    if (!userDetails?.organizationId) {
+      setToast({ message: "Kunde inte hitta organisations-ID", type: "error" });
+      return;
+    }
+
     setInvitingUser(true);
 
     try {
-      const functionUrl = process.env.NODE_ENV === 'production'
-        ? 'https://inviteuser-klmkx4t7rq-ew.a.run.app'
-        : 'http://127.0.0.1:5001/aio-arbetsorder/europe-west1/inviteUser';
-
-      const response = await fetch(functionUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      // Call the Edge Function to create invitation
+      const { data, error } = await supabase.functions.invoke('invite-user', {
+        body: {
           email: newUser.email,
-          role: newUser.role
-        })
+          role: newUser.role,
+          organization_id: userDetails.organizationId
+        }
       });
 
-      const result = await response.json();
+      if (error) throw error;
 
-      if (!response.ok) {
-        throw new Error(result.error || 'Kunde inte bjuda in användare');
-      }
+      // Get organization name for email
+      const { data: orgData } = await supabase
+        .from('organizations')
+        .select('company_name')
+        .eq('id', userDetails.organizationId)
+        .single();
 
-      setToast({ message: `Användare ${newUser.email} inbjuden!`, type: "success" });
+      const companyName = orgData?.company_name || 'AIO Arbetsorder';
+
+      // Create email with invitation link
+      const subject = `Inbjudan till ${companyName}`;
+      const body = `Hej!
+
+Du har blivit inbjuden att gå med i ${companyName} på AIO Arbetsorder.
+
+Klicka på länken nedan för att acceptera inbjudan och skapa ditt konto:
+${data.inviteUrl}
+
+Länken är giltig i 7 dagar.
+
+Välkommen!`;
+
+      // Open email client
+      const mailtoLink = `mailto:${newUser.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      window.location.href = mailtoLink;
+
+      setToast({
+        message: `✅ Inbjudan skapad för ${newUser.email}! Email-program öppnas för att skicka inbjudan.`,
+        type: "success"
+      });
+
       setNewUser({ email: "", role: "user" });
       setShowAddForm(false);
-      await fetchUsers();
+
     } catch (error) {
       console.error('Error inviting user:', error);
-      setToast({ message: error.message, type: "error" });
+      setToast({
+        message: error.message || 'Kunde inte bjuda in användare',
+        type: "error"
+      });
     } finally {
       setInvitingUser(false);
+    }
+  };
+
+  const handleUpdateUserRole = async (userId, newRole) => {
+    try {
+      const { error } = await supabase
+        .from('schedulable_users')
+        .update({ role: newRole })
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      setToast({ message: "Användarens roll uppdaterad!", type: "success" });
+      await fetchUsers();
+    } catch (err) {
+      console.error("Error updating user role:", err);
+      setToast({ message: "Kunde inte uppdatera roll", type: "error" });
     }
   };
 
@@ -297,8 +523,13 @@ export default function SettingsPage() {
     if (!window.confirm(`Är du säker på att du vill ta bort ${userEmail}?`)) return;
 
     try {
-      const userDoc = doc(db, "schedulableUsers", userId);
-      await deleteDoc(userDoc);
+      const { error } = await supabase
+        .from('schedulable_users')
+        .delete()
+        .eq('id', userId);
+
+      if (error) throw error;
+
       setToast({ message: "Användare borttagen", type: "success" });
       await fetchUsers();
     } catch (err) {
@@ -595,12 +826,28 @@ export default function SettingsPage() {
                   </div>
 
                   <div style={{ display: "flex", alignItems: "center", gap: spacing[3] }}>
-                    {user.role === "admin" && (
-                      <Badge variant="warning">
-                        <Crown size={12} style={{ marginRight: spacing[1] }} />
-                        Admin
-                      </Badge>
-                    )}
+                    {/* Role selector */}
+                    <div style={{ minWidth: "140px" }}>
+                      <select
+                        value={user.role}
+                        onChange={(e) => handleUpdateUserRole(user.id, e.target.value)}
+                        style={{
+                          ...inputStyle,
+                          padding: spacing[2],
+                          margin: 0,
+                          fontSize: typography.fontSize.sm,
+                          fontWeight: typography.fontWeight.semibold,
+                          color: user.role === 'admin' ? colors.warning[700] : colors.neutral[700],
+                          backgroundColor: user.role === 'admin' ? colors.warning[50] : colors.neutral[50],
+                          border: `2px solid ${user.role === 'admin' ? colors.warning[300] : colors.neutral[300]}`,
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <option value="user">👤 Användare</option>
+                        <option value="admin">👑 Admin</option>
+                      </select>
+                    </div>
+
                     <ActionButton
                       onClick={() => handleDeleteUser(user.id, user.email)}
                       variant="danger"

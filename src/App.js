@@ -5,6 +5,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import CreateAccountPage from "./pages/CreateAccountPage";
+import AcceptInvitePage from "./pages/AcceptInvitePage";
 import PasswordResetPage from "./pages/PasswordResetPage";
 import Dashboard from "./pages/Dashboard";
 import NewOrder from "./pages/NewOrder";
@@ -25,6 +26,7 @@ export default function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/create-account" element={<CreateAccountPage />} />
+          <Route path="/accept-invite" element={<AcceptInvitePage />} />
           <Route path="/reset-password" element={<PasswordResetPage />} />
           <Route path="/migration" element={<MigrationPage />} />
 

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../firebase/config';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+import { supabase } from '../supabase/config';
 
 // Re-using styles from other settings pages
 const pageContainerStyle = {
@@ -124,15 +123,32 @@ export default function TimeCodeSettings() {
   const [editingItem, setEditingItem] = useState(null);
   const [formData, setFormData] = useState({ code: '', name: '', type: 'Arbetstid', rate: '' });
 
-  const timeCodesCollectionRef = collection(db, 'timeCodes');
-
   useEffect(() => {
     const fetchTimeCodes = async () => {
       setIsLoading(true);
       setError(null);
       try {
-        const data = await getDocs(timeCodesCollectionRef);
-        setTimeCodes(data.docs.map((d) => ({ ...d.data(), id: d.id })));
+        const { data, error } = await supabase
+          .from('time_codes')
+          .select('*')
+          .order('code', { ascending: true });
+
+        if (error) throw error;
+
+        console.log('🔍 TimeCodeSettings: Fetched raw data from database:', data);
+        console.log('🔍 TimeCodeSettings: Number of time codes fetched:', data?.length);
+
+        // Convert snake_case to camelCase
+        const convertedData = data.map(item => ({
+          id: item.id,
+          code: item.code,
+          name: item.name,
+          type: item.type,
+          rate: item.rate
+        }));
+
+        console.log('🔍 TimeCodeSettings: Converted data:', convertedData);
+        setTimeCodes(convertedData);
       } catch (err) {
         console.error("Error fetching time codes:", err);
         setError("Kunde inte hämta tidkoder.");
@@ -160,14 +176,43 @@ export default function TimeCodeSettings() {
       return;
     }
     try {
+      // Convert camelCase to snake_case for database
+      const dbData = {
+        code: formData.code,
+        name: formData.name,
+        type: formData.type,
+        rate: formData.rate || null
+      };
+
       if (editingItem) {
-        const itemDoc = doc(db, "timeCodes", editingItem.id);
-        await updateDoc(itemDoc, formData);
+        const { error } = await supabase
+          .from('time_codes')
+          .update(dbData)
+          .eq('id', editingItem.id);
+
+        if (error) throw error;
+
         setTimeCodes(timeCodes.map(tc => tc.id === editingItem.id ? { ...formData, id: editingItem.id } : tc));
         alert("Tidkod uppdaterad!");
       } else {
-        const docRef = await addDoc(timeCodesCollectionRef, formData);
-        setTimeCodes([...timeCodes, { ...formData, id: docRef.id }]);
+        const { data, error } = await supabase
+          .from('time_codes')
+          .insert([dbData])
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        // Convert response back to camelCase
+        const newTimeCode = {
+          id: data.id,
+          code: data.code,
+          name: data.name,
+          type: data.type,
+          rate: data.rate
+        };
+
+        setTimeCodes([...timeCodes, newTimeCode]);
         alert("Tidkod tillagd!");
       }
       resetForm();
@@ -186,7 +231,13 @@ export default function TimeCodeSettings() {
   const handleDelete = async (id) => {
     if (window.confirm("Är du säker på att du vill ta bort denna tidkod?")) {
       try {
-        await deleteDoc(doc(db, "timeCodes", id));
+        const { error } = await supabase
+          .from('time_codes')
+          .delete()
+          .eq('id', id);
+
+        if (error) throw error;
+
         setTimeCodes(timeCodes.filter(tc => tc.id !== id));
         alert("Tidkod borttagen.");
       } catch (err) {

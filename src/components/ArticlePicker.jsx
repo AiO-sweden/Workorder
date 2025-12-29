@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { db } from '../firebase/config';
-import { collection, query, where, getDocs, limit, orderBy } from 'firebase/firestore';
+import { supabase } from '../supabase/config';
 import './ArticlePicker.css';
 
 const ArticlePicker = ({ onSelectArticle, onClose }) => {
@@ -21,23 +20,37 @@ const ArticlePicker = ({ onSelectArticle, onClose }) => {
 
         setIsLoading(true);
         setSearchMessage('Söker...');
-        
+
         try {
-            const articlesRef = collection(db, "articles");
             const searchLower = searchTerm.toLowerCase();
-            
-            // Hämta alla artiklar (upp till 2000) och filtrera på klienten
-            let q = query(articlesRef, limit(2000));
-            
+
+            // Build query
+            let query = supabase
+                .from('articles')
+                .select('*')
+                .limit(2000);
+
             // Om leverantör är vald, filtrera på den
             if (selectedSupplier !== 'Alla') {
-                q = query(articlesRef, where("supplier", "==", selectedSupplier), limit(2000));
+                query = query.eq('supplier', selectedSupplier);
             }
 
-            const querySnapshot = await getDocs(q);
-            let allArticles = querySnapshot.docs.map(doc => ({ 
-                id: doc.id, 
-                ...doc.data() 
+            const { data, error } = await query;
+
+            if (error) throw error;
+
+            // Convert from snake_case to camelCase
+            let allArticles = (data || []).map(article => ({
+                id: article.id,
+                articleNumber: article.article_number,
+                name: article.name,
+                rskNumber: article.rsk_number,
+                supplier: article.supplier,
+                category: article.category,
+                unit: article.unit,
+                price: article.price,
+                purchasePrice: article.purchase_price,
+                lastUpdated: article.last_updated
             }));
 
             // Filtrera på klientsidan - söker i namn, artikelnummer OCH RSK-nummer
@@ -45,7 +58,7 @@ const ArticlePicker = ({ onSelectArticle, onClose }) => {
                 const matchName = article.name && article.name.toLowerCase().includes(searchLower);
                 const matchArticleNumber = article.articleNumber && article.articleNumber.toLowerCase().includes(searchLower);
                 const matchRSK = article.rskNumber && article.rskNumber.toLowerCase().includes(searchLower);
-                
+
                 return matchName || matchArticleNumber || matchRSK;
             });
 
@@ -58,13 +71,13 @@ const ArticlePicker = ({ onSelectArticle, onClose }) => {
             filtered.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
 
             setArticles(filtered);
-            
+
             // Uppdatera tillgängliga kategorier
             const uniqueCategories = ['Alla', ...new Set(filtered.map(a => a.category).filter(Boolean))];
             setCategories(uniqueCategories);
 
-            setSearchMessage(filtered.length > 0 
-                ? `Hittade ${filtered.length} artiklar` 
+            setSearchMessage(filtered.length > 0
+                ? `Hittade ${filtered.length} artiklar`
                 : 'Inga artiklar hittades'
             );
 

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { db } from "../firebase/config";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { supabase } from "../supabase";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import ImportCustomers from "../components/ImportCustomers";
@@ -71,44 +70,126 @@ function FilterButton({ active, onClick, children, icon }) {
 }
 
 export default function CustomerList() {
-  const { userDetails } = useAuth();
+  const { userDetails, currentUser } = useAuth();
   const [customers, setCustomers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all"); // "all", "rot", "rut", "company", "private"
   const [sortField, setSortField] = useState("name");
   const [sortOrder, setSortOrder] = useState("asc");
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const fetchingRef = React.useRef(false);
+  const mountedRef = React.useRef(true);
 
-  const fetchCustomers = async () => {
-    if (!userDetails?.organizationId) return;
-
-    try {
-      const q = query(
-        collection(db, "customers"),
-        where("organizationId", "==", userDetails.organizationId)
-      );
-      const snapshot = await getDocs(q);
-      const list = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setCustomers(list);
-    } catch (error) {
-      console.error("Error fetching customers:", error);
+  const fetchCustomers = React.useCallback(async () => {
+    // Prevent multiple simultaneous fetches
+    if (fetchingRef.current) {
+      console.log('⏸️ Fetch already in progress, skipping...');
+      return;
     }
-  };
+
+    fetchingRef.current = true;
+    console.log('📋 fetchCustomers called');
+    try {
+      // Fetch customers filtered by organization
+      if (!userDetails?.organizationId) {
+        console.log('⚠️ No organization ID, skipping customer fetch');
+        fetchingRef.current = false;
+        return;
+      }
+
+      console.log('🔍 Fetching customers for organization:', userDetails.organizationId);
+      const { data, error } = await supabase
+        .from('customers')
+        .select('*')
+        .eq('organization_id', userDetails.organizationId);
+
+      console.log('🔍 Query completed. Error:', error, 'Data length:', data?.length);
+
+      if (error) throw error;
+
+      // Convert from snake_case to camelCase
+      const list = (data || []).map(customer => ({
+        id: customer.id,
+        customerNumber: customer.customer_number,
+        name: customer.name,
+        orgNr: customer.org_nr,
+        address: customer.address,
+        zipCode: customer.zip_code,
+        city: customer.city,
+        phone: customer.phone,
+        email: customer.email,
+        invoiceBy: customer.invoice_by,
+        paymentTerms: customer.payment_terms,
+        referencePerson: customer.reference_person,
+        rotCustomer: customer.rot_customer,
+        rutCustomer: customer.rut_customer,
+        createdAt: customer.created_at,
+        updatedAt: customer.updated_at
+      }));
+
+      // Only update state if component is still mounted
+      if (mountedRef.current) {
+        console.log('💾 Setting', list.length, 'customers (component is mounted)');
+        setCustomers(list);
+      } else {
+        console.log('⚠️ Component unmounted, skipping setCustomers');
+      }
+    } catch (error) {
+      console.error("❌ ERROR fetching customers:", error);
+    } finally {
+      fetchingRef.current = false;
+    }
+  }, [userDetails]); // Depend on userDetails for organization filtering
 
   useEffect(() => {
-    fetchCustomers();
+    mountedRef.current = true;
+
+    // Wait for BOTH currentUser AND userDetails to be loaded
+    // This ensures Supabase auth session is fully established before querying
+    if (!currentUser) {
+      console.log('⏳ Waiting for currentUser (auth session) to load...');
+      return;
+    }
+
+    if (!userDetails) {
+      console.log('⏳ Waiting for userDetails to load before fetching customers...');
+      return;
+    }
+
+    console.log('🚀 CustomerList: Both currentUser and userDetails loaded, fetching customers...');
+
+    // Small delay to ensure auth.uid() is fully propagated to RLS policies
+    const timer = setTimeout(() => {
+      fetchCustomers();
+    }, 100);
+
+    // Cleanup
+    return () => {
+      console.log('🧹 CustomerList unmounting');
+      mountedRef.current = false;
+      clearTimeout(timer);
+      // DON'T reset fetchingRef here - let the fetch complete naturally
+      // fetchingRef will be reset in the finally block of fetchCustomers
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userDetails]);
+  }, [currentUser, userDetails]); // Fetch when BOTH are available
 
   // Filter and search customers
+  console.log('🔍 Filtering customers:', {
+    totalCustomers: customers.length,
+    searchTerm,
+    filterType
+  });
+
   const filteredCustomers = customers.filter(customer => {
-    // Search filter
-    const matchesSearch =
+    // Search filter - if no search term, match all customers
+    const matchesSearch = !searchTerm || (
       customer.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       customer.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       customer.phone?.includes(searchTerm) ||
       customer.customerNumber?.includes(searchTerm) ||
-      customer.orgNr?.includes(searchTerm);
+      customer.orgNr?.includes(searchTerm)
+    );
 
     if (!matchesSearch) return false;
 

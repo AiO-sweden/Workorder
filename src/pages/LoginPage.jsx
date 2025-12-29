@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import './LoginPage.css'; // Import new CSS file
@@ -8,7 +8,15 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, currentUser } = useAuth();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (currentUser) {
+      console.log('✅ User already logged in, redirecting to dashboard');
+      navigate("/dashboard");
+    }
+  }, [currentUser, navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -17,10 +25,11 @@ export default function LoginPage() {
       await login(email, password);
       navigate("/dashboard");
     } catch (err) {
-      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+      // Supabase error handling
+      if (err.message?.includes('Invalid login credentials') || err.message?.includes('Email not confirmed')) {
         setError("Felaktig e-postadress eller lösenord.");
       } else {
-        setError("Ett fel uppstod vid inloggning. Försök igen.");
+        setError("Ett fel uppstod vid inloggning. Försök igen: " + (err.message || ''));
       }
       console.error("Login error:", err);
     }

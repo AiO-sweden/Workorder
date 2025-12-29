@@ -1,19 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { db } from "../firebase/config";
+import { supabase } from "../supabase";
 import { useAuth } from "../contexts/AuthContext";
-import {
-  collection,
-  addDoc,
-  getDocs,
-  updateDoc,
-  doc,
-  Timestamp,
-  query,
-  where,
-  orderBy,
-  deleteDoc
-} from "firebase/firestore";
 import * as XLSX from 'xlsx';
 import {
   Clock,
@@ -90,15 +78,15 @@ const buttonStyle = {
   justifyContent: "center"
 };
 
-// Time codes configuration
-const TIME_CODES = [
-  { id: "normal", name: "Normal tid", color: "#3b82f6", billable: true },
-  { id: "overtime", name: "Övertid", color: "#f59e0b", billable: true },
-  { id: "oncall", name: "Jour", color: "#8b5cf6", billable: true },
-  { id: "travel", name: "Restid", color: "#06b6d4", billable: true },
-  { id: "internal", name: "Intern tid", color: "#64748b", billable: false },
-  { id: "vacation", name: "Semester", color: "#10b981", billable: false },
-  { id: "sick", name: "Sjuk", color: "#ef4444", billable: false }
+// Default time codes if none exist in database
+const DEFAULT_TIME_CODES = [
+  { id: "normal", name: "Normal tid", color: "#3b82f6", billable: true, hourlyRate: 650 },
+  { id: "overtime", name: "Övertid", color: "#f59e0b", billable: true, hourlyRate: 975 },
+  { id: "oncall", name: "Jour", color: "#8b5cf6", billable: true, hourlyRate: 800 },
+  { id: "travel", name: "Restid", color: "#06b6d4", billable: true, hourlyRate: 500 },
+  { id: "internal", name: "Intern tid", color: "#64748b", billable: false, hourlyRate: 0 },
+  { id: "vacation", name: "Semester", color: "#10b981", billable: false, hourlyRate: 0 },
+  { id: "sick", name: "Sjuk", color: "#ef4444", billable: false, hourlyRate: 0 }
 ];
 
 // Helper Components
@@ -225,7 +213,7 @@ export default function RapporteraTid() {
     startTid: "",
     slutTid: "",
     antalTimmar: "",
-    timeCode: "normal",
+    timeCode: "",
     fakturerbar: true,
     kommentar: ""
   });
@@ -242,6 +230,7 @@ export default function RapporteraTid() {
   const [timePeriod, setTimePeriod] = useState("week");
   const [selectedReports, setSelectedReports] = useState([]);
   const [viewMode, setViewMode] = useState("list"); // "list" or "grid"
+  const [TIME_CODES, setTimeCodes] = useState(DEFAULT_TIME_CODES);
 
   // Timer state
   const [isTimerRunning, setIsTimerRunning] = useState(false);
@@ -255,8 +244,6 @@ export default function RapporteraTid() {
     start: "",
     end: ""
   });
-
-  const HOURLY_RATE = 650; // Updated rate
 
   const formatDate = (dateString) => {
     if (!dateString) return "";
@@ -311,69 +298,145 @@ export default function RapporteraTid() {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!userDetails?.organizationId) return;
+      if (!userDetails) {
+        console.log('⏳ RapporteraTid: Waiting for userDetails to load...');
+        return;
+      }
+
+      if (!userDetails.organizationId) {
+        console.log('⚠️ RapporteraTid: No organizationId, skipping data fetch');
+        return;
+      }
+
+      console.log('🔍 RapporteraTid: Fetching orders, customers, time codes, and time reports...');
 
       try {
+        // Fetch time codes from database
+        const { data: timeCodesData, error: timeCodesError } = await supabase
+          .from('time_codes')
+          .select('*')
+          .order('code', { ascending: true });
+
+        if (timeCodesError && timeCodesError.code !== 'PGRST116') {
+          console.error("❌ RapporteraTid: Error fetching time codes:", timeCodesError);
+        }
+
+        if (timeCodesData && timeCodesData.length > 0) {
+          // Convert time_codes table format to component format
+          const convertedTimeCodes = timeCodesData.map(tc => ({
+            id: tc.code || tc.id,
+            name: tc.name,
+            color: "#3b82f6", // Default color
+            billable: tc.type === 'Arbetstid',
+            hourlyRate: tc.rate || 0
+          }));
+          setTimeCodes(convertedTimeCodes);
+          console.log("✅ RapporteraTid: Time codes fetched:", convertedTimeCodes.length);
+        }
+
         // Fetch orders
-        const orderQuery = query(
-          collection(db, "orders"),
-          where("organizationId", "==", userDetails.organizationId)
-        );
-        const orderSnapshot = await getDocs(orderQuery);
+        const { data: ordersData, error: ordersError } = await supabase
+          .from('orders')
+          .select('*')
+          .eq('organization_id', userDetails.organizationId);
+
+        if (ordersError) throw ordersError;
 
         // Fetch customers
-        const customerQuery = query(
-          collection(db, "customers"),
-          where("organizationId", "==", userDetails.organizationId)
-        );
-        const customerSnapshot = await getDocs(customerQuery);
+        const { data: customersData, error: customersError } = await supabase
+          .from('customers')
+          .select('*')
+          .eq('organization_id', userDetails.organizationId);
+
+        if (customersError) throw customersError;
 
         const customersMap = {};
-        customerSnapshot.docs.forEach((doc) => {
-          const data = doc.data();
-          customersMap[doc.id] = data.name || data.namn || "Okänd kund";
+        customersData.forEach((customer) => {
+          customersMap[customer.id] = customer.name || customer.namn || "Okänd kund";
         });
         setCustomers(customersMap);
 
-        const orderList = orderSnapshot.docs.map((doc) => {
-          const data = doc.data();
+        const orderList = ordersData.map((order) => {
           return {
-            id: doc.id,
-            ...data,
-            ordernummer: data.orderNumber || doc.id,
-            kundnamn: customersMap[data.customerId] || "Okänd kund"
+            id: order.id,
+            title: order.title,
+            status: order.status,
+            priority: order.priority,
+            workType: order.work_type,
+            billingType: order.billing_type,
+            fixedPrice: order.fixed_price,
+            estimatedTime: order.estimated_time,
+            customerId: order.customer_id,
+            assignedTo: order.assigned_to,
+            deadline: order.deadline,
+            address: order.address,
+            description: order.description,
+            billable: order.billable,
+            organizationId: order.organization_id,
+            orderNumber: order.order_number,
+            createdAt: order.created_at,
+            updatedAt: order.updated_at,
+            ordernummer: order.order_number || order.id,
+            kundnamn: customersMap[order.customer_id] || "Okänd kund"
           };
         });
         setOrders(orderList);
+        console.log('✅ RapporteraTid: Fetched', orderList.length, 'orders');
 
         // Fetch time reports
-        const rapportQuery = id
-          ? query(
-              collection(db, "tidsrapporteringar"),
-              where("arbetsorder", "==", id),
-              where("organizationId", "==", userDetails.organizationId),
-              orderBy("timestamp", "desc")
-            )
-          : query(
-              collection(db, "tidsrapporteringar"),
-              where("organizationId", "==", userDetails.organizationId),
-              orderBy("timestamp", "desc")
-            );
+        let rapportQuery = supabase
+          .from('tidsrapporteringar')
+          .select('*')
+          .eq('organization_id', userDetails.organizationId)
+          .order('timestamp', { ascending: false });
 
-        const rapportSnapshot = await getDocs(rapportQuery);
-        const rapportList = rapportSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data()
+        if (id) {
+          rapportQuery = rapportQuery.eq('arbetsorder', id);
+        }
+
+        const { data: rapportData, error: rapportError } = await rapportQuery;
+
+        if (rapportError) throw rapportError;
+
+        const rapportList = rapportData.map((rapport) => ({
+          id: rapport.id,
+          arbetsorder: rapport.arbetsorder,
+          datum: rapport.datum,
+          startTid: rapport.start_tid,
+          slutTid: rapport.slut_tid,
+          antalTimmar: rapport.antal_timmar,
+          timeCode: rapport.time_code,
+          timeCodeName: rapport.time_code_name,
+          timeCodeColor: rapport.time_code_color,
+          hourlyRate: rapport.hourly_rate,
+          fakturerbar: rapport.fakturerbar,
+          kommentar: rapport.kommentar,
+          godkand: rapport.godkand,
+          organizationId: rapport.organization_id,
+          userId: rapport.user_id,
+          userName: rapport.user_name,
+          timestamp: rapport.timestamp
         }));
         setTidsrapporter(rapportList);
+        console.log('✅ RapporteraTid: Fetched', rapportList.length, 'time reports');
       } catch (err) {
-        console.error("Fel vid hämtning:", err);
+        console.error("❌ RapporteraTid: Error fetching data:", err);
         setError("Kunde inte hämta data. Kontrollera din anslutning.");
       }
     };
 
     fetchData();
   }, [success, id, userDetails]);
+
+  // Set default timeCode when timeCodes are loaded
+  useEffect(() => {
+    if (TIME_CODES.length > 0 && !form.timeCode) {
+      setForm(prev => ({
+        ...prev,
+        timeCode: TIME_CODES[0].id
+      }));
+    }
+  }, [TIME_CODES, form.timeCode]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -403,12 +466,24 @@ export default function RapporteraTid() {
       const timeCodeInfo = TIME_CODES.find(tc => tc.id === form.timeCode);
 
       if (editingReportId) {
-        const rapportRef = doc(db, "tidsrapporteringar", editingReportId);
-        await updateDoc(rapportRef, {
-          ...form,
-          timeCodeName: timeCodeInfo?.name || "Normal tid",
-          timeCodeColor: timeCodeInfo?.color || "#3b82f6"
-        });
+        const { error: updateError } = await supabase
+          .from('tidsrapporteringar')
+          .update({
+            arbetsorder: form.arbetsorder,
+            datum: form.datum,
+            start_tid: form.startTid || null,
+            slut_tid: form.slutTid || null,
+            antal_timmar: parseFloat(form.antalTimmar) || 0,
+            time_code: form.timeCode,
+            time_code_name: timeCodeInfo?.name || "Normal tid",
+            time_code_color: timeCodeInfo?.color || "#3b82f6",
+            hourly_rate: timeCodeInfo?.hourlyRate || 0,
+            fakturerbar: form.fakturerbar,
+            kommentar: form.kommentar
+          })
+          .eq('id', editingReportId);
+
+        if (updateError) throw updateError;
         setSuccess("Tidsrapporten har uppdaterats.");
         cancelEdit();
       } else {
@@ -416,16 +491,28 @@ export default function RapporteraTid() {
           setError("Du måste vara inloggad för att rapportera tid.");
           return;
         }
-        await addDoc(collection(db, "tidsrapporteringar"), {
-          ...form,
-          organizationId: userDetails.organizationId,
-          userId: currentUser.uid,
-          userName: userDetails.displayName || userDetails.email || "Användare",
-          godkand: false,
-          timeCodeName: timeCodeInfo?.name || "Normal tid",
-          timeCodeColor: timeCodeInfo?.color || "#3b82f6",
-          timestamp: Timestamp.now()
-        });
+        const { error: insertError } = await supabase
+          .from('tidsrapporteringar')
+          .insert({
+            arbetsorder: form.arbetsorder,
+            datum: form.datum,
+            start_tid: form.startTid || null,
+            slut_tid: form.slutTid || null,
+            antal_timmar: parseFloat(form.antalTimmar) || 0,
+            time_code: form.timeCode,
+            time_code_name: timeCodeInfo?.name || "Normal tid",
+            time_code_color: timeCodeInfo?.color || "#3b82f6",
+            hourly_rate: timeCodeInfo?.hourlyRate || 0,
+            fakturerbar: form.fakturerbar,
+            kommentar: form.kommentar,
+            organization_id: userDetails.organizationId,
+            user_id: currentUser.uid,
+            user_name: userDetails.displayName || userDetails.email || "Användare",
+            godkand: true,
+            timestamp: new Date().toISOString()
+          });
+
+        if (insertError) throw insertError;
         setSuccess("Tiden har rapporterats.");
         setForm({
           arbetsorder: id || "",
@@ -433,7 +520,7 @@ export default function RapporteraTid() {
           startTid: "",
           slutTid: "",
           antalTimmar: "",
-          timeCode: "normal",
+          timeCode: TIME_CODES.length > 0 ? TIME_CODES[0].id : "",
           fakturerbar: true,
           kommentar: ""
         });
@@ -446,8 +533,12 @@ export default function RapporteraTid() {
 
   const godkannTid = async (reportId) => {
     try {
-      const rapportRef = doc(db, "tidsrapporteringar", reportId);
-      await updateDoc(rapportRef, { godkand: true });
+      const { error: updateError } = await supabase
+        .from('tidsrapporteringar')
+        .update({ godkand: true })
+        .eq('id', reportId);
+
+      if (updateError) throw updateError;
       setSuccess("Rapport godkänd.");
     } catch (err) {
       setError("Kunde inte godkänna rapporten.");
@@ -458,10 +549,12 @@ export default function RapporteraTid() {
     if (selectedReports.length === 0) return;
 
     try {
-      for (const reportId of selectedReports) {
-        const rapportRef = doc(db, "tidsrapporteringar", reportId);
-        await updateDoc(rapportRef, { godkand: true });
-      }
+      const { error: updateError } = await supabase
+        .from('tidsrapporteringar')
+        .update({ godkand: true })
+        .in('id', selectedReports);
+
+      if (updateError) throw updateError;
       setSuccess(`${selectedReports.length} rapporter godkända.`);
       setSelectedReports([]);
     } catch (err) {
@@ -477,7 +570,7 @@ export default function RapporteraTid() {
       startTid: rapport.startTid || "",
       slutTid: rapport.slutTid || "",
       antalTimmar: rapport.antalTimmar,
-      timeCode: rapport.timeCode || "normal",
+      timeCode: rapport.timeCode || (TIME_CODES.length > 0 ? TIME_CODES[0].id : ""),
       fakturerbar: rapport.fakturerbar !== false,
       kommentar: rapport.kommentar
     });
@@ -494,7 +587,7 @@ export default function RapporteraTid() {
       startTid: "",
       slutTid: "",
       antalTimmar: "",
-      timeCode: "normal",
+      timeCode: TIME_CODES.length > 0 ? TIME_CODES[0].id : "",
       fakturerbar: true,
       kommentar: ""
     });
@@ -504,8 +597,12 @@ export default function RapporteraTid() {
 
   const angraGodkannande = async (reportId) => {
     try {
-      const rapportRef = doc(db, "tidsrapporteringar", reportId);
-      await updateDoc(rapportRef, { godkand: false });
+      const { error: updateError } = await supabase
+        .from('tidsrapporteringar')
+        .update({ godkand: false })
+        .eq('id', reportId);
+
+      if (updateError) throw updateError;
       setSuccess("Godkännande ångrat.");
     } catch (err) {
       setError("Kunde inte ångra godkännandet.");
@@ -515,8 +612,12 @@ export default function RapporteraTid() {
   const taBortRapport = async (reportId) => {
     if (window.confirm("Är du säker på att du vill ta bort denna tidrapport?")) {
       try {
-        const rapportRef = doc(db, "tidsrapporteringar", reportId);
-        await deleteDoc(rapportRef);
+        const { error: deleteError } = await supabase
+          .from('tidsrapporteringar')
+          .delete()
+          .eq('id', reportId);
+
+        if (deleteError) throw deleteError;
         setSuccess("Rapporten har tagits bort.");
         setSelectedReports(prev => prev.filter(id => id !== reportId));
       } catch (err) {
@@ -537,7 +638,7 @@ export default function RapporteraTid() {
         'Timmar': rapport.antalTimmar,
         'Tidkod': timeCode?.name || 'Normal tid',
         'Fakturerbar': rapport.fakturerbar !== false ? 'Ja' : 'Nej',
-        'Värde (kr)': parseFloat(rapport.antalTimmar || 0) * HOURLY_RATE,
+        'Värde (kr)': parseFloat(rapport.antalTimmar || 0) * (rapport.hourlyRate || 0),
         'Status': rapport.godkand ? 'Godkänd' : 'Väntande',
         'Användare': rapport.userName || '-',
         'Kommentar': rapport.kommentar || '-'
@@ -599,7 +700,8 @@ export default function RapporteraTid() {
   const billableReports = periodReports.filter(r => r.fakturerbar !== false);
   const totalHours = periodReports.reduce((sum, r) => sum + parseFloat(r.antalTimmar || 0), 0);
   const billableHours = billableReports.reduce((sum, r) => sum + parseFloat(r.antalTimmar || 0), 0);
-  const totalValue = billableHours * HOURLY_RATE;
+  const totalValue = billableReports.reduce((sum, r) => sum + (parseFloat(r.antalTimmar || 0) * (r.hourlyRate || 0)), 0);
+  const averageRate = billableHours > 0 ? (totalValue / billableHours) : 0;
   const approvedReports = periodReports.filter(r => r.godkand).length;
   const pendingReports = periodReports.filter(r => !r.godkand).length;
 
@@ -841,7 +943,7 @@ export default function RapporteraTid() {
           label={`${getPeriodLabel()} - Värde`}
           value={`${totalValue.toLocaleString('sv-SE')} kr`}
           color="#10b981"
-          subValue={`${HOURLY_RATE} kr/tim`}
+          subValue={`${averageRate.toFixed(0)} kr/tim (snitt)`}
         />
         <StatCard
           icon={<CheckCircle />}
@@ -970,13 +1072,12 @@ export default function RapporteraTid() {
 
               <FormField label="Antal timmar" required>
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="decimal"
                   name="antalTimmar"
                   value={form.antalTimmar}
                   onChange={handleChange}
                   required
-                  step="0.25"
-                  min="0"
                   placeholder="0.00"
                   style={inputStyle}
                 />
@@ -1027,7 +1128,7 @@ export default function RapporteraTid() {
                   Beräknat värde:
                 </span>
                 <span style={{ fontSize: "1.25rem", fontWeight: "700", color: "#0369a1" }}>
-                  {(parseFloat(form.antalTimmar) * HOURLY_RATE).toLocaleString('sv-SE')} kr
+                  {(parseFloat(form.antalTimmar) * (TIME_CODES.find(tc => tc.id === form.timeCode)?.hourlyRate || 0)).toLocaleString('sv-SE')} kr
                 </span>
               </div>
             )}
@@ -1331,7 +1432,7 @@ export default function RapporteraTid() {
                         </div>
                         {rapport.fakturerbar !== false && (
                           <div style={{ fontSize: "0.875rem", color: "#10b981", fontWeight: "600" }}>
-                            {(parseFloat(rapport.antalTimmar || 0) * HOURLY_RATE).toLocaleString('sv-SE')} kr
+                            {(parseFloat(rapport.antalTimmar || 0) * (rapport.hourlyRate || 0)).toLocaleString('sv-SE')} kr
                           </div>
                         )}
                       </div>
@@ -1457,6 +1558,7 @@ export default function RapporteraTid() {
               {TIME_CODES.map(timeCode => {
                 const codeReports = periodReports.filter(r => r.timeCode === timeCode.id);
                 const codeHours = codeReports.reduce((sum, r) => sum + parseFloat(r.antalTimmar || 0), 0);
+                const codeValue = codeReports.reduce((sum, r) => sum + (parseFloat(r.antalTimmar || 0) * (r.hourlyRate || 0)), 0);
 
                 if (codeHours === 0) return null;
 
@@ -1481,7 +1583,7 @@ export default function RapporteraTid() {
                     </div>
                     {timeCode.billable && (
                       <div style={{ fontSize: "0.875rem", color: timeCode.color, fontWeight: "600", marginTop: "0.5rem" }}>
-                        {(codeHours * HOURLY_RATE).toLocaleString('sv-SE')} kr
+                        {codeValue.toLocaleString('sv-SE')} kr
                       </div>
                     )}
                   </div>
@@ -1502,7 +1604,7 @@ export default function RapporteraTid() {
                 const dateStr = date.toISOString().split('T')[0];
                 const dayReports = periodReports.filter(r => r.datum === dateStr);
                 const dayHours = dayReports.reduce((sum, r) => sum + parseFloat(r.antalTimmar || 0), 0);
-                const dayValue = dayReports.filter(r => r.fakturerbar !== false).reduce((sum, r) => sum + parseFloat(r.antalTimmar || 0) * HOURLY_RATE, 0);
+                const dayValue = dayReports.filter(r => r.fakturerbar !== false).reduce((sum, r) => sum + (parseFloat(r.antalTimmar || 0) * (r.hourlyRate || 0)), 0);
 
                 return (
                   <div

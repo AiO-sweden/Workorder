@@ -5,8 +5,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin, { Draggable } from '@fullcalendar/interaction'; // for selectable AND draggable
 import listPlugin from '@fullcalendar/list';
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline'; // Import the new plugin
-import { db } from '../firebase/config';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, Timestamp } from 'firebase/firestore';
+import { supabase } from '../supabase';
 
 // Base styles are often handled by the plugin imports themselves in newer versions,
 // or a single core CSS file might be available if needed.
@@ -27,8 +26,19 @@ export default function Schema() {
     // Fetch schedulable users
     const fetchUsers = async () => {
       try {
-        const usersSnapshot = await getDocs(collection(db, 'schedulableUsers'));
-        const usersList = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const { data, error } = await supabase
+          .from('schedulable_users')
+          .select('*');
+
+        if (error) throw error;
+
+        const usersList = data.map(user => ({
+          id: user.id,
+          uid: user.uid,
+          email: user.email,
+          name: user.name,
+          role: user.role
+        }));
         setSchedulableUsers(usersList);
       } catch (error) {
         console.error("Error fetching schedulable users:", error);
@@ -38,34 +48,38 @@ export default function Schema() {
     // Fetch existing scheduled events
     const fetchEvents = async () => {
       try {
-        const eventsSnapshot = await getDocs(collection(db, 'scheduledJobs')); // Assuming 'scheduledJobs' collection
+        const { data, error } = await supabase
+          .from('scheduled_jobs')
+          .select('*');
+
+        if (error) throw error;
+
         const userColorMap = new Map();
         const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899']; // Tailwind-ish colors
         let colorIndex = 0;
 
-        const eventsList = eventsSnapshot.docs.map(doc => {
-          const data = doc.data();
-          let userColor = userColorMap.get(data.userId);
+        const eventsList = data.map(job => {
+          let userColor = userColorMap.get(job.user_id);
           if (!userColor) {
             userColor = colors[colorIndex % colors.length];
-            userColorMap.set(data.userId, userColor);
+            userColorMap.set(job.user_id, userColor);
             colorIndex++;
           }
 
           return {
-            id: doc.id,
-            title: data.title || 'Okänt jobb',
-            start: data.start.toDate(),
-            end: data.end.toDate(),
-            allDay: data.allDay || false,
+            id: job.id,
+            title: job.title || 'Okänt jobb',
+            start: new Date(job.start),
+            end: new Date(job.end),
+            allDay: job.all_day || false,
             backgroundColor: userColor,
             borderColor: userColor,
             extendedProps: {
-              orderId: data.orderId,
-              userId: data.userId,
-              description: data.description,
+              orderId: job.order_id,
+              userId: job.user_id,
+              description: job.description,
               userColor: userColor,
-              resourceId: data.userId ? [data.userId] : [] // Ensure resourceId is an array
+              resourceId: job.user_id ? [job.user_id] : [] // Ensure resourceId is an array
             }
           };
         });
@@ -85,12 +99,49 @@ export default function Schema() {
   useEffect(() => {
     const fetchOrdersAndCustomers = async () => {
       try {
-        const ordersSnapshot = await getDocs(collection(db, "orders"));
-        const ordersList = ordersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const { data: ordersData, error: ordersError } = await supabase
+          .from('orders')
+          .select('*');
+
+        if (ordersError) throw ordersError;
+
+        const ordersList = ordersData.map(order => ({
+          id: order.id,
+          orderNumber: order.order_number,
+          customerId: order.customer_id,
+          title: order.title,
+          description: order.description,
+          address: order.address,
+          workType: order.work_type,
+          status: order.status,
+          priority: order.priority,
+          billingType: order.billing_type,
+          deadline: order.deadline,
+          estimatedTime: order.estimated_time,
+          assignedTo: order.assigned_to,
+          billable: order.billable,
+          fixedPrice: order.fixed_price,
+          customerDetails: order.customer_details
+        }));
         setOrders(ordersList);
 
-        const customersSnapshot = await getDocs(collection(db, "customers"));
-        const customersList = customersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const { data: customersData, error: customersError } = await supabase
+          .from('customers')
+          .select('*');
+
+        if (customersError) throw customersError;
+
+        const customersList = customersData.map(customer => ({
+          id: customer.id,
+          name: customer.name,
+          customerNumber: customer.customer_number,
+          address: customer.address,
+          phone: customer.phone,
+          email: customer.email,
+          invoiceBy: customer.invoice_by,
+          paymentTerms: customer.payment_terms,
+          referencePerson: customer.reference_person
+        }));
         setCustomers(customersList);
 
       } catch (error) {
@@ -194,33 +245,45 @@ export default function Schema() {
         alert("Titel, starttid och användare måste anges.");
         return;
     }
-    
+
     const eventToSave = {
         title,
-        start: Timestamp.fromDate(new Date(start)), // Convert to Firestore Timestamp
-        end: end ? Timestamp.fromDate(new Date(end)) : Timestamp.fromDate(new Date(start)), // Handle if end is not set
-        allDay: allDay || false,
-        orderId: orderId || null,
-        userId: userId,
+        start: new Date(start).toISOString(),
+        end: end ? new Date(end).toISOString() : new Date(start).toISOString(),
+        all_day: allDay || false,
+        order_id: orderId || null,
+        user_id: userId,
         description: description || ""
     };
 
     try {
         if (id) { // Editing existing event
-            const eventRef = doc(db, "scheduledJobs", id);
-            await updateDoc(eventRef, eventToSave);
+            const { error } = await supabase
+                .from('scheduled_jobs')
+                .update(eventToSave)
+                .eq('id', id);
+
+            if (error) throw error;
+
             // Update event in local state
             setEvents(prevEvents => prevEvents.map(ev =>
                 ev.id === id ? { ...ev, ...currentEventData, start: new Date(start), end: new Date(end) } : ev
             ));
             console.log("Event updated:", id);
         } else { // Creating new event
-            const docRef = await addDoc(collection(db, "scheduledJobs"), eventToSave);
+            const { data, error } = await supabase
+                .from('scheduled_jobs')
+                .insert([eventToSave])
+                .select()
+                .single();
+
+            if (error) throw error;
+
             // Add new event to local state with the new ID
             setEvents(prevEvents => [...prevEvents, {
-                id: docRef.id, ...currentEventData, start: new Date(start), end: new Date(end)
+                id: data.id, ...currentEventData, start: new Date(start), end: new Date(end)
             }]);
-            console.log("Event created:", docRef.id);
+            console.log("Event created:", data.id);
             // If a new event was created from a dragged order, remove it from unassigned list
             if (currentEventData.draggedOrderId) {
               setUnassignedOrders(prev => prev.filter(o => o.id !== currentEventData.draggedOrderId));
@@ -228,7 +291,7 @@ export default function Schema() {
         }
         handleModalClose();
     } catch (error) {
-        console.error("Error saving event to Firestore:", error);
+        console.error("Error saving event to Supabase:", error);
         alert("Kunde inte spara händelsen.");
     }
   };
@@ -266,7 +329,13 @@ export default function Schema() {
     if (id) { // Existing, saved event
       if (window.confirm("Är du säker på att du vill ta bort denna schemapost?")) {
         try {
-          await deleteDoc(doc(db, "scheduledJobs", id));
+          const { error } = await supabase
+            .from('scheduled_jobs')
+            .delete()
+            .eq('id', id);
+
+          if (error) throw error;
+
           setEvents(prevEvents => prevEvents.filter(ev => ev.id !== id));
           console.log("Event deleted from DB:", id);
           // If the deleted event was linked to an order, that order might become "unassigned" again.

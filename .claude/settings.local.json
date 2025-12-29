@@ -3,7 +3,27 @@
     "allow": [
       "Bash(npm run build:*)",
       "Bash(npm start)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(firebase deploy:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npm run deploy:*)",
+      "Bash(npm --prefix /Users/vilmer/Desktop/workorder-app/functions run lint)",
+      "Bash(firebase emulators:start:*)",
+      "Bash(npm install:*)",
+      "Bash(curl:*)",
+      "Bash(cat:*)",
+      "Bash(node -e:*)",
+      "Bash(ipconfig getifaddr:*)",
+      "Bash(firebase functions:list:*)",
+      "Bash(npm --prefix . run lint)",
+      "Bash(test:*)",
+      "Bash(lsof:*)",
+      "Bash(xargs kill:*)",
+      "Bash(brew install:*)",
+      "Bash(export SUPABASE_ACCESS_TOKEN=sbp_41b27480e9908261be8dd9c6e0be3d6c08b62bb1)",
+      "Bash(npx supabase functions deploy:*)"
     ],
     "deny": [],
     "ask": []

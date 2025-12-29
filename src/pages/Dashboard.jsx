@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
-import { collection, getDocs, query, where, doc, updateDoc } from "firebase/firestore";
-import { db } from "../firebase/config";
+import { supabase } from "../supabase";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import {
@@ -35,18 +34,23 @@ export default function Dashboard() {
   // Handle quick status/priority changes
   const handleStatusChange = async (orderId, newStatus) => {
     try {
-      const updateData = { status: newStatus };
+      const updateData = { status: newStatus, updated_at: new Date().toISOString() };
 
       // If status is "Full fakturerad" or "Avslutad", mark as closed
       if (newStatus === "Full fakturerad" || newStatus === "Avslutad") {
         updateData.closed = true;
-        updateData.closedAt = new Date().toISOString();
+        updateData.closed_at = new Date().toISOString();
       } else {
         updateData.closed = false;
-        updateData.closedAt = null;
+        updateData.closed_at = null;
       }
 
-      await updateDoc(doc(db, "orders", orderId), updateData);
+      const { error } = await supabase
+        .from('orders')
+        .update(updateData)
+        .eq('id', orderId);
+
+      if (error) throw error;
 
       // Update local state
       setOrders(prevOrders =>
@@ -62,7 +66,12 @@ export default function Dashboard() {
 
   const handlePriorityChange = async (orderId, newPriority) => {
     try {
-      await updateDoc(doc(db, "orders", orderId), { priority: newPriority });
+      const { error } = await supabase
+        .from('orders')
+        .update({ priority: newPriority, updated_at: new Date().toISOString() })
+        .eq('id', orderId);
+
+      if (error) throw error;
 
       // Update local state
       setOrders(prevOrders =>
@@ -78,33 +87,66 @@ export default function Dashboard() {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!userDetails?.organizationId) return;
+      if (!userDetails) {
+        console.log('⏳ Dashboard: Waiting for userDetails to load...');
+        return;
+      }
+
+      if (!userDetails.organizationId) {
+        console.log('⚠️ Dashboard: No organizationId found, skipping data fetch');
+        return;
+      }
+
+      console.log('🔍 Dashboard: Fetching customers and orders...');
 
       try {
-        const [ordersSnap, customersSnap] = await Promise.all([
-          getDocs(query(collection(db, "orders"), where("organizationId", "==", userDetails.organizationId))),
-          getDocs(query(collection(db, "customers"), where("organizationId", "==", userDetails.organizationId))),
+        // Fetch customers and orders from Supabase
+        const [
+          { data: customersData, error: customersError },
+          { data: ordersData, error: ordersError }
+        ] = await Promise.all([
+          supabase
+            .from('customers')
+            .select('*')
+            .eq('organization_id', userDetails.organizationId),
+          supabase
+            .from('orders')
+            .select('*')
+            .eq('organization_id', userDetails.organizationId)
         ]);
 
-      const customerList = customersSnap.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setCustomers(customerList);
+        if (customersError) throw customersError;
+        if (ordersError) throw ordersError;
 
-      const orderList = ordersSnap.docs.map(doc => {
-        const orderData = doc.data();
-        const customer = customerList.find(c => c.id === orderData.customerId);
-        return {
-          id: doc.id,
-          ...orderData,
-          customerName: customer?.name || "Okänd kund",
-        };
-      });
+        const customerList = customersData || [];
+        setCustomers(customerList);
+        console.log('✅ Dashboard: Fetched', customerList.length, 'customers');
 
-      setOrders(orderList);
+        const orderList = (ordersData || []).map(order => {
+          const customer = customerList.find(c => c.id === order.customer_id);
+          return {
+            ...order,
+            customerName: customer?.name || "Okänd kund",
+            // Convert snake_case to camelCase for compatibility
+            customerId: order.customer_id,
+            organizationId: order.organization_id,
+            orderNumber: order.order_number,
+            workType: order.work_type,
+            billingType: order.billing_type,
+            fixedPrice: order.fixed_price,
+            estimatedTime: order.estimated_time,
+            assignedTo: order.assigned_to,
+            createdBy: order.created_by,
+            createdAt: order.created_at,
+            updatedAt: order.updated_at,
+            closedAt: order.closed_at
+          };
+        });
+
+        setOrders(orderList);
+        console.log('✅ Dashboard: Fetched', orderList.length, 'orders');
       } catch (error) {
-        console.error("Error fetching dashboard data:", error);
+        console.error("❌ Dashboard: Error fetching data:", error);
       }
     };
 

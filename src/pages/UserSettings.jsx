@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { db, app } from '../firebase/config'; // Importera app
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
-import { getFunctions, httpsCallable } from 'firebase/functions'; // Importera för Cloud Functions
+import { supabase } from '../supabase/client';
 
 // Define styles at the module level
 const pageContainerStyle = {
@@ -143,8 +141,20 @@ export default function UserSettings() {
     setIsLoading(true);
     setError(null);
     try {
-      const usersSnapshot = await getDocs(collection(db, 'schedulableUsers'));
-      const usersList = usersSnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      const { data, error } = await supabase
+        .from('schedulable_users')
+        .select('*');
+
+      if (error) throw error;
+
+      // Convert snake_case to camelCase
+      const usersList = data.map(user => ({
+        id: user.id,
+        name: user.name,
+        uid: user.uid,
+        email: user.email,
+        role: user.role
+      }));
       setUsers(usersList);
     } catch (err) {
       console.error("Error fetching users:", err);
@@ -168,15 +178,34 @@ export default function UserSettings() {
       return;
     }
     try {
+      // Convert camelCase to snake_case for database
+      const dbUser = {
+        name: userForm.name,
+        uid: userForm.uid,
+        email: userForm.email,
+        role: userForm.role
+      };
+
       if (editingUserId) {
-        const userDocRef = doc(db, 'schedulableUsers', editingUserId);
-        await updateDoc(userDocRef, userForm);
+        const { error } = await supabase
+          .from('schedulable_users')
+          .update(dbUser)
+          .eq('id', editingUserId);
+
+        if (error) throw error;
+
         setUsers(users.map(u => u.id === editingUserId ? { id: editingUserId, ...userForm } : u));
         alert("Användare uppdaterad!");
         setEditingUserId(null);
       } else {
-        const docRef = await addDoc(collection(db, 'schedulableUsers'), userForm);
-        setUsers([...users, { id: docRef.id, ...userForm }]);
+        const { data, error } = await supabase
+          .from('schedulable_users')
+          .insert([dbUser])
+          .select();
+
+        if (error) throw error;
+
+        setUsers([...users, { id: data[0].id, ...userForm }]);
         alert("Ny användare tillagd!");
       }
       setUserForm({ name: '', uid: '', email: '', role: 'user' });
@@ -202,7 +231,13 @@ export default function UserSettings() {
   const handleDeleteUser = async (userId) => {
     if (window.confirm("Är du säker på att du vill ta bort denna användare?")) {
       try {
-        await deleteDoc(doc(db, 'schedulableUsers', userId));
+        const { error } = await supabase
+          .from('schedulable_users')
+          .delete()
+          .eq('id', userId);
+
+        if (error) throw error;
+
         setUsers(users.filter(u => u.id !== userId));
         alert("Användare borttagen.");
       } catch (err) {
@@ -222,23 +257,18 @@ export default function UserSettings() {
     setInviteMessage({ type: '', text: '' });
 
     try {
-      const functions = getFunctions(app, 'europe-west1');
-      const inviteUserCallable = httpsCallable(functions, 'inviteUser');
-      
-      // TODO: Lägg till logik för att skicka med en autentiseringstoken (t.ex. ID-token) i anropet
-      // om din Cloud Function kräver det för auktorisering.
-      // Exempel: const idToken = await auth.currentUser.getIdToken();
-      // const result = await inviteUserCallable({ email: inviteEmail, role: 'user', idToken: idToken });
+      // Call Supabase Edge Function for inviting users
+      const { data, error } = await supabase.functions.invoke('invite-user', {
+        body: { email: inviteEmail, role: 'user' }
+      });
 
-      const result = await inviteUserCallable({ email: inviteEmail, role: 'user' }); // Standardroll 'user'
-      
-      const resultData = result.data;
+      if (error) throw error;
 
-      if (resultData.error) {
-        throw new Error(resultData.error);
+      if (data?.error) {
+        throw new Error(data.error);
       }
 
-      setInviteMessage({ type: 'success', text: resultData.message || `Inbjudan skickad till ${inviteEmail}.` });
+      setInviteMessage({ type: 'success', text: data?.message || `Inbjudan skickad till ${inviteEmail}.` });
       setInviteEmail('');
       fetchUsers(); // Ladda om användarlistan för att visa den nya/uppdaterade användaren
     } catch (error) {
@@ -310,9 +340,9 @@ export default function UserSettings() {
             <input type="text" name="name" id="name" value={userForm.name} onChange={handleFormChange} required style={inputStyle}/>
           </div>
           <div style={{ marginBottom: '1rem' }}>
-            <label htmlFor="uid" style={labelStyle}>Firebase UID:</label>
+            <label htmlFor="uid" style={labelStyle}>Användare-ID (UID):</label>
             <input type="text" name="uid" id="uid" value={userForm.uid} onChange={handleFormChange} required style={inputStyle} disabled={Boolean(editingUserId)} />
-            <small style={smallTextStyle}>Detta är användarens unika ID från Firebase Authentication. {editingUserId ? 'Kan inte ändras.' : ''}</small>
+            <small style={smallTextStyle}>Detta är användarens unika ID från Supabase Authentication. {editingUserId ? 'Kan inte ändras.' : ''}</small>
           </div>
            <div style={{ marginBottom: '1rem' }}>
             <label htmlFor="email" style={labelStyle}>E-post (valfritt):</label>

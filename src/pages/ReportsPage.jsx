@@ -1,19 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { db } from "../firebase/config";
+import ReactDOM from "react-dom";
+import { supabase } from "../supabase";
 import { useAuth } from "../contexts/AuthContext";
-import {
-  collection,
-  getDocs,
-  query,
-  where,
-  orderBy,
-  addDoc,
-  Timestamp,
-  doc,
-  getDoc,
-  updateDoc,
-  deleteDoc
-} from "firebase/firestore";
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -255,7 +243,7 @@ export default function ReportsPage() {
     startTid: "",
     slutTid: "",
     antalTimmar: "",
-    timeCode: "normal",
+    timeCode: "",
     fakturerbar: true,
     kommentar: ""
   });
@@ -281,71 +269,164 @@ export default function ReportsPage() {
   // Fetch all data
   useEffect(() => {
     const fetchData = async () => {
-      if (!userDetails?.organizationId) {
-        console.log("⚠️ Ingen organizationId tillgänglig ännu");
+      if (!userDetails) {
+        console.log("⏳ ReportsPage: Waiting for userDetails to load...");
         setLoading(false);
         return;
       }
+
+      if (!userDetails.organizationId) {
+        console.log("⚠️ ReportsPage: No organizationId, skipping data fetch");
+        setLoading(false);
+        return;
+      }
+
+      console.log('🔍 ReportsPage: Fetching time codes, reports, orders, customers, and users...');
 
       try {
         setLoading(true);
 
         // Fetch time codes from settings
-        const settingsRef = doc(db, "settings", userDetails.organizationId);
-        const settingsDoc = await getDoc(settingsRef);
-        if (settingsDoc.exists() && settingsDoc.data().timeCodes) {
-          setTimeCodes(settingsDoc.data().timeCodes);
+        const { data: timeCodesData, error: timeCodesError } = await supabase
+          .from('time_codes')
+          .select('*')
+          .order('code', { ascending: true });
+
+        if (timeCodesError && timeCodesError.code !== 'PGRST116') {
+          console.error("❌ ReportsPage: Error fetching time codes:", timeCodesError);
+        }
+
+        if (timeCodesData && timeCodesData.length > 0) {
+          // Convert time_codes table format to component format
+          const convertedTimeCodes = timeCodesData.map(tc => ({
+            id: tc.code || tc.id,
+            name: tc.name,
+            color: "#3b82f6", // Default color, could be added to time_codes table later
+            billable: tc.type === 'Arbetstid',
+            hourlyRate: tc.rate || 0
+          }));
+          setTimeCodes(convertedTimeCodes);
+          console.log("✅ ReportsPage: Time codes fetched:", convertedTimeCodes.length);
         }
 
         // Fetch time reports
-        const reportsQuery = query(
-          collection(db, "tidsrapporteringar"),
-          where("organizationId", "==", userDetails.organizationId)
-        );
-        const reportsSnapshot = await getDocs(reportsQuery);
-        const reportsData = reportsSnapshot.docs
-          .map(doc => ({ id: doc.id, ...doc.data() }))
-          .sort((a, b) => {
-            // Sort by datum descending (newest first)
-            const dateA = new Date(a.datum || 0);
-            const dateB = new Date(b.datum || 0);
-            return dateB - dateA;
-          });
-        setTimeReports(reportsData);
-        console.log("✅ Tidsrapporter hämtade:", reportsData.length);
+        const { data: reportsData, error: reportsError } = await supabase
+          .from('tidsrapporteringar')
+          .select('*')
+          .eq('organization_id', userDetails.organizationId)
+          .order('datum', { ascending: false });
+
+        if (reportsError) throw reportsError;
+
+        // Convert from snake_case to camelCase
+        const convertedReports = reportsData.map(report => ({
+          id: report.id,
+          arbetsorder: report.arbetsorder,
+          datum: report.datum,
+          startTid: report.start_tid,
+          slutTid: report.slut_tid,
+          antalTimmar: report.antal_timmar,
+          timeCode: report.time_code,
+          timeCodeName: report.time_code_name,
+          timeCodeColor: report.time_code_color,
+          hourlyRate: report.hourly_rate,
+          fakturerbar: report.fakturerbar,
+          kommentar: report.kommentar,
+          godkand: report.godkand,
+          userId: report.user_id,
+          userName: report.user_name,
+          organizationId: report.organization_id,
+          timestamp: report.timestamp,
+          updatedAt: report.updated_at
+        }));
+
+        setTimeReports(convertedReports);
+        console.log("✅ ReportsPage: Tidsrapporter hämtade:", convertedReports.length);
 
         // Fetch orders
-        const ordersQuery = query(
-          collection(db, "orders"),
-          where("organizationId", "==", userDetails.organizationId)
-        );
-        const ordersSnapshot = await getDocs(ordersQuery);
-        const ordersData = ordersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setOrders(ordersData);
-        console.log("✅ Arbetsordrar hämtade:", ordersData.length);
+        const { data: ordersData, error: ordersError } = await supabase
+          .from('orders')
+          .select('*')
+          .eq('organization_id', userDetails.organizationId);
+
+        if (ordersError) throw ordersError;
+
+        // Convert from snake_case to camelCase
+        const convertedOrders = ordersData.map(order => ({
+          id: order.id,
+          orderNumber: order.order_number,
+          customerId: order.customer_id,
+          title: order.title,
+          description: order.description,
+          address: order.address,
+          workType: order.work_type,
+          status: order.status,
+          priority: order.priority,
+          billingType: order.billing_type,
+          deadline: order.deadline,
+          estimatedTime: order.estimated_time,
+          assignedTo: order.assigned_to,
+          billable: order.billable,
+          fixedPrice: order.fixed_price,
+          organizationId: order.organization_id,
+          createdAt: order.created_at,
+          updatedAt: order.updated_at
+        }));
+
+        setOrders(convertedOrders);
+        console.log("✅ ReportsPage: Arbetsordrar hämtade:", convertedOrders.length);
 
         // Fetch customers
-        const customersQuery = query(
-          collection(db, "customers"),
-          where("organizationId", "==", userDetails.organizationId)
-        );
-        const customersSnapshot = await getDocs(customersQuery);
-        const customersData = customersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setCustomers(customersData);
-        console.log("✅ Kunder hämtade:", customersData.length);
+        const { data: customersData, error: customersError } = await supabase
+          .from('customers')
+          .select('*')
+          .eq('organization_id', userDetails.organizationId);
+
+        if (customersError) throw customersError;
+
+        // Convert from snake_case to camelCase
+        const convertedCustomers = customersData.map(customer => ({
+          id: customer.id,
+          name: customer.name,
+          customerNumber: customer.customer_number,
+          address: customer.address,
+          phone: customer.phone,
+          email: customer.email,
+          invoiceBy: customer.invoice_by,
+          paymentTerms: customer.payment_terms,
+          referencePerson: customer.reference_person,
+          organizationId: customer.organization_id,
+          createdAt: customer.created_at,
+          updatedAt: customer.updated_at
+        }));
+
+        setCustomers(convertedCustomers);
+        console.log("✅ ReportsPage: Kunder hämtade:", convertedCustomers.length);
 
         // Fetch users
-        const usersQuery = query(
-          collection(db, "users"),
-          where("organizationId", "==", userDetails.organizationId)
-        );
-        const usersSnapshot = await getDocs(usersQuery);
-        const usersData = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setUsers(usersData);
-        console.log("✅ Användare hämtade:", usersData.length);
+        const { data: usersData, error: usersError } = await supabase
+          .from('schedulable_users')
+          .select('*')
+          .eq('organization_id', userDetails.organizationId);
+
+        if (usersError) throw usersError;
+
+        // Convert from snake_case to camelCase
+        const convertedUsers = usersData.map(user => ({
+          id: user.id,
+          email: user.email,
+          displayName: user.name,
+          role: user.role,
+          organizationId: user.organization_id,
+          createdAt: user.created_at,
+          updatedAt: user.updated_at
+        }));
+
+        setUsers(convertedUsers);
+        console.log("✅ ReportsPage: Användare hämtade:", convertedUsers.length);
 
       } catch (error) {
-        console.error("❌ Fel vid hämtning av data:", error);
+        console.error("❌ ReportsPage: Fel vid hämtning av data:", error);
         showToast("Ett fel uppstod vid hämtning av data. Försök igen.", "error");
       } finally {
         setLoading(false);
@@ -354,6 +435,16 @@ export default function ReportsPage() {
 
     fetchData();
   }, [userDetails, toast?.message]);
+
+  // Set default timeCode when timeCodes are loaded
+  useEffect(() => {
+    if (timeCodes.length > 0 && !form.timeCode) {
+      setForm(prev => ({
+        ...prev,
+        timeCode: timeCodes[0].id
+      }));
+    }
+  }, [timeCodes, form.timeCode]);
 
   // Handle time report form
   const handleChange = (e) => {
@@ -387,17 +478,29 @@ export default function ReportsPage() {
         return;
       }
 
-      await addDoc(collection(db, "tidsrapporteringar"), {
-        ...form,
-        organizationId: userDetails.organizationId,
-        userId: currentUser.uid,
-        userName: userDetails.displayName || userDetails.email || "Användare",
-        godkand: false,
-        timeCodeName: timeCodeInfo?.name || "Normal tid",
-        timeCodeColor: timeCodeInfo?.color || "#3b82f6",
-        hourlyRate: timeCodeInfo?.hourlyRate || 650,
-        timestamp: Timestamp.now()
-      });
+      // Convert camelCase to snake_case for database
+      const { data, error } = await supabase
+        .from('tidsrapporteringar')
+        .insert([{
+          arbetsorder: form.arbetsorder,
+          datum: form.datum,
+          start_tid: form.startTid || null,
+          slut_tid: form.slutTid || null,
+          antal_timmar: form.antalTimmar,
+          time_code: form.timeCode,
+          time_code_name: timeCodeInfo?.name || "Normal tid",
+          time_code_color: timeCodeInfo?.color || "#3b82f6",
+          hourly_rate: timeCodeInfo?.hourlyRate || 650,
+          fakturerbar: form.fakturerbar,
+          kommentar: form.kommentar,
+          godkand: true,
+          organization_id: userDetails.organizationId,
+          user_id: currentUser.uid,
+          user_name: userDetails.displayName || userDetails.email || "Användare",
+          timestamp: new Date().toISOString()
+        }]);
+
+      if (error) throw error;
 
       showToast("Tiden har rapporterats!", "success");
       setForm({
@@ -406,7 +509,7 @@ export default function ReportsPage() {
         startTid: "",
         slutTid: "",
         antalTimmar: "",
-        timeCode: "normal",
+        timeCode: timeCodes.length > 0 ? timeCodes[0].id : "",
         fakturerbar: true,
         kommentar: ""
       });
@@ -425,7 +528,7 @@ export default function ReportsPage() {
       startTid: report.startTid || "",
       slutTid: report.slutTid || "",
       antalTimmar: report.antalTimmar,
-      timeCode: report.timeCode || "normal",
+      timeCode: report.timeCode || (timeCodes.length > 0 ? timeCodes[0].id : ""),
       fakturerbar: report.fakturerbar !== false,
       kommentar: report.kommentar || ""
     });
@@ -460,14 +563,25 @@ export default function ReportsPage() {
     try {
       const timeCodeInfo = timeCodes.find(tc => tc.id === editForm.timeCode);
 
-      const reportRef = doc(db, "tidsrapporteringar", reportId);
-      await updateDoc(reportRef, {
-        ...editForm,
-        timeCodeName: timeCodeInfo?.name || "Normal tid",
-        timeCodeColor: timeCodeInfo?.color || "#3b82f6",
-        hourlyRate: timeCodeInfo?.hourlyRate || 650,
-        updatedAt: Timestamp.now()
-      });
+      const { error } = await supabase
+        .from('tidsrapporteringar')
+        .update({
+          arbetsorder: editForm.arbetsorder,
+          datum: editForm.datum,
+          start_tid: editForm.startTid || null,
+          slut_tid: editForm.slutTid || null,
+          antal_timmar: editForm.antalTimmar,
+          time_code: editForm.timeCode,
+          time_code_name: timeCodeInfo?.name || "Normal tid",
+          time_code_color: timeCodeInfo?.color || "#3b82f6",
+          hourly_rate: timeCodeInfo?.hourlyRate || 650,
+          fakturerbar: editForm.fakturerbar,
+          kommentar: editForm.kommentar,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', reportId);
+
+      if (error) throw error;
 
       setEditingReport(null);
       setEditForm({});
@@ -484,11 +598,43 @@ export default function ReportsPage() {
     }
 
     try {
-      await deleteDoc(doc(db, "tidsrapporteringar", reportId));
+      const { error } = await supabase
+        .from('tidsrapporteringar')
+        .delete()
+        .eq('id', reportId);
+
+      if (error) throw error;
+
       showToast("Tidrapporten har raderats!", "success");
     } catch (err) {
       console.error("Fel vid radering:", err);
       showToast("Fel vid radering. Försök igen.", "error");
+    }
+  };
+
+  const handleApprovalChange = async (reportId, newApproval) => {
+    try {
+      const { error } = await supabase
+        .from('tidsrapporteringar')
+        .update({
+          godkand: newApproval,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', reportId);
+
+      if (error) throw error;
+
+      // Update local state
+      setTimeReports(prevReports =>
+        prevReports.map(report =>
+          report.id === reportId ? { ...report, godkand: newApproval } : report
+        )
+      );
+
+      showToast(`Rapporten ${newApproval ? 'godkänd' : 'nekad'}!`, "success");
+    } catch (err) {
+      console.error("Fel vid uppdatering av godkännandestatus:", err);
+      showToast("Fel vid uppdatering. Försök igen.", "error");
     }
   };
 
@@ -564,7 +710,7 @@ export default function ReportsPage() {
 
   // Get period reports for statistics
   const periodReports = getDateRangeReports(timeReports);
-  const billableReports = periodReports.filter(r => r.fakturerbar !== false);
+  const billableReports = periodReports.filter(r => r.fakturerbar !== false && r.godkand === true);
   const totalHours = periodReports.reduce((sum, r) => sum + parseFloat(r.antalTimmar || 0), 0);
   const billableHours = billableReports.reduce((sum, r) => sum + parseFloat(r.antalTimmar || 0), 0);
   const totalValue = billableReports.reduce((sum, r) => {
@@ -803,9 +949,9 @@ export default function ReportsPage() {
     // Summary
     const summaryY = doc.lastAutoTable.finalY + 10;
     const reportTotal = pdfReports.reduce((sum, r) => sum + parseFloat(r.antalTimmar || 0), 0);
-    const reportBillable = pdfReports.filter(r => r.fakturerbar !== false).reduce((sum, r) => sum + parseFloat(r.antalTimmar || 0), 0);
+    const reportBillable = pdfReports.filter(r => r.fakturerbar !== false && r.godkand === true).reduce((sum, r) => sum + parseFloat(r.antalTimmar || 0), 0);
     const reportValue = pdfReports
-      .filter(r => r.fakturerbar !== false)
+      .filter(r => r.fakturerbar !== false && r.godkand === true)
       .reduce((sum, r) => {
         const hours = parseFloat(r.antalTimmar || 0);
         const rate = r.hourlyRate || 650;
@@ -814,8 +960,8 @@ export default function ReportsPage() {
 
     const avgRate = reportBillable > 0
       ? pdfReports
-          .filter(r => r.fakturerbar !== false)
-          .reduce((sum, r) => sum + (r.hourlyRate || 650), 0) / pdfReports.filter(r => r.fakturerbar !== false).length
+          .filter(r => r.fakturerbar !== false && r.godkand === true)
+          .reduce((sum, r) => sum + (r.hourlyRate || 650), 0) / pdfReports.filter(r => r.fakturerbar !== false && r.godkand === true).length
       : 650;
 
     doc.setFontSize(10);
@@ -1632,10 +1778,12 @@ export default function ReportsPage() {
                           <td style={{ padding: spacing[3], textAlign: "right", fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: report.fakturerbar !== false ? colors.success[600] : colors.neutral[500] }}>
                             {report.fakturerbar !== false ? `${(parseFloat(report.antalTimmar || 0) * (report.hourlyRate || 650)).toLocaleString('sv-SE')} kr` : "Intern"}
                           </td>
-                          <td style={{ padding: spacing[3] }}>
-                            <Badge variant={report.godkand ? "success" : "warning"} icon={report.godkand ? <CheckCircle size={12} /> : <AlertCircle size={12} />}>
-                              {report.godkand ? "Godkänd" : "Väntande"}
-                            </Badge>
+                          <td style={{ padding: spacing[3] }} onClick={(e) => e.stopPropagation()}>
+                            <ApprovalBadge
+                              approved={report.godkand}
+                              reportId={report.id}
+                              onChange={handleApprovalChange}
+                            />
                           </td>
                           <td style={{ padding: spacing[3], fontSize: typography.fontSize.sm, color: colors.neutral[600] }}>
                             {report.userName || "-"}
@@ -1881,9 +2029,9 @@ export default function ReportsPage() {
             const customerOrderIds = customerOrders.map(o => o.id);
             const customerReports = periodReports.filter(r => customerOrderIds.includes(r.arbetsorder));
             const customerHours = customerReports.reduce((sum, r) => sum + parseFloat(r.antalTimmar || 0), 0);
-            const customerBillableHours = customerReports.filter(r => r.fakturerbar !== false).reduce((sum, r) => sum + parseFloat(r.antalTimmar || 0), 0);
+            const customerBillableHours = customerReports.filter(r => r.fakturerbar !== false && r.godkand === true).reduce((sum, r) => sum + parseFloat(r.antalTimmar || 0), 0);
             const customerValue = customerReports
-              .filter(r => r.fakturerbar !== false)
+              .filter(r => r.fakturerbar !== false && r.godkand === true)
               .reduce((sum, r) => {
                 const hours = parseFloat(r.antalTimmar || 0);
                 const rate = r.hourlyRate || 650;
@@ -2041,5 +2189,129 @@ export default function ReportsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+// ApprovalBadge component for changing approval status
+function ApprovalBadge({ approved, reportId, onChange }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [position, setPosition] = useState({ top: 0, left: 0 });
+  const buttonRef = React.useRef(null);
+
+  const approvalOptions = [
+    { value: true, label: "Godkänd", variant: "success", icon: <CheckCircle size={12} /> },
+    { value: false, label: "Nekad", variant: "error", icon: <X size={12} /> }
+  ];
+
+  const currentOption = approvalOptions.find(opt => opt.value === approved) || approvalOptions[0];
+
+  const handleToggle = (e) => {
+    e.stopPropagation();
+
+    if (!isOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const dropdownHeight = 120;
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const spaceAbove = rect.top;
+
+      const shouldOpenUpward = spaceBelow < dropdownHeight && spaceAbove > spaceBelow;
+
+      setPosition({
+        top: shouldOpenUpward ? rect.top - dropdownHeight - 4 : rect.bottom + 4,
+        left: rect.left,
+        openUpward: shouldOpenUpward
+      });
+    }
+    setIsOpen(!isOpen);
+  };
+
+  const handleChange = (newApproval) => {
+    onChange(reportId, newApproval);
+    setIsOpen(false);
+  };
+
+  React.useEffect(() => {
+    if (!isOpen) return;
+
+    const handleClickOutside = (e) => {
+      if (buttonRef.current && buttonRef.current.contains(e.target)) return;
+      setIsOpen(false);
+    };
+
+    setTimeout(() => {
+      document.addEventListener('click', handleClickOutside);
+    }, 0);
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [isOpen]);
+
+  return (
+    <>
+      <div style={{ position: "relative" }}>
+        <div
+          ref={buttonRef}
+          onClick={handleToggle}
+          style={{ cursor: "pointer", display: "inline-block" }}
+        >
+          <Badge variant={currentOption.variant} icon={currentOption.icon}>
+            {currentOption.label} ▾
+          </Badge>
+        </div>
+      </div>
+
+      {isOpen && ReactDOM.createPortal(
+        <div
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            position: "fixed",
+            top: position.openUpward ? "auto" : `${position.top}px`,
+            bottom: position.openUpward ? `${window.innerHeight - position.top}px` : "auto",
+            left: `${position.left}px`,
+            backgroundColor: "white",
+            borderRadius: borderRadius.lg,
+            boxShadow: shadows.lg,
+            padding: spacing[2],
+            zIndex: 9999,
+            minWidth: "150px",
+            border: `1px solid ${colors.neutral[200]}`
+          }}>
+          {approvalOptions.map((option) => (
+            <div
+              key={option.label}
+              onClick={() => handleChange(option.value)}
+              style={{
+                padding: spacing[2],
+                cursor: "pointer",
+                borderRadius: borderRadius.md,
+                backgroundColor: approved === option.value ? colors.neutral[100] : "transparent",
+                transition: "background-color 0.15s",
+                display: "flex",
+                alignItems: "center",
+                gap: spacing[2],
+                fontSize: typography.fontSize.sm,
+                fontWeight: approved === option.value ? typography.fontWeight.semibold : typography.fontWeight.normal,
+                color: colors.neutral[900]
+              }}
+              onMouseEnter={(e) => {
+                if (approved !== option.value) {
+                  e.currentTarget.style.backgroundColor = colors.neutral[50];
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (approved !== option.value) {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                }
+              }}
+            >
+              {option.icon}
+              {option.label}
+            </div>
+          ))}
+        </div>,
+        document.body
+      )}
+    </>
   );
 }
