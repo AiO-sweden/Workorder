@@ -220,18 +220,12 @@ export function AuthProvider({ children }) {
     try {
       console.log('🔍 fetchUserDetails: Querying schedulable_users table...');
 
-      // Add 3 second timeout to detect hanging queries
-      const queryPromise = supabase
+      // Query without artificial timeout - let Supabase handle it
+      const { data, error } = await supabase
         .from('schedulable_users')
         .select('*')
         .eq('id', userId)
         .single();
-
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Query timeout after 3 seconds')), 3000)
-      );
-
-      const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
 
       console.log('🔍 fetchUserDetails: Query completed. Error:', error, 'Data:', data);
 
@@ -268,7 +262,7 @@ export function AuthProvider({ children }) {
         });
       }
     } catch (error) {
-      console.error('❌ fetchUserDetails: Caught error:', error);
+      console.warn('⚠️ fetchUserDetails: Could not fetch user details, using fallback', error.message);
       // Even on error, set minimal userDetails so app doesn't break
       // But try to preserve existing organizationId if we have it
       setUserDetails(prev => ({
