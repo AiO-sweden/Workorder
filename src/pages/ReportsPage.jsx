@@ -1119,8 +1119,8 @@ export default function ReportsPage() {
           img.src = organization.logo_url;
         });
 
-        // Add logo (max height 25mm, proportional width)
-        const maxLogoHeight = 25;
+        // Add logo (max height 30mm, proportional width)
+        const maxLogoHeight = 30;
         const imgRatio = img.width / img.height;
         logoHeight = maxLogoHeight;
         const logoWidth = logoHeight * imgRatio;
@@ -1236,14 +1236,14 @@ export default function ReportsPage() {
 
     const columnStyles = pdfShowPrices
       ? {
-          0: { cellWidth: 90 },
-          1: { cellWidth: 25, halign: 'right' },
-          2: { cellWidth: 35, halign: 'right' },
-          3: { cellWidth: 35, halign: 'right' }
+          0: { cellWidth: 90, halign: 'left' },
+          1: { cellWidth: 25, halign: 'center' },
+          2: { cellWidth: 35, halign: 'center' },
+          3: { cellWidth: 35, halign: 'center' }
         }
       : {
-          0: { cellWidth: 140 },
-          1: { cellWidth: 45, halign: 'right' }
+          0: { cellWidth: 140, halign: 'left' },
+          1: { cellWidth: 45, halign: 'center' }
         };
 
     autoTable(doc, {
@@ -1256,7 +1256,8 @@ export default function ReportsPage() {
         textColor: [0, 0, 0],
         fontSize: 10,
         fontStyle: 'bold',
-        halign: 'left'
+        halign: 'center',
+        0: { halign: 'left' }  // Keep first column left-aligned in header
       },
       bodyStyles: {
         fontSize: 9,
@@ -1309,11 +1310,11 @@ export default function ReportsPage() {
       doc.setFont(undefined, 'bold');
       doc.text(`${formatSwedishNumber(totalHours)} h`, pageWidth - margin, totalsY + 6, { align: 'right' });
     } else {
-      // Only show total hours (centered)
-      doc.text('Totalt rapporterade timmar', pageWidth / 2, totalsY, { align: 'center' });
+      // Only show total hours (right-aligned)
+      doc.text('Totalt rapporterade timmar', pageWidth - margin, totalsY, { align: 'right' });
       doc.setFont(undefined, 'bold');
       doc.setFontSize(12);
-      doc.text(`${formatSwedishNumber(totalHours)} h`, pageWidth / 2, totalsY + 6, { align: 'center' });
+      doc.text(`${formatSwedishNumber(totalHours)} h`, pageWidth - margin, totalsY + 6, { align: 'right' });
     }
 
     // ===== GRAY LINE BEFORE FOOTER =====
