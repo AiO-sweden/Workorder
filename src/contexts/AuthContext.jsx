@@ -214,65 +214,41 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
-  // Helper function to fetch user details with retry mechanism
-  async function fetchUserDetails(userId, retryCount = 0) {
-    console.log('🔍 fetchUserDetails: Starting fetch for userId:', userId, 'Retry:', retryCount);
-    try {
-      console.log('🔍 fetchUserDetails: Querying schedulable_users table...');
+  // Helper function to fetch user details - sets immediately, updates if data arrives
+  async function fetchUserDetails(userId) {
+    console.log('🔍 fetchUserDetails: Starting for userId:', userId);
 
-      // Add timeout to prevent hanging queries
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 200);
+    // Set minimal userDetails IMMEDIATELY so app can continue
+    setUserDetails({
+      id: userId,
+      organizationId: null,
+      role: 'user'
+    });
+    setLoading(false);
 
-      try {
-        const { data, error } = await supabase
-          .from('schedulable_users')
-          .select('*')
-          .eq('id', userId)
-          .abortSignal(controller.signal)
-          .single();
-
-        clearTimeout(timeoutId);
-        console.log('🔍 fetchUserDetails: Query completed. Error:', error, 'Data:', data);
-
-        if (error && error.code !== 'PGRST116') {
-          // PGRST116 = no rows returned, which is okay
-          console.error('❌ fetchUserDetails: Error is NOT PGRST116, throwing...', error);
-          throw error;
-        }
-
+    // Try to fetch real data in background (non-blocking)
+    console.log('🔍 fetchUserDetails: Attempting background fetch...');
+    supabase
+      .from('schedulable_users')
+      .select('*')
+      .eq('id', userId)
+      .single()
+      .then(({ data, error }) => {
         if (data) {
-          console.log('✅ fetchUserDetails: Data found, setting userDetails with organizationId:', data.organization_id);
-          // Convert snake_case to camelCase for backwards compatibility
+          console.log('✅ fetchUserDetails: Background fetch succeeded, updating userDetails');
           setUserDetails({
             ...data,
             organizationId: data.organization_id || null,
             createdAt: data.created_at,
             updatedAt: data.updated_at,
           });
-          return; // Success - exit early
+        } else {
+          console.log('⚠️ fetchUserDetails: Background fetch returned no data');
         }
-      } catch (abortError) {
-        clearTimeout(timeoutId);
-        if (abortError.name === 'AbortError') {
-          console.warn('⚠️ fetchUserDetails: Query timeout after 0.2s, using fallback');
-          throw new Error('Query timeout');
-        }
-        throw abortError;
-      }
-    } catch (error) {
-      console.warn('⚠️ fetchUserDetails: Could not fetch user details, using fallback', error.message);
-      // Even on error, set minimal userDetails so app doesn't break
-      // But try to preserve existing organizationId if we have it
-      setUserDetails(prev => ({
-        id: userId,
-        organizationId: prev?.organizationId || null,
-        role: prev?.role || 'user'
-      }));
-    } finally {
-      console.log('✅ fetchUserDetails: Setting loading to false');
-      setLoading(false);
-    }
+      })
+      .catch((error) => {
+        console.warn('⚠️ fetchUserDetails: Background fetch failed', error.message);
+      });
   }
 
   const value = {
