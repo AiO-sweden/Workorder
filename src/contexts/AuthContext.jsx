@@ -220,7 +220,7 @@ export function AuthProvider({ children }) {
     try {
       console.log('🔍 fetchUserDetails: Querying schedulable_users table...');
 
-      // Add 5 second timeout to detect hanging queries
+      // Add 2 second timeout to detect hanging queries
       const queryPromise = supabase
         .from('schedulable_users')
         .select('*')
@@ -228,7 +228,7 @@ export function AuthProvider({ children }) {
         .single();
 
       const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Query timeout after 15 seconds')), 15000)
+        setTimeout(() => reject(new Error('Query timeout after 2 seconds')), 2000)
       );
 
       const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
