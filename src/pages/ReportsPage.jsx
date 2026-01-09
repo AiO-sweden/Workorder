@@ -1119,18 +1119,13 @@ export default function ReportsPage() {
           img.src = organization.logo_url;
         });
 
-        // Add logo (max height 15mm, proportional width)
-        const maxLogoHeight = 15;
+        // Add logo (max height 25mm, proportional width)
+        const maxLogoHeight = 25;
         const imgRatio = img.width / img.height;
         logoHeight = maxLogoHeight;
         const logoWidth = logoHeight * imgRatio;
 
         doc.addImage(img, 'PNG', margin, 15, logoWidth, logoHeight);
-
-        // Company name below logo (smaller)
-        doc.setFontSize(10);
-        doc.setFont(undefined, 'normal');
-        doc.text(organization?.company_name || 'Företaget AB', margin, 15 + logoHeight + 5);
       } catch (error) {
         console.error('Error loading logo:', error);
         // Fallback to company name if logo fails
