@@ -34,10 +34,6 @@ import {
 
 // Import shared components and styles
 import {
-  cardStyle,
-  inputStyle,
-  sectionHeaderStyle,
-  colors,
   spacing,
   shadows,
   borderRadius,
@@ -332,6 +328,47 @@ export default function NewOrder() {
   // Kontrollera om fakturering ska vara disabled (för Garanti-jobb)
   const isBillingDisabled = form.workType.toLowerCase() === "garanti";
 
+  // Dark theme input style
+  const darkInputStyle = {
+    width: "100%",
+    padding: `${spacing[3]} ${spacing[4]}`,
+    borderRadius: borderRadius.lg,
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    fontSize: typography.fontSize.base,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    color: '#fff',
+    outline: "none",
+    transition: `all ${transitions.base}`,
+    fontFamily: typography.fontFamily.sans,
+    fontWeight: typography.fontWeight.normal,
+    boxSizing: "border-box",
+  };
+
+  // Dark card style
+  const darkCardStyle = {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backdropFilter: 'blur(20px)',
+    borderRadius: borderRadius.xl,
+    padding: spacing[8],
+    marginBottom: spacing[6],
+    boxShadow: '0 25px 50px rgba(0, 0, 0, 0.3)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    transition: `all ${transitions.base}`,
+  };
+
+  // Dark section header style
+  const darkSectionHeaderStyle = {
+    display: "flex",
+    alignItems: "center",
+    gap: spacing[3],
+    fontSize: typography.fontSize.xl,
+    fontWeight: typography.fontWeight.semibold,
+    color: '#fff',
+    marginBottom: spacing[6],
+    paddingBottom: spacing[4],
+    borderBottom: '2px solid rgba(255, 255, 255, 0.1)',
+  };
+
   return (
     <div className="page-enter" style={{
       maxWidth: "1000px",
@@ -353,13 +390,13 @@ export default function NewOrder() {
           <h1 style={{
             fontSize: typography.fontSize['3xl'],
             fontWeight: typography.fontWeight.bold,
-            color: colors.neutral[900],
+            color: '#fff',
             margin: 0,
             display: "flex",
             alignItems: "center",
             gap: spacing[3]
           }}>
-            <FileText size={32} color={colors.primary[500]} />
+            <FileText size={32} color="#60a5fa" />
             Ny arbetsorder
           </h1>
           <ActionButton
@@ -370,16 +407,35 @@ export default function NewOrder() {
             Avbryt
           </ActionButton>
         </div>
-        <p style={{ color: colors.neutral[600], fontSize: typography.fontSize.base, margin: 0 }}>
+        <p style={{ color: '#94a3b8', fontSize: typography.fontSize.base, margin: 0 }}>
           Fyll i informationen nedan för att skapa en ny arbetsorder
         </p>
       </div>
 
       <form onSubmit={handleSubmit}>
         {/* Order Number Card */}
-        <div style={cardStyle}>
-          <div style={sectionHeaderStyle}>
-            <Tag size={20} color={colors.primary[500]} />
+        <div className="card-enter" style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+          backdropFilter: 'blur(20px)',
+          borderRadius: borderRadius.xl,
+          padding: spacing[8],
+          marginBottom: spacing[6],
+          boxShadow: '0 25px 50px rgba(0, 0, 0, 0.3)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          transition: `all ${transitions.base}`,
+        }}>
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: spacing[3],
+            fontSize: typography.fontSize.xl,
+            fontWeight: typography.fontWeight.semibold,
+            color: '#fff',
+            marginBottom: spacing[6],
+            paddingBottom: spacing[4],
+            borderBottom: '2px solid rgba(255, 255, 255, 0.1)',
+          }}>
+            <Tag size={20} color="#60a5fa" />
             <span>Ordernummer</span>
           </div>
           <input
@@ -387,39 +443,65 @@ export default function NewOrder() {
             value={form.orderNumber}
             readOnly
             style={{
-              ...inputStyle,
-              backgroundColor: colors.neutral[50],
-              color: colors.neutral[600],
+              width: "100%",
+              padding: `${spacing[3]} ${spacing[4]}`,
+              borderRadius: borderRadius.lg,
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              fontSize: typography.fontSize.lg,
+              backgroundColor: 'rgba(255, 255, 255, 0.03)',
+              color: '#94a3b8',
+              outline: "none",
+              transition: `all ${transitions.base}`,
+              fontFamily: typography.fontFamily.sans,
               fontWeight: typography.fontWeight.semibold,
-              fontSize: typography.fontSize.lg
+              boxSizing: "border-box",
             }}
           />
         </div>
 
         {/* Customer Selection Card */}
-        <div style={cardStyle}>
-          <div style={sectionHeaderStyle}>
-            <User size={20} color={colors.primary[500]} />
+        <div className="card-enter" style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+          backdropFilter: 'blur(20px)',
+          borderRadius: borderRadius.xl,
+          padding: spacing[8],
+          marginBottom: spacing[6],
+          boxShadow: '0 25px 50px rgba(0, 0, 0, 0.3)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          transition: `all ${transitions.base}`,
+        }}>
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: spacing[3],
+            fontSize: typography.fontSize.xl,
+            fontWeight: typography.fontWeight.semibold,
+            color: '#fff',
+            marginBottom: spacing[6],
+            paddingBottom: spacing[4],
+            borderBottom: '2px solid rgba(255, 255, 255, 0.1)',
+          }}>
+            <User size={20} color="#60a5fa" />
             <span>Kundinformation</span>
           </div>
 
           <FormField label="Kund" required>
             <div style={{ position: "relative" }}>
-              <User size={18} style={iconInInputStyle} />
+              <User size={18} style={{ position: "absolute", left: spacing[3], top: "50%", transform: "translateY(-50%)", color: '#94a3b8', pointerEvents: "none" }} />
               <select
                 name="customerId"
                 value={form.customerId}
                 onChange={handleCustomerChange}
                 style={{
-                  ...inputStyle,
+                  ...darkInputStyle,
                   paddingLeft: spacing[10],
-                  ...getInputErrorStyle(errors.customerId)
+                  ...(errors.customerId ? { borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)' } : {})
                 }}
                 required
               >
-                <option value="">Välj kund</option>
+                <option value="" style={{ backgroundColor: '#1a1a2e' }}>Välj kund</option>
                 {customers.map(c => (
-                  <option key={c.id} value={c.id}>
+                  <option key={c.id} value={c.id} style={{ backgroundColor: '#1a1a2e' }}>
                     {c.name} {c.customerNumber ? `(#${c.customerNumber})` : ''}
                   </option>
                 ))}
@@ -441,12 +523,12 @@ export default function NewOrder() {
 
           <FormField label="Adress">
             <div style={{ position: "relative" }}>
-              <MapPin size={18} style={iconInInputStyle} />
+              <MapPin size={18} style={{ position: "absolute", left: spacing[3], top: "50%", transform: "translateY(-50%)", color: '#94a3b8', pointerEvents: "none" }} />
               <input
                 name="address"
                 value={form.address}
                 onChange={handleChange}
-                style={{ ...inputStyle, paddingLeft: spacing[10] }}
+                style={{ ...darkInputStyle, paddingLeft: spacing[10] }}
                 placeholder="Adress fylls i automatiskt"
               />
             </div>
@@ -455,10 +537,10 @@ export default function NewOrder() {
           {/* Customer Details Display */}
           {form.customerId && selectedCustomer() && (
             <div style={{
-              backgroundColor: colors.neutral[50],
+              backgroundColor: 'rgba(255, 255, 255, 0.03)',
               padding: spacing[5],
               borderRadius: borderRadius.xl,
-              border: `1px solid ${colors.neutral[200]}`,
+              border: '1px solid rgba(255, 255, 255, 0.1)',
               marginTop: spacing[4]
             }}>
               <div style={{
@@ -492,9 +574,9 @@ export default function NewOrder() {
         </div>
 
         {/* Order Details Card */}
-        <div style={cardStyle}>
-          <div style={sectionHeaderStyle}>
-            <Briefcase size={20} color={colors.primary[500]} />
+        <div className="card-enter" style={darkCardStyle}>
+          <div style={darkSectionHeaderStyle}>
+            <Briefcase size={20} color="#60a5fa" />
             <span>Orderdetaljer</span>
           </div>
 
@@ -503,7 +585,10 @@ export default function NewOrder() {
               name="title"
               value={form.title}
               onChange={handleChange}
-              style={{ ...inputStyle, ...getInputErrorStyle(errors.title) }}
+              style={{
+                ...darkInputStyle,
+                ...(errors.title ? { borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)' } : {})
+              }}
               placeholder="T.ex. Installation av värmepump"
               required
             />
@@ -535,10 +620,10 @@ export default function NewOrder() {
               value={form.description}
               onChange={handleChange}
               style={{
-                ...inputStyle,
+                ...darkInputStyle,
                 minHeight: "120px",
                 resize: "vertical",
-                ...getInputErrorStyle(errors.description)
+                ...(errors.description ? { borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)' } : {})
               }}
               placeholder="Beskriv arbetet som ska utföras..."
               required
@@ -548,12 +633,12 @@ export default function NewOrder() {
 
           <FormField label="Uppskattad tid">
             <div style={{ position: "relative" }}>
-              <Clock size={18} style={iconInInputStyle} />
+              <Clock size={18} style={{ position: "absolute", left: spacing[3], top: "50%", transform: "translateY(-50%)", color: '#94a3b8', pointerEvents: "none" }} />
               <input
                 name="estimatedTime"
                 value={form.estimatedTime}
                 onChange={handleChange}
-                style={{ ...inputStyle, paddingLeft: spacing[10] }}
+                style={{ ...darkInputStyle, paddingLeft: spacing[10] }}
                 placeholder="T.ex. 4 timmar"
               />
             </div>
@@ -561,12 +646,12 @@ export default function NewOrder() {
 
           <FormField label="Tilldelad till">
             <div style={{ position: "relative" }}>
-              <UserCircle size={18} style={iconInInputStyle} />
+              <UserCircle size={18} style={{ position: "absolute", left: spacing[3], top: "50%", transform: "translateY(-50%)", color: '#94a3b8', pointerEvents: "none" }} />
               <input
                 name="assignedTo"
                 value={form.assignedTo}
                 onChange={handleChange}
-                style={{ ...inputStyle, paddingLeft: spacing[10] }}
+                style={{ ...darkInputStyle, paddingLeft: spacing[10] }}
                 placeholder="Namn på ansvarig"
               />
             </div>
@@ -577,7 +662,7 @@ export default function NewOrder() {
               name="materials"
               value={form.materials}
               onChange={handleChange}
-              style={{ ...inputStyle, minHeight: "80px", resize: "vertical" }}
+              style={{ ...darkInputStyle, minHeight: "80px", resize: "vertical" }}
               placeholder="Lista material eller utrustning som behövs..."
             />
           </FormField>
@@ -587,16 +672,16 @@ export default function NewOrder() {
               name="notes"
               value={form.notes}
               onChange={handleChange}
-              style={{ ...inputStyle, minHeight: "80px", resize: "vertical" }}
+              style={{ ...darkInputStyle, minHeight: "80px", resize: "vertical" }}
               placeholder="Anteckningar som endast är synliga internt..."
             />
           </FormField>
         </div>
 
         {/* Status & Priority Card */}
-        <div style={cardStyle}>
-          <div style={sectionHeaderStyle}>
-            <AlertCircle size={20} color={colors.primary[500]} />
+        <div style={darkCardStyle}>
+          <div style={darkSectionHeaderStyle}>
+            <AlertCircle size={20} color="#60a5fa" />
             <span>Status & Prioritet</span>
           </div>
 
@@ -605,13 +690,13 @@ export default function NewOrder() {
               name="status"
               value={form.status}
               onChange={handleChange}
-              style={inputStyle}
+              style={darkInputStyle}
             >
-              <option value="Planerad">Planerad</option>
-              <option value="Ej påbörjad">Ej påbörjad</option>
-              <option value="Pågående">Pågående</option>
-              <option value="Klar för fakturering">Klar för fakturering</option>
-              <option value="Full fakturerad">Full fakturerad</option>
+              <option value="Planerad" style={{ backgroundColor: '#1a1a2e' }}>Planerad</option>
+              <option value="Ej påbörjad" style={{ backgroundColor: '#1a1a2e' }}>Ej påbörjad</option>
+              <option value="Pågående" style={{ backgroundColor: '#1a1a2e' }}>Pågående</option>
+              <option value="Klar för fakturering" style={{ backgroundColor: '#1a1a2e' }}>Klar för fakturering</option>
+              <option value="Full fakturerad" style={{ backgroundColor: '#1a1a2e' }}>Full fakturerad</option>
             </select>
           </FormField>
 
@@ -620,11 +705,11 @@ export default function NewOrder() {
               name="priority"
               value={form.priority}
               onChange={handleChange}
-              style={inputStyle}
+              style={darkInputStyle}
             >
-              <option value="Låg">Låg</option>
-              <option value="Mellan">Mellan</option>
-              <option value="Hög">Hög</option>
+              <option value="Låg" style={{ backgroundColor: '#1a1a2e' }}>Låg</option>
+              <option value="Mellan" style={{ backgroundColor: '#1a1a2e' }}>Mellan</option>
+              <option value="Hög" style={{ backgroundColor: '#1a1a2e' }}>Hög</option>
             </select>
           </FormField>
 
@@ -634,22 +719,22 @@ export default function NewOrder() {
               name="deadline"
               value={form.deadline}
               onChange={handleChange}
-              style={inputStyle}
+              style={darkInputStyle}
             />
           </FormField>
         </div>
 
         {/* Billing Card */}
-        <div style={cardStyle}>
-          <div style={sectionHeaderStyle}>
-            <DollarSign size={20} color={colors.primary[500]} />
+        <div style={darkCardStyle}>
+          <div style={darkSectionHeaderStyle}>
+            <DollarSign size={20} color="#60a5fa" />
             <span>Fakturering</span>
           </div>
 
           {isBillingDisabled && (
             <div style={{
-              backgroundColor: colors.warning[50],
-              border: `1px solid ${colors.warning[500]}`,
+              backgroundColor: 'rgba(251, 146, 60, 0.1)',
+              border: '1px solid rgba(251, 146, 60, 0.3)',
               borderRadius: borderRadius.lg,
               padding: spacing[4],
               marginBottom: spacing[4],
@@ -657,8 +742,8 @@ export default function NewOrder() {
               alignItems: "center",
               gap: spacing[3]
             }}>
-              <AlertCircle size={20} color={colors.warning[600]} />
-              <span style={{ color: colors.warning[900], fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.medium }}>
+              <AlertCircle size={20} color="#fb923c" />
+              <span style={{ color: '#fbbf24', fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.medium }}>
                 Garantijobb är inte fakturerbara och fakturering är därför inaktiverad
               </span>
             </div>
@@ -671,9 +756,9 @@ export default function NewOrder() {
               gap: spacing[3],
               cursor: isBillingDisabled ? "not-allowed" : "pointer",
               padding: spacing[4],
-              backgroundColor: form.billable ? colors.primary[50] : colors.neutral[50],
+              backgroundColor: form.billable ? 'rgba(59, 130, 246, 0.1)' : 'rgba(255, 255, 255, 0.03)',
               borderRadius: borderRadius.lg,
-              border: `2px solid ${form.billable ? colors.primary[500] : colors.neutral[200]}`,
+              border: `2px solid ${form.billable ? '#60a5fa' : 'rgba(255, 255, 255, 0.1)'}`,
               transition: `all ${transitions.base}`,
               opacity: isBillingDisabled ? 0.6 : 1
             }}>
@@ -691,7 +776,7 @@ export default function NewOrder() {
               />
               <span style={{
                 fontWeight: typography.fontWeight.semibold,
-                color: form.billable ? colors.primary[700] : colors.neutral[600],
+                color: form.billable ? '#60a5fa' : '#94a3b8',
                 fontSize: typography.fontSize.base
               }}>
                 Faktureringsbar order
@@ -719,12 +804,16 @@ export default function NewOrder() {
               {form.billingType === "Fast pris" && (
                 <FormField label="Pris (SEK)" required>
                   <div style={{ position: "relative" }}>
-                    <DollarSign size={18} style={iconInInputStyle} />
+                    <DollarSign size={18} style={{ position: "absolute", left: spacing[3], top: "50%", transform: "translateY(-50%)", color: '#94a3b8', pointerEvents: "none" }} />
                     <input
                       name="fixedPrice"
                       value={form.fixedPrice}
                       onChange={handleChange}
-                      style={{ ...inputStyle, paddingLeft: spacing[10], ...getInputErrorStyle(errors.fixedPrice) }}
+                      style={{
+                        ...darkInputStyle,
+                        paddingLeft: spacing[10],
+                        ...(errors.fixedPrice ? { borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)' } : {})
+                      }}
                       type="number"
                       placeholder="0"
                     />
@@ -812,7 +901,7 @@ function InfoItem({ icon, label, value }) {
         display: "flex",
         alignItems: "center",
         gap: spacing[2],
-        color: colors.neutral[600],
+        color: '#94a3b8',
         fontSize: typography.fontSize.xs,
         marginBottom: spacing[1]
       }}>
@@ -820,7 +909,7 @@ function InfoItem({ icon, label, value }) {
         <span>{label}</span>
       </div>
       <div style={{
-        color: colors.neutral[900],
+        color: '#fff',
         fontSize: typography.fontSize.sm,
         fontWeight: typography.fontWeight.medium
       }}>
@@ -836,7 +925,7 @@ function ErrorMessage({ message }) {
       display: "flex",
       alignItems: "center",
       gap: spacing[2],
-      color: colors.error[600],
+      color: '#ef4444',
       fontSize: typography.fontSize.sm,
       marginTop: spacing[2]
     }}>
@@ -859,9 +948,9 @@ function WorkTypeButton({ type, selected, onClick }) {
       style={{
         padding: spacing[3],
         borderRadius: borderRadius.lg,
-        border: `2px solid ${selected ? type.color : colors.neutral[200]}`,
-        backgroundColor: selected ? `${type.color}20` : (isHovered ? colors.neutral[50] : "white"),
-        color: selected ? type.color : colors.neutral[600],
+        border: `2px solid ${selected ? type.color : 'rgba(255, 255, 255, 0.1)'}`,
+        backgroundColor: selected ? `${type.color}20` : (isHovered ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.03)'),
+        color: selected ? type.color : '#94a3b8',
         cursor: "pointer",
         transition: `all ${transitions.base}`,
         fontSize: typography.fontSize.sm,
@@ -873,7 +962,7 @@ function WorkTypeButton({ type, selected, onClick }) {
         boxShadow: selected ? shadows.sm : "none"
       }}
     >
-      <Icon size={24} color={selected ? type.color : colors.neutral[500]} />
+      <Icon size={24} color={selected ? type.color : '#94a3b8'} />
       <span>{type.name}</span>
     </button>
   );
@@ -891,9 +980,9 @@ function BillingTypeButton({ label, selected, onClick }) {
       style={{
         padding: spacing[3],
         borderRadius: borderRadius.lg,
-        border: `2px solid ${selected ? colors.primary[500] : colors.neutral[200]}`,
-        backgroundColor: selected ? colors.primary[50] : (isHovered ? colors.neutral[50] : "white"),
-        color: selected ? colors.primary[700] : colors.neutral[600],
+        border: `2px solid ${selected ? '#60a5fa' : 'rgba(255, 255, 255, 0.1)'}`,
+        backgroundColor: selected ? 'rgba(59, 130, 246, 0.1)' : (isHovered ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.03)'),
+        color: selected ? '#60a5fa' : '#94a3b8',
         cursor: "pointer",
         transition: `all ${transitions.base}`,
         fontSize: typography.fontSize.sm,
@@ -905,20 +994,3 @@ function BillingTypeButton({ label, selected, onClick }) {
     </button>
   );
 }
-
-// Styles
-const iconInInputStyle = {
-  position: "absolute",
-  left: spacing[3],
-  top: "50%",
-  transform: "translateY(-50%)",
-  color: colors.neutral[400],
-  pointerEvents: "none"
-};
-
-const getInputErrorStyle = (error) => {
-  return error ? {
-    borderColor: colors.error[500],
-    backgroundColor: colors.error[50]
-  } : {};
-};

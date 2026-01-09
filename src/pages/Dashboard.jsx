@@ -18,7 +18,7 @@ import {
 import StatsCard from "../components/shared/StatsCard";
 import ActionButton from "../components/shared/ActionButton";
 import Badge from "../components/shared/Badge";
-import { colors, spacing, shadows, borderRadius, typography, transitions } from "../components/shared/theme";
+import { spacing, borderRadius, typography, transitions } from "../components/shared/theme";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -245,19 +245,24 @@ export default function Dashboard() {
   }).length;
 
   return (
-    <div className="page-enter" style={{ fontFamily: typography.fontFamily.sans }}>
+    <div className="page-enter" style={{
+      fontFamily: typography.fontFamily.sans,
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+      padding: '2rem'
+    }}>
       {/* Header */}
       <div style={{ marginBottom: spacing[8] }}>
         <h1 style={{
           fontSize: typography.fontSize['4xl'],
           fontWeight: typography.fontWeight.bold,
-          color: colors.neutral[900],
+          color: '#fff',
           marginBottom: spacing[2],
           letterSpacing: "-0.02em"
         }}>
           Dashboard
         </h1>
-        <p style={{ color: colors.neutral[500], fontSize: typography.fontSize.lg }}>
+        <p style={{ color: '#cbd5e1', fontSize: typography.fontSize.lg }}>
           Välkommen tillbaka! Här är en översikt över dina arbetsordrar.
         </p>
       </div>
@@ -328,16 +333,17 @@ export default function Dashboard() {
 
       {/* Orders Section */}
       <div className="card-enter" style={{
-        backgroundColor: "white",
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        backdropFilter: 'blur(20px)',
         borderRadius: borderRadius.xl,
-        boxShadow: shadows.lg,
+        boxShadow: '0 25px 50px rgba(0, 0, 0, 0.3)',
         overflow: "hidden",
-        border: `1px solid ${colors.neutral[200]}`
+        border: '1px solid rgba(255, 255, 255, 0.1)'
       }}>
         {/* Table Header with Filters */}
         <div style={{
           padding: spacing[6],
-          borderBottom: `2px solid ${colors.neutral[100]}`,
+          borderBottom: '2px solid rgba(255, 255, 255, 0.1)',
           display: "flex",
           flexDirection: "column",
           gap: spacing[4]
@@ -345,7 +351,7 @@ export default function Dashboard() {
           <h2 style={{
             fontSize: typography.fontSize['2xl'],
             fontWeight: typography.fontWeight.bold,
-            color: colors.neutral[900],
+            color: '#fff',
             margin: 0
           }}>
             Arbetsordrar
@@ -367,7 +373,7 @@ export default function Dashboard() {
                   left: spacing[3],
                   top: "50%",
                   transform: "translateY(-50%)",
-                  color: colors.neutral[400]
+                  color: "#64748b"
                 }}
               />
               <input
@@ -378,20 +384,22 @@ export default function Dashboard() {
                 style={{
                   width: "100%",
                   padding: `${spacing[3]} ${spacing[4]} ${spacing[3]} ${spacing[10]}`,
-                  border: `2px solid ${colors.neutral[200]}`,
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
                   borderRadius: borderRadius.lg,
                   fontSize: typography.fontSize.base,
                   outline: "none",
                   transition: "all 0.2s ease",
                   fontFamily: typography.fontFamily.sans,
+                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                  color: '#fff',
                 }}
                 onFocus={(e) => {
-                  e.currentTarget.style.borderColor = colors.primary[500];
-                  e.currentTarget.style.boxShadow = `0 0 0 3px ${colors.primary[100]}`;
+                  e.currentTarget.style.borderColor = '#3b82f6';
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
                 }}
                 onBlur={(e) => {
-                  e.currentTarget.style.borderColor = colors.neutral[200];
-                  e.currentTarget.style.boxShadow = "none";
+                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
                 }}
               />
             </div>
@@ -409,11 +417,11 @@ export default function Dashboard() {
               onChange={e => setFilter({ ...filter, priority: e.target.value })}
               style={{
                 padding: `${spacing[3]} ${spacing[4]}`,
-                border: `2px solid ${colors.neutral[200]}`,
+                border: '1px solid rgba(255, 255, 255, 0.1)',
                 borderRadius: borderRadius.lg,
                 fontSize: typography.fontSize.base,
-                color: colors.neutral[700],
-                backgroundColor: "white",
+                color: '#fff',
+                backgroundColor: 'rgba(255, 255, 255, 0.08)',
                 cursor: "pointer",
                 outline: "none",
                 minWidth: "160px",
@@ -421,10 +429,10 @@ export default function Dashboard() {
                 fontWeight: typography.fontWeight.medium,
               }}
             >
-              <option value="">Alla prioriteter</option>
-              <option value="Låg">Låg</option>
-              <option value="Mellan">Mellan</option>
-              <option value="Hög">Hög</option>
+              <option value="" style={{ backgroundColor: '#1a1a2e' }}>Alla prioriteter</option>
+              <option value="Låg" style={{ backgroundColor: '#1a1a2e' }}>Låg</option>
+              <option value="Mellan" style={{ backgroundColor: '#1a1a2e' }}>Mellan</option>
+              <option value="Hög" style={{ backgroundColor: '#1a1a2e' }}>Hög</option>
             </select>
 
             {/* Status Filter */}
@@ -433,11 +441,11 @@ export default function Dashboard() {
               onChange={e => setFilter({ ...filter, status: e.target.value })}
               style={{
                 padding: `${spacing[3]} ${spacing[4]}`,
-                border: `2px solid ${colors.neutral[200]}`,
+                border: '1px solid rgba(255, 255, 255, 0.1)',
                 borderRadius: borderRadius.lg,
                 fontSize: typography.fontSize.base,
-                color: colors.neutral[700],
-                backgroundColor: "white",
+                color: '#fff',
+                backgroundColor: 'rgba(255, 255, 255, 0.08)',
                 cursor: "pointer",
                 outline: "none",
                 minWidth: "180px",
@@ -445,12 +453,12 @@ export default function Dashboard() {
                 fontWeight: typography.fontWeight.medium,
               }}
             >
-              <option value="">Alla statusar</option>
-              <option value="Planerad">Planerad</option>
-              <option value="Ej påbörjad">Ej påbörjad</option>
-              <option value="Pågående">Pågående</option>
-              <option value="Klar för fakturering">Klar för fakturering</option>
-              <option value="Full fakturerad">Full fakturerad</option>
+              <option value="" style={{ backgroundColor: '#1a1a2e' }}>Alla statusar</option>
+              <option value="Planerad" style={{ backgroundColor: '#1a1a2e' }}>Planerad</option>
+              <option value="Ej påbörjad" style={{ backgroundColor: '#1a1a2e' }}>Ej påbörjad</option>
+              <option value="Pågående" style={{ backgroundColor: '#1a1a2e' }}>Pågående</option>
+              <option value="Klar för fakturering" style={{ backgroundColor: '#1a1a2e' }}>Klar för fakturering</option>
+              <option value="Full fakturerad" style={{ backgroundColor: '#1a1a2e' }}>Full fakturerad</option>
             </select>
 
             {/* Show Closed Orders Toggle */}
@@ -458,11 +466,11 @@ export default function Dashboard() {
               onClick={() => setShowClosed(!showClosed)}
               style={{
                 padding: `${spacing[3]} ${spacing[4]}`,
-                border: `2px solid ${showClosed ? colors.success[500] : colors.neutral[200]}`,
+                border: `2px solid ${showClosed ? '#10b981' : 'rgba(255, 255, 255, 0.1)'}`,
                 borderRadius: borderRadius.lg,
                 fontSize: typography.fontSize.base,
-                color: showClosed ? "white" : colors.neutral[700],
-                backgroundColor: showClosed ? colors.success[500] : "white",
+                color: showClosed ? "white" : '#fff',
+                backgroundColor: showClosed ? '#10b981' : 'rgba(255, 255, 255, 0.08)',
                 cursor: "pointer",
                 fontFamily: typography.fontFamily.sans,
                 fontWeight: typography.fontWeight.semibold,
@@ -475,14 +483,14 @@ export default function Dashboard() {
               }}
               onMouseEnter={(e) => {
                 if (!showClosed) {
-                  e.currentTarget.style.backgroundColor = colors.neutral[50];
-                  e.currentTarget.style.borderColor = colors.success[300];
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.12)';
+                  e.currentTarget.style.borderColor = '#10b981';
                 }
               }}
               onMouseLeave={(e) => {
                 if (!showClosed) {
-                  e.currentTarget.style.backgroundColor = "white";
-                  e.currentTarget.style.borderColor = colors.neutral[200];
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
+                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
                 }
               }}
             >
@@ -500,7 +508,7 @@ export default function Dashboard() {
             borderCollapse: "collapse",
           }}>
             <thead>
-              <tr style={{ backgroundColor: colors.neutral[50] }}>
+              <tr style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}>
                 <TableHeader onClick={() => requestSort('orderNumber')} sortKey="orderNumber" sortConfig={sortConfig}>
                   Order
                 </TableHeader>
@@ -531,10 +539,10 @@ export default function Dashboard() {
                     className="hover-lift"
                     style={{
                       cursor: "pointer",
-                      borderBottom: index !== sortedAndFilteredOrders.length - 1 ? `1px solid ${colors.neutral[100]}` : "none",
+                      borderBottom: index !== sortedAndFilteredOrders.length - 1 ? '1px solid rgba(255, 255, 255, 0.1)' : "none",
                       transition: "all 0.2s ease",
                     }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colors.neutral[50]}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
                   >
                     <td style={tdStyle}>
@@ -542,16 +550,16 @@ export default function Dashboard() {
                         <div style={{
                           width: "40px",
                           height: "40px",
-                          backgroundColor: colors.primary[100],
+                          backgroundColor: 'rgba(59, 130, 246, 0.2)',
                           borderRadius: borderRadius.lg,
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
                           flexShrink: 0
                         }}>
-                          <FileText size={18} color={colors.primary[600]} />
+                          <FileText size={18} color="#60a5fa" />
                         </div>
-                        <span style={{ fontWeight: typography.fontWeight.semibold, color: colors.neutral[900] }}>
+                        <span style={{ fontWeight: typography.fontWeight.semibold, color: '#fff' }}>
                           #{order.orderNumber}
                         </span>
                       </div>
@@ -561,7 +569,7 @@ export default function Dashboard() {
                     <td style={tdStyle}>{order.address || "—"}</td>
                     <td style={tdStyle}>
                       {order.deadline ? (
-                        <span style={{ color: colors.neutral[700] }}>{order.deadline}</span>
+                        <span style={{ color: '#cbd5e1' }}>{order.deadline}</span>
                       ) : "—"}
                     </td>
                     <td style={tdStyle} onClick={(e) => e.stopPropagation()}>
@@ -585,7 +593,7 @@ export default function Dashboard() {
                   <td colSpan="7" style={{
                     padding: spacing[12],
                     textAlign: "center",
-                    color: colors.neutral[400],
+                    color: '#94a3b8',
                     fontSize: typography.fontSize.lg,
                   }}>
                     {searchTerm || filter.priority || filter.status
@@ -613,13 +621,13 @@ function TableHeader({ children, onClick, sortKey, sortConfig }) {
         textAlign: "left",
         fontSize: typography.fontSize.xs,
         fontWeight: typography.fontWeight.bold,
-        color: colors.neutral[600],
+        color: '#94a3b8',
         textTransform: "uppercase",
         letterSpacing: "0.05em",
         cursor: onClick ? "pointer" : "default",
         userSelect: "none",
         whiteSpace: "nowrap",
-        borderBottom: `2px solid ${colors.neutral[200]}`,
+        borderBottom: '2px solid rgba(255, 255, 255, 0.1)',
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: spacing[2] }}>
@@ -638,7 +646,7 @@ function TableHeader({ children, onClick, sortKey, sortConfig }) {
 const tdStyle = {
   padding: spacing[4],
   fontSize: typography.fontSize.base,
-  color: colors.neutral[700],
+  color: '#e2e8f0',
   fontWeight: typography.fontWeight.medium,
 };
 
@@ -730,13 +738,14 @@ function StatusBadge({ status, orderId, onChange }) {
             top: position.openUpward ? "auto" : `${position.top}px`,
             bottom: position.openUpward ? `${window.innerHeight - position.top}px` : "auto",
             left: `${position.left}px`,
-            backgroundColor: "white",
+            backgroundColor: 'rgba(26, 26, 46, 0.98)',
+            backdropFilter: 'blur(20px)',
             borderRadius: borderRadius.lg,
-            boxShadow: shadows.lg,
+            boxShadow: '0 25px 50px rgba(0, 0, 0, 0.5)',
             padding: spacing[2],
             zIndex: 9999,
             minWidth: "180px",
-            border: `1px solid ${colors.neutral[200]}`,
+            border: '1px solid rgba(255, 255, 255, 0.1)',
             maxHeight: "300px",
             overflowY: "auto"
           }}>
@@ -753,13 +762,13 @@ function StatusBadge({ status, orderId, onChange }) {
                 borderRadius: borderRadius.md,
                 fontSize: typography.fontSize.sm,
                 fontWeight: typography.fontWeight.medium,
-                backgroundColor: status === option ? colors.primary[50] : "transparent",
-                color: status === option ? colors.primary[700] : colors.neutral[700],
+                backgroundColor: status === option ? 'rgba(59, 130, 246, 0.2)' : "transparent",
+                color: status === option ? '#60a5fa' : '#e2e8f0',
                 transition: `all ${transitions.base}`,
               }}
               onMouseEnter={(e) => {
                 if (status !== option) {
-                  e.currentTarget.style.backgroundColor = colors.neutral[50];
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
                 }
               }}
               onMouseLeave={(e) => {
@@ -857,13 +866,14 @@ function PriorityBadge({ priority, orderId, onChange }) {
             top: position.openUpward ? "auto" : `${position.top}px`,
             bottom: position.openUpward ? `${window.innerHeight - position.top}px` : "auto",
             left: `${position.left}px`,
-            backgroundColor: "white",
+            backgroundColor: 'rgba(26, 26, 46, 0.98)',
+            backdropFilter: 'blur(20px)',
             borderRadius: borderRadius.lg,
-            boxShadow: shadows.lg,
+            boxShadow: '0 25px 50px rgba(0, 0, 0, 0.5)',
             padding: spacing[2],
             zIndex: 9999,
             minWidth: "120px",
-            border: `1px solid ${colors.neutral[200]}`,
+            border: '1px solid rgba(255, 255, 255, 0.1)',
             maxHeight: "200px",
             overflowY: "auto"
           }}>
@@ -880,13 +890,13 @@ function PriorityBadge({ priority, orderId, onChange }) {
                 borderRadius: borderRadius.md,
                 fontSize: typography.fontSize.sm,
                 fontWeight: typography.fontWeight.medium,
-                backgroundColor: priority === option ? colors.primary[50] : "transparent",
-                color: priority === option ? colors.primary[700] : colors.neutral[700],
+                backgroundColor: priority === option ? 'rgba(59, 130, 246, 0.2)' : "transparent",
+                color: priority === option ? '#60a5fa' : '#e2e8f0',
                 transition: `all ${transitions.base}`,
               }}
               onMouseEnter={(e) => {
                 if (priority !== option) {
-                  e.currentTarget.style.backgroundColor = colors.neutral[50];
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
                 }
               }}
               onMouseLeave={(e) => {

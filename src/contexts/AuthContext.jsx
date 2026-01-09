@@ -63,6 +63,7 @@ export function AuthProvider({ children }) {
       .insert([{
         company_name: additionalData.companyName || `${additionalData.firstName}'s Organization`,
         phone: additionalData.phoneNumber,
+        wants_to_pay: additionalData.wantsToPay || false,
         created_at: new Date().toISOString(),
       }])
       .select()
@@ -132,13 +133,13 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     let mounted = true;
 
-    // Safety timeout - always stop loading after 2 seconds
+    // Safety timeout - always stop loading after 10 seconds
     const loadingTimeout = setTimeout(() => {
       console.log('⏱️ Loading timeout - forcing loading to false');
       if (mounted) {
         setLoading(false);
       }
-    }, 2000);
+    }, 10000);
 
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -177,13 +178,27 @@ export function AuthProvider({ children }) {
       }
 
       console.log('🔄 Auth state changed:', event, session?.user ? 'User present' : 'No user');
+
+      // Only update if this is a meaningful change (not just a token refresh)
+      if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+        setCurrentUser(null);
+        setUserDetails(null);
+        setLoading(false);
+        return;
+      }
+
       setCurrentUser(session?.user ?? null);
 
+      // Only fetch user details if we don't already have them or if user changed
       if (session?.user) {
-        console.log('🔍 Auth state change has user, calling fetchUserDetails with ID:', session.user.id);
-        await fetchUserDetails(session.user.id).catch(err => {
-          console.error('❌ Failed to fetch user details:', err);
-        });
+        if (!userDetails || userDetails.id !== session.user.id) {
+          console.log('🔍 Auth state change has user, calling fetchUserDetails with ID:', session.user.id);
+          await fetchUserDetails(session.user.id).catch(err => {
+            console.error('❌ Failed to fetch user details:', err);
+          });
+        } else {
+          console.log('✅ User details already loaded, skipping fetch');
+        }
       } else {
         console.log('⚠️ No user in auth state change, setting userDetails to null');
         setUserDetails(null);
@@ -213,7 +228,7 @@ export function AuthProvider({ children }) {
         .single();
 
       const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Query timeout after 5 seconds')), 5000)
+        setTimeout(() => reject(new Error('Query timeout after 15 seconds')), 15000)
       );
 
       const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
@@ -255,11 +270,12 @@ export function AuthProvider({ children }) {
     } catch (error) {
       console.error('❌ fetchUserDetails: Caught error:', error);
       // Even on error, set minimal userDetails so app doesn't break
-      setUserDetails({
+      // But try to preserve existing organizationId if we have it
+      setUserDetails(prev => ({
         id: userId,
-        organizationId: null,
-        role: 'user'
-      });
+        organizationId: prev?.organizationId || null,
+        role: prev?.role || 'user'
+      }));
     } finally {
       console.log('✅ fetchUserDetails: Setting loading to false');
       setLoading(false);

@@ -23,7 +23,9 @@
       "Bash(xargs kill:*)",
       "Bash(brew install:*)",
       "Bash(export SUPABASE_ACCESS_TOKEN=sbp_41b27480e9908261be8dd9c6e0be3d6c08b62bb1)",
-      "Bash(npx supabase functions deploy:*)"
+      "Bash(npx supabase functions deploy:*)",
+      "Bash(ls:*)",
+      "Bash(tree:*)"
     ],
     "deny": [],
     "ask": []

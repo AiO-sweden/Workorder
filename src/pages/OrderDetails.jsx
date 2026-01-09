@@ -27,16 +27,26 @@ import LoadingSpinner from "../components/shared/LoadingSpinner";
 import Badge from "../components/shared/Badge";
 import Toast from "../components/shared/Toast";
 import {
-  cardStyle,
-  sectionHeaderStyle,
-  inputStyle,
   colors,
   spacing,
-  shadows,
   borderRadius,
   typography,
   transitions
 } from "../components/shared/styles";
+
+// Dark input style
+const darkInputStyle = {
+  width: "100%",
+  padding: `${spacing[3]} ${spacing[4]}`,
+  borderRadius: borderRadius.lg,
+  border: '1px solid rgba(255, 255, 255, 0.1)',
+  fontSize: typography.fontSize.base,
+  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+  color: '#fff',
+  outline: "none",
+  transition: `all ${transitions.base}`,
+  boxSizing: "border-box",
+};
 
 // Default time codes if none exist
 const DEFAULT_TIME_CODES = [
@@ -198,12 +208,13 @@ export default function OrderDetails() {
         const { data, error } = await supabase
           .from('time_codes')
           .select('*')
+          .eq('organization_id', userDetails.organizationId)
           .order('code', { ascending: true });
 
         if (error) throw error;
 
         if (data && data.length > 0) {
-          // Convert time_codes table format to component format
+          // Convert time_codes table format to component format and filter duplicates
           const convertedTimeCodes = data.map(tc => ({
             id: tc.code || tc.id,
             name: tc.name,
@@ -211,8 +222,14 @@ export default function OrderDetails() {
             billable: tc.type === 'Arbetstid',
             hourlyRate: tc.rate || 0
           }));
-          setTimeCodes(convertedTimeCodes);
-          console.log('✅ OrderDetails: Fetched', convertedTimeCodes.length, 'time codes');
+
+          // Remove duplicates based on id using a Map
+          const uniqueTimeCodes = Array.from(
+            new Map(convertedTimeCodes.map(tc => [tc.id, tc])).values()
+          );
+
+          setTimeCodes(uniqueTimeCodes);
+          console.log('✅ OrderDetails: Fetched', uniqueTimeCodes.length, 'unique time codes');
         }
       } catch (error) {
         console.error("❌ OrderDetails: Error fetching time codes:", error);
@@ -280,6 +297,58 @@ export default function OrderDetails() {
       isMounted = false;
     };
   }, [id, navigate, userDetails]);
+
+  // Real-time listener for time_codes changes
+  useEffect(() => {
+    if (!userDetails?.organizationId) return;
+
+    console.log('🔄 OrderDetails: Setting up real-time listener for time_codes');
+
+    const channel = supabase
+      .channel('order_details_time_codes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'time_codes',
+          filter: `organization_id=eq.${userDetails.organizationId}`
+        },
+        async (payload) => {
+          console.log('🔔 OrderDetails: Time codes changed:', payload);
+
+          // Re-fetch time codes
+          const { data: timeCodesData, error: timeCodesError } = await supabase
+            .from('time_codes')
+            .select('*')
+            .eq('organization_id', userDetails.organizationId)
+            .order('code', { ascending: true });
+
+          if (!timeCodesError && timeCodesData) {
+            const convertedTimeCodes = timeCodesData.map(tc => ({
+              id: tc.code || tc.id,
+              name: tc.name,
+              color: "#3b82f6",
+              billable: tc.type === 'Arbetstid',
+              hourlyRate: tc.rate || 0
+            }));
+
+            const uniqueTimeCodes = Array.from(
+              new Map(convertedTimeCodes.map(tc => [tc.id, tc])).values()
+            );
+
+            setTimeCodes(uniqueTimeCodes);
+            console.log("✅ OrderDetails: Time codes updated from real-time:", uniqueTimeCodes.length);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log('🔌 OrderDetails: Cleaning up time_codes listener');
+      supabase.removeChannel(channel);
+    };
+  }, [userDetails?.organizationId]);
 
   // Set default timeCode when timeCodes are loaded
   useEffect(() => {
@@ -524,7 +593,7 @@ export default function OrderDetails() {
           kommentar: timeForm.kommentar,
           arbetsorder: id,
           organization_id: userDetails.organizationId,
-          user_id: currentUser.uid,
+          user_id: currentUser.id,
           user_name: userDetails.displayName || userDetails.email || "Användare",
           godkand: true,
           timestamp: new Date().toISOString()
@@ -637,7 +706,8 @@ export default function OrderDetails() {
     <div className="page-enter" style={{
       maxWidth: "1200px",
       margin: "0 auto",
-      fontFamily: typography.fontFamily.sans
+      fontFamily: typography.fontFamily.sans,
+      padding: '2rem 0'
     }}>
       {/* Toast notifications */}
       {toast && (
@@ -663,17 +733,17 @@ export default function OrderDetails() {
               <h1 style={{
                 fontSize: typography.fontSize['4xl'],
                 fontWeight: typography.fontWeight.bold,
-                color: colors.neutral[900],
+                color: '#fff',
                 margin: 0,
                 display: "flex",
                 alignItems: "center",
                 gap: spacing[3]
               }}>
-                <FileText size={32} color={colors.primary[500]} />
+                <FileText size={32} color="#60a5fa" />
                 Arbetsorder #{order.orderNumber}
               </h1>
               <p style={{
-                color: colors.neutral[500],
+                color: '#cbd5e1',
                 fontSize: typography.fontSize.base,
                 margin: `${spacing[1]} 0 0 0`,
                 paddingLeft: "2.75rem"
@@ -688,7 +758,7 @@ export default function OrderDetails() {
             <label style={{
               fontSize: typography.fontSize.sm,
               fontWeight: typography.fontWeight.semibold,
-              color: colors.neutral[600]
+              color: '#cbd5e1'
             }}>
               Status:
             </label>
@@ -696,38 +766,24 @@ export default function OrderDetails() {
               value={order.status}
               onChange={(e) => handleQuickStatusChange(e.target.value)}
               style={{
-                ...inputStyle,
                 minWidth: "200px",
                 padding: `${spacing[2]} ${spacing[4]}`,
                 fontWeight: typography.fontWeight.semibold,
                 fontSize: typography.fontSize.base,
                 cursor: "pointer",
-                backgroundColor:
-                  order.status === "Pågående" ? colors.primary[50] :
-                  order.status === "Klar för fakturering" ? colors.success[50] :
-                  order.status === "Full fakturerad" ? colors.success[100] :
-                  order.status === "Planerad" ? colors.warning[50] :
-                  colors.neutral[50],
-                color:
-                  order.status === "Pågående" ? colors.primary[700] :
-                  order.status === "Klar för fakturering" ? colors.success[700] :
-                  order.status === "Full fakturerad" ? colors.success[800] :
-                  order.status === "Planerad" ? colors.warning[700] :
-                  colors.neutral[700],
-                borderColor:
-                  order.status === "Pågående" ? colors.primary[300] :
-                  order.status === "Klar för fakturering" ? colors.success[300] :
-                  order.status === "Full fakturerad" ? colors.success[400] :
-                  order.status === "Planerad" ? colors.warning[300] :
-                  colors.neutral[300],
+                borderRadius: borderRadius.lg,
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                color: '#fff',
+                outline: 'none'
               }}
             >
-              <option value="Ej påbörjad">Ej påbörjad</option>
-              <option value="Planerad">Planerad</option>
-              <option value="Pågående">Pågående</option>
-              <option value="Klar för fakturering">Klar för fakturering</option>
-              <option value="Full fakturerad">Full fakturerad (Avslutas)</option>
-              <option value="Avslutad">Avslutad</option>
+              <option value="Ej påbörjad" style={{ backgroundColor: '#1a1a2e' }}>Ej påbörjad</option>
+              <option value="Planerad" style={{ backgroundColor: '#1a1a2e' }}>Planerad</option>
+              <option value="Pågående" style={{ backgroundColor: '#1a1a2e' }}>Pågående</option>
+              <option value="Klar för fakturering" style={{ backgroundColor: '#1a1a2e' }}>Klar för fakturering</option>
+              <option value="Full fakturerad" style={{ backgroundColor: '#1a1a2e' }}>Full fakturerad (Avslutas)</option>
+              <option value="Avslutad" style={{ backgroundColor: '#1a1a2e' }}>Avslutad</option>
             </select>
           </div>
         </div>
@@ -737,90 +793,150 @@ export default function OrderDetails() {
       {isEditing ? (
         // EDITING MODE FOR ORDER DETAILS
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[6] }}>
-          <div className="card-enter hover-lift" style={cardStyle}>
-            <div style={sectionHeaderStyle}>
-              <User size={20} color={colors.primary[500]} />
-              <span>Kundinformation</span>
+          <div className="card-enter hover-lift" style={{
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            backdropFilter: 'blur(20px)',
+            borderRadius: borderRadius.xl,
+            boxShadow: '0 25px 50px rgba(0, 0, 0, 0.3)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            padding: spacing[6]
+          }}>
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              gap: spacing[3],
+              marginBottom: spacing[6],
+              paddingBottom: spacing[4],
+              borderBottom: '2px solid rgba(255, 255, 255, 0.1)'
+            }}>
+              <User size={20} color="#60a5fa" />
+              <span style={{
+                fontSize: typography.fontSize.lg,
+                fontWeight: typography.fontWeight.bold,
+                color: '#fff'
+              }}>Kundinformation</span>
             </div>
 
             <FormField label="Kund" required>
-              <select name="customerId" value={order.customerId || ""} onChange={handleChange} style={inputStyle}>
-                <option value="">Välj kund</option>
+              <select name="customerId" value={order.customerId || ""} onChange={handleChange} style={darkInputStyle}>
+                <option value="" style={{ backgroundColor: '#1a1a2e' }}>Välj kund</option>
                 {customers.map((customer) => (
-                  <option key={customer.id} value={customer.id}>{customer.name}</option>
+                  <option key={customer.id} value={customer.id} style={{ backgroundColor: '#1a1a2e' }}>{customer.name}</option>
                 ))}
               </select>
             </FormField>
 
             <FormField label="Adress">
-              <input name="address" value={order.address || ""} onChange={handleChange} style={inputStyle} placeholder="Adress" />
+              <input name="address" value={order.address || ""} onChange={handleChange} style={darkInputStyle} placeholder="Adress" />
             </FormField>
 
             <FormField label="Deadline">
-              <input type="date" name="deadline" value={order.deadline || ""} onChange={handleChange} style={inputStyle} />
+              <input type="date" name="deadline" value={order.deadline || ""} onChange={handleChange} style={darkInputStyle} />
             </FormField>
 
-            <div style={sectionHeaderStyle}>
-              <Briefcase size={20} color={colors.primary[500]} />
-              <span>Arbetsdetaljer</span>
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              gap: spacing[3],
+              marginBottom: spacing[6],
+              paddingBottom: spacing[4],
+              borderBottom: '2px solid rgba(255, 255, 255, 0.1)',
+              marginTop: spacing[8]
+            }}>
+              <Briefcase size={20} color="#60a5fa" />
+              <span style={{
+                fontSize: typography.fontSize.lg,
+                fontWeight: typography.fontWeight.bold,
+                color: '#fff'
+              }}>Arbetsdetaljer</span>
             </div>
 
             <FormField label="Typ av arbete">
-              <select name="workType" value={order.workType || ""} onChange={handleChange} style={inputStyle}>
-                <option value="">Välj typ</option>
-                <option value="Bygg">Bygg</option>
-                <option value="El">El</option>
-                <option value="Garanti">Garanti</option>
-                <option value="IT">IT</option>
-                <option value="Rivning">Rivning</option>
-                <option value="VVS">VVS</option>
-                <option value="Anläggning">Anläggning</option>
-                <option value="Övrigt">Övrigt</option>
+              <select name="workType" value={order.workType || ""} onChange={handleChange} style={darkInputStyle}>
+                <option value="" style={{ backgroundColor: '#1a1a2e' }}>Välj typ</option>
+                <option value="Bygg" style={{ backgroundColor: '#1a1a2e' }}>Bygg</option>
+                <option value="El" style={{ backgroundColor: '#1a1a2e' }}>El</option>
+                <option value="Garanti" style={{ backgroundColor: '#1a1a2e' }}>Garanti</option>
+                <option value="IT" style={{ backgroundColor: '#1a1a2e' }}>IT</option>
+                <option value="Rivning" style={{ backgroundColor: '#1a1a2e' }}>Rivning</option>
+                <option value="VVS" style={{ backgroundColor: '#1a1a2e' }}>VVS</option>
+                <option value="Anläggning" style={{ backgroundColor: '#1a1a2e' }}>Anläggning</option>
+                <option value="Övrigt" style={{ backgroundColor: '#1a1a2e' }}>Övrigt</option>
               </select>
             </FormField>
 
             <FormField label="Prioritet">
-              <select name="priority" value={order.priority || ""} onChange={handleChange} style={inputStyle}>
-                <option value="">Välj prioritet</option>
-                <option value="Låg">Låg</option>
-                <option value="Mellan">Mellan</option>
-                <option value="Hög">Hög</option>
+              <select name="priority" value={order.priority || ""} onChange={handleChange} style={darkInputStyle}>
+                <option value="" style={{ backgroundColor: '#1a1a2e' }}>Välj prioritet</option>
+                <option value="Låg" style={{ backgroundColor: '#1a1a2e' }}>Låg</option>
+                <option value="Mellan" style={{ backgroundColor: '#1a1a2e' }}>Mellan</option>
+                <option value="Hög" style={{ backgroundColor: '#1a1a2e' }}>Hög</option>
               </select>
             </FormField>
 
             <FormField label="Uppskattad tid">
-              <input name="estimatedTime" value={order.estimatedTime || ""} onChange={handleChange} style={inputStyle} placeholder="T.ex. 4 timmar" />
+              <input name="estimatedTime" value={order.estimatedTime || ""} onChange={handleChange} style={darkInputStyle} placeholder="T.ex. 4 timmar" />
             </FormField>
           </div>
 
-          <div className="card-enter hover-lift" style={cardStyle}>
-            <div style={sectionHeaderStyle}>
-              <FileText size={20} color={colors.primary[500]} />
-              <span>Orderdetaljer</span>
+          <div className="card-enter hover-lift" style={{
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            backdropFilter: 'blur(20px)',
+            borderRadius: borderRadius.xl,
+            boxShadow: '0 25px 50px rgba(0, 0, 0, 0.3)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            padding: spacing[6]
+          }}>
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              gap: spacing[3],
+              marginBottom: spacing[6],
+              paddingBottom: spacing[4],
+              borderBottom: '2px solid rgba(255, 255, 255, 0.1)'
+            }}>
+              <FileText size={20} color="#60a5fa" />
+              <span style={{
+                fontSize: typography.fontSize.lg,
+                fontWeight: typography.fontWeight.bold,
+                color: '#fff'
+              }}>Orderdetaljer</span>
             </div>
 
             <FormField label="Titel / Namn på arbetsorder" required>
-              <input name="title" value={order.title || ""} onChange={handleChange} style={inputStyle} />
+              <input name="title" value={order.title || ""} onChange={handleChange} style={darkInputStyle} />
             </FormField>
 
             <FormField label="Status">
-              <select name="status" value={order.status || ""} onChange={handleChange} style={inputStyle}>
-                <option value="">Välj status</option>
-                <option value="Planerad">Planerad</option>
-                <option value="Ej påbörjad">Ej påbörjad</option>
-                <option value="Pågående">Pågående</option>
-                <option value="Klar för fakturering">Klar för fakturering</option>
-                <option value="Full fakturerad">Full fakturerad</option>
+              <select name="status" value={order.status || ""} onChange={handleChange} style={darkInputStyle}>
+                <option value="" style={{ backgroundColor: '#1a1a2e' }}>Välj status</option>
+                <option value="Planerad" style={{ backgroundColor: '#1a1a2e' }}>Planerad</option>
+                <option value="Ej påbörjad" style={{ backgroundColor: '#1a1a2e' }}>Ej påbörjad</option>
+                <option value="Pågående" style={{ backgroundColor: '#1a1a2e' }}>Pågående</option>
+                <option value="Klar för fakturering" style={{ backgroundColor: '#1a1a2e' }}>Klar för fakturering</option>
+                <option value="Full fakturerad" style={{ backgroundColor: '#1a1a2e' }}>Full fakturerad</option>
               </select>
             </FormField>
 
             <FormField label="Beskrivning" required>
-              <textarea name="description" value={order.description || ""} onChange={handleChange} style={{ ...inputStyle, height: "120px", resize: "vertical" }} />
+              <textarea name="description" value={order.description || ""} onChange={handleChange} style={{ ...darkInputStyle, height: "120px", resize: "vertical" }} />
             </FormField>
 
-            <div style={sectionHeaderStyle}>
-              <DollarSign size={20} color={colors.primary[500]} />
-              <span>Fakturering</span>
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              gap: spacing[3],
+              marginBottom: spacing[6],
+              paddingBottom: spacing[4],
+              borderBottom: '2px solid rgba(255, 255, 255, 0.1)',
+              marginTop: spacing[8]
+            }}>
+              <DollarSign size={20} color="#60a5fa" />
+              <span style={{
+                fontSize: typography.fontSize.lg,
+                fontWeight: typography.fontWeight.bold,
+                color: '#fff'
+              }}>Fakturering</span>
             </div>
 
             <div style={{ marginBottom: spacing[6] }}>
@@ -830,9 +946,9 @@ export default function OrderDetails() {
                 gap: spacing[3],
                 cursor: "pointer",
                 padding: spacing[4],
-                backgroundColor: order.billable ? colors.primary[50] : colors.neutral[50],
+                backgroundColor: order.billable ? 'rgba(59, 130, 246, 0.15)' : 'rgba(255, 255, 255, 0.05)',
                 borderRadius: borderRadius.lg,
-                border: order.billable ? `2px solid ${colors.primary[500]}` : `1px solid ${colors.neutral[200]}`
+                border: order.billable ? '2px solid #3b82f6' : '1px solid rgba(255, 255, 255, 0.1)'
               }}>
                 <input
                   type="checkbox"
@@ -843,7 +959,7 @@ export default function OrderDetails() {
                 />
                 <span style={{
                   fontWeight: typography.fontWeight.semibold,
-                  color: order.billable ? colors.primary[600] : colors.neutral[500],
+                  color: order.billable ? '#60a5fa' : '#94a3b8',
                   fontSize: typography.fontSize.base
                 }}>
                   Faktureringsbar order
@@ -854,15 +970,35 @@ export default function OrderDetails() {
             {order.billable && (
               <>
                 <FormField label="Faktureringsmetod">
-                  <select name="billingType" value={order.billingType || ""} onChange={handleChange} style={inputStyle}>
-                    <option value="">Välj metod</option>
-                    <option value="Löpande pris">Löpande pris</option>
-                    <option value="Fast pris">Fast pris</option>
+                  <select name="billingType" value={order.billingType || ""} onChange={handleChange} style={{
+                    width: "100%",
+                    padding: `${spacing[3]} ${spacing[4]}`,
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: borderRadius.lg,
+                    fontSize: typography.fontSize.base,
+                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                    color: '#fff',
+                    outline: 'none',
+                    boxSizing: 'border-box'
+                  }}>
+                    <option value="" style={{ backgroundColor: '#1a1a2e' }}>Välj metod</option>
+                    <option value="Löpande pris" style={{ backgroundColor: '#1a1a2e' }}>Löpande pris</option>
+                    <option value="Fast pris" style={{ backgroundColor: '#1a1a2e' }}>Fast pris</option>
                   </select>
                 </FormField>
                 {order.billingType === "Fast pris" && (
                   <FormField label="Pris (SEK)">
-                    <input name="fixedPrice" value={order.fixedPrice || ""} onChange={handleChange} placeholder="0" type="number" style={inputStyle} />
+                    <input name="fixedPrice" value={order.fixedPrice || ""} onChange={handleChange} placeholder="0" type="number" style={{
+                      width: "100%",
+                      padding: `${spacing[3]} ${spacing[4]}`,
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      borderRadius: borderRadius.lg,
+                      fontSize: typography.fontSize.base,
+                      backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                      color: '#fff',
+                      outline: 'none',
+                      boxSizing: 'border-box'
+                    }} />
                   </FormField>
                 )}
               </>
@@ -873,14 +1009,13 @@ export default function OrderDetails() {
               gap: spacing[4],
               marginTop: spacing[8],
               paddingTop: spacing[6],
-              borderTop: `1px solid ${colors.neutral[200]}`
+              borderTop: '1px solid rgba(255, 255, 255, 0.1)'
             }}>
               <div style={{ flex: 1 }}>
                 <ActionButton
                   onClick={handleSave}
                   icon={<Save size={20} />}
-                  color={colors.success[500]}
-                  hoverColor={colors.success[600]}
+                  variant="success"
                   fullWidth
                 >
                   Spara ändringar
@@ -889,8 +1024,7 @@ export default function OrderDetails() {
               <ActionButton
                 onClick={() => setIsEditing(false)}
                 icon={<X size={20} />}
-                color={colors.neutral[500]}
-                hoverColor={colors.neutral[600]}
+                variant="secondary"
               >
                 Avbryt
               </ActionButton>
@@ -900,26 +1034,68 @@ export default function OrderDetails() {
       ) : (
         // VIEWING MODE FOR ORDER DETAILS
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[6] }}>
-          <div className="card-enter hover-lift" style={cardStyle}>
-            <div style={sectionHeaderStyle}>
-              <User size={20} color={colors.primary[500]} />
-              <span>Kundinformation</span>
+          <div className="card-enter hover-lift" style={{
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            backdropFilter: 'blur(20px)',
+            borderRadius: borderRadius.xl,
+            boxShadow: '0 25px 50px rgba(0, 0, 0, 0.3)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            padding: spacing[6]
+          }}>
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              gap: spacing[3],
+              marginBottom: spacing[6],
+              paddingBottom: spacing[4],
+              borderBottom: '2px solid rgba(255, 255, 255, 0.1)'
+            }}>
+              <User size={20} color="#60a5fa" />
+              <span style={{
+                fontSize: typography.fontSize.lg,
+                fontWeight: typography.fontWeight.bold,
+                color: '#fff'
+              }}>Kundinformation</span>
             </div>
             <InfoRow label="Kund" value={customers.find(c => c.id === order.customerId)?.name || "—"} />
             <InfoRow label="Adress" value={order.address || "—"} />
             <InfoRow label="Deadline" value={order.deadline ? new Date(order.deadline).toLocaleDateString('sv-SE') : "—"} />
 
-            <div style={{ ...sectionHeaderStyle, marginTop: spacing[8] }}>
-              <Briefcase size={20} color={colors.primary[500]} />
-              <span>Arbetsdetaljer</span>
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              gap: spacing[3],
+              marginBottom: spacing[6],
+              paddingBottom: spacing[4],
+              borderBottom: '2px solid rgba(255, 255, 255, 0.1)',
+              marginTop: spacing[8]
+            }}>
+              <Briefcase size={20} color="#60a5fa" />
+              <span style={{
+                fontSize: typography.fontSize.lg,
+                fontWeight: typography.fontWeight.bold,
+                color: '#fff'
+              }}>Arbetsdetaljer</span>
             </div>
             <InfoRow label="Typ av arbete" value={order.workType || "—"} />
             <InfoRow label="Prioritet" value={order.priority || "—"} />
             <InfoRow label="Uppskattad tid" value={order.estimatedTime || "—"} />
 
-            <div style={{ ...sectionHeaderStyle, marginTop: spacing[8] }}>
-              <DollarSign size={20} color={colors.primary[500]} />
-              <span>Fakturering</span>
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              gap: spacing[3],
+              marginBottom: spacing[6],
+              paddingBottom: spacing[4],
+              borderBottom: '2px solid rgba(255, 255, 255, 0.1)',
+              marginTop: spacing[8]
+            }}>
+              <DollarSign size={20} color="#60a5fa" />
+              <span style={{
+                fontSize: typography.fontSize.lg,
+                fontWeight: typography.fontWeight.bold,
+                color: '#fff'
+              }}>Fakturering</span>
             </div>
             <InfoRow label="Faktureringsbar" value={order.billable ? "Ja" : "Nej"} />
             {order.billable && (
@@ -932,14 +1108,32 @@ export default function OrderDetails() {
             )}
           </div>
 
-          <div className="card-enter hover-lift" style={cardStyle}>
-            <div style={sectionHeaderStyle}>
-              <FileText size={20} color={colors.primary[500]} />
-              <span>Beskrivning</span>
+          <div className="card-enter hover-lift" style={{
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            backdropFilter: 'blur(20px)',
+            borderRadius: borderRadius.xl,
+            boxShadow: '0 25px 50px rgba(0, 0, 0, 0.3)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            padding: spacing[6]
+          }}>
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              gap: spacing[3],
+              marginBottom: spacing[6],
+              paddingBottom: spacing[4],
+              borderBottom: '2px solid rgba(255, 255, 255, 0.1)'
+            }}>
+              <FileText size={20} color="#60a5fa" />
+              <span style={{
+                fontSize: typography.fontSize.lg,
+                fontWeight: typography.fontWeight.bold,
+                color: '#fff'
+              }}>Beskrivning</span>
             </div>
             <p style={{
               whiteSpace: "pre-wrap",
-              color: colors.neutral[600],
+              color: '#cbd5e1',
               lineHeight: typography.lineHeight.relaxed,
               fontSize: typography.fontSize.base,
               margin: 0
@@ -950,7 +1144,7 @@ export default function OrderDetails() {
             <div style={{
               marginTop: spacing[8],
               paddingTop: spacing[6],
-              borderTop: `1px solid ${colors.neutral[200]}`,
+              borderTop: '1px solid rgba(255, 255, 255, 0.1)',
               display: "flex",
               gap: spacing[4],
               flexWrap: "wrap"
@@ -979,16 +1173,31 @@ export default function OrderDetails() {
       {/* Time Reporting Section */}
       {!isEditing && (
         <div style={{ marginTop: spacing[8] }}>
-          <div className="card-enter" style={cardStyle}>
+          <div className="card-enter" style={{
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            backdropFilter: 'blur(20px)',
+            borderRadius: borderRadius.xl,
+            boxShadow: '0 25px 50px rgba(0, 0, 0, 0.3)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            padding: spacing[6]
+          }}>
             <div style={{
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
               marginBottom: spacing[6]
             }}>
-              <div style={{ ...sectionHeaderStyle, marginBottom: 0, paddingBottom: 0, border: "none" }}>
-                <Clock size={20} color={colors.success[500]} />
-                <span>Tidsrapportering</span>
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                gap: spacing[3]
+              }}>
+                <Clock size={20} color="#10b981" />
+                <span style={{
+                  fontSize: typography.fontSize.lg,
+                  fontWeight: typography.fontWeight.bold,
+                  color: '#fff'
+                }}>Tidsrapportering</span>
               </div>
               {!showTimeReportForm && (
                 <ActionButton
@@ -997,8 +1206,7 @@ export default function OrderDetails() {
                     setShowTimeReportForm(true);
                   }}
                   icon={<Plus size={18} />}
-                  color={colors.success[500]}
-                  hoverColor={colors.success[600]}
+                  variant="success"
                 >
                   Rapportera tid
                 </ActionButton>
@@ -1008,9 +1216,9 @@ export default function OrderDetails() {
             {/* Success/Error Messages */}
             {timeSuccess && (
               <div style={{
-                backgroundColor: colors.success[100],
-                border: `2px solid ${colors.success[500]}`,
-                color: colors.success[800],
+                backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                border: '2px solid #10b981',
+                color: '#34d399',
                 padding: spacing[3],
                 borderRadius: borderRadius.lg,
                 marginBottom: spacing[4],
@@ -1025,9 +1233,9 @@ export default function OrderDetails() {
 
             {timeError && (
               <div style={{
-                backgroundColor: colors.error[100],
-                border: `2px solid ${colors.error[500]}`,
-                color: colors.error[800],
+                backgroundColor: 'rgba(239, 68, 68, 0.15)',
+                border: '2px solid #ef4444',
+                color: '#f87171',
                 padding: spacing[3],
                 borderRadius: borderRadius.lg,
                 marginBottom: spacing[4],
@@ -1045,9 +1253,9 @@ export default function OrderDetails() {
               <div style={{
                 marginBottom: spacing[8],
                 padding: spacing[6],
-                backgroundColor: colors.neutral[50],
+                backgroundColor: 'rgba(255, 255, 255, 0.03)',
                 borderRadius: borderRadius.lg,
-                border: `1px solid ${colors.neutral[200]}`
+                border: '1px solid rgba(255, 255, 255, 0.1)'
               }}>
                 <div style={{
                   display: "flex",
@@ -1059,7 +1267,7 @@ export default function OrderDetails() {
                     margin: 0,
                     fontSize: typography.fontSize.lg,
                     fontWeight: typography.fontWeight.semibold,
-                    color: colors.neutral[900]
+                    color: '#fff'
                   }}>
                     {editingTimeReport ? "Redigera tidsrapport" : "Ny tidsrapport"}
                   </h3>
@@ -1083,14 +1291,14 @@ export default function OrderDetails() {
                       border: "none",
                       background: "none",
                       cursor: "pointer",
-                      color: colors.neutral[500],
+                      color: '#94a3b8',
                       padding: spacing[1],
                       display: "flex",
                       alignItems: "center",
                       borderRadius: borderRadius.base,
                       transition: `all ${transitions.base}`
                     }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colors.neutral[200]}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
                   >
                     <X size={20} />
@@ -1111,7 +1319,17 @@ export default function OrderDetails() {
                         value={timeForm.datum}
                         onChange={handleTimeChange}
                         required
-                        style={inputStyle}
+                        style={{
+                          width: "100%",
+                          padding: `${spacing[3]} ${spacing[4]}`,
+                          border: '1px solid rgba(255, 255, 255, 0.1)',
+                          borderRadius: borderRadius.lg,
+                          fontSize: typography.fontSize.base,
+                          backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                          color: '#fff',
+                          outline: 'none',
+                          boxSizing: 'border-box'
+                        }}
                       />
                     </FormField>
 
@@ -1120,10 +1338,20 @@ export default function OrderDetails() {
                         name="timeCode"
                         value={timeForm.timeCode}
                         onChange={handleTimeChange}
-                        style={inputStyle}
+                        style={{
+                          width: "100%",
+                          padding: `${spacing[3]} ${spacing[4]}`,
+                          border: '1px solid rgba(255, 255, 255, 0.1)',
+                          borderRadius: borderRadius.lg,
+                          fontSize: typography.fontSize.base,
+                          backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                          color: '#fff',
+                          outline: 'none',
+                          boxSizing: 'border-box'
+                        }}
                       >
                         {timeCodes.map(code => (
-                          <option key={code.id} value={code.id}>
+                          <option key={code.id} value={code.id} style={{ backgroundColor: '#1a1a2e' }}>
                             {code.name} {!code.billable ? "(Ej fakturerbar)" : ""}
                           </option>
                         ))}
@@ -1136,7 +1364,17 @@ export default function OrderDetails() {
                         name="startTid"
                         value={timeForm.startTid}
                         onChange={handleTimeChange}
-                        style={inputStyle}
+                        style={{
+                          width: "100%",
+                          padding: `${spacing[3]} ${spacing[4]}`,
+                          border: '1px solid rgba(255, 255, 255, 0.1)',
+                          borderRadius: borderRadius.lg,
+                          fontSize: typography.fontSize.base,
+                          backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                          color: '#fff',
+                          outline: 'none',
+                          boxSizing: 'border-box'
+                        }}
                       />
                     </FormField>
 
@@ -1146,7 +1384,17 @@ export default function OrderDetails() {
                         name="slutTid"
                         value={timeForm.slutTid}
                         onChange={handleTimeChange}
-                        style={inputStyle}
+                        style={{
+                          width: "100%",
+                          padding: `${spacing[3]} ${spacing[4]}`,
+                          border: '1px solid rgba(255, 255, 255, 0.1)',
+                          borderRadius: borderRadius.lg,
+                          fontSize: typography.fontSize.base,
+                          backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                          color: '#fff',
+                          outline: 'none',
+                          boxSizing: 'border-box'
+                        }}
                       />
                     </FormField>
 
@@ -1159,7 +1407,17 @@ export default function OrderDetails() {
                         onChange={handleTimeChange}
                         required
                         placeholder="0.00"
-                        style={inputStyle}
+                        style={{
+                          width: "100%",
+                          padding: `${spacing[3]} ${spacing[4]}`,
+                          border: '1px solid rgba(255, 255, 255, 0.1)',
+                          borderRadius: borderRadius.lg,
+                          fontSize: typography.fontSize.base,
+                          backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                          color: '#fff',
+                          outline: 'none',
+                          boxSizing: 'border-box'
+                        }}
                       />
                     </FormField>
 
@@ -1175,7 +1433,7 @@ export default function OrderDetails() {
                         <span style={{
                           fontSize: typography.fontSize.sm,
                           fontWeight: typography.fontWeight.semibold,
-                          color: colors.neutral[700]
+                          color: '#cbd5e1'
                         }}>
                           Fakturerbar tid
                         </span>
@@ -1190,7 +1448,7 @@ export default function OrderDetails() {
                           onChange={handleTimeChange}
                           rows={3}
                           placeholder="Beskriv arbetet som utfördes..."
-                          style={{ ...inputStyle, resize: "vertical" }}
+                          style={{ ...darkInputStyle, resize: "vertical" }}
                         />
                       </FormField>
                     </div>
@@ -1199,13 +1457,13 @@ export default function OrderDetails() {
                   {timeForm.antalTimmar && timeForm.fakturerbar && (
                     <div style={{
                       padding: spacing[4],
-                      background: colors.gradients.blue,
+                      background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
                       borderRadius: borderRadius.lg,
                       marginBottom: spacing[4],
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
-                      boxShadow: shadows.md
+                      boxShadow: '0 10px 30px rgba(59, 130, 246, 0.3)'
                     }}>
                       <span style={{
                         color: "white",
@@ -1245,8 +1503,7 @@ export default function OrderDetails() {
                         });
                       }}
                       icon={<X size={18} />}
-                      color={colors.neutral[500]}
-                      hoverColor={colors.neutral[600]}
+                      variant="secondary"
                     >
                       Avbryt
                     </ActionButton>
@@ -1256,7 +1513,7 @@ export default function OrderDetails() {
                         display: "flex",
                         alignItems: "center",
                         gap: spacing[2],
-                        background: colors.gradients.success,
+                        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                         color: "#fff",
                         padding: `${spacing[3]} ${spacing[8]}`,
                         border: "none",
@@ -1265,7 +1522,7 @@ export default function OrderDetails() {
                         fontWeight: typography.fontWeight.semibold,
                         cursor: "pointer",
                         transition: `all ${transitions.base}`,
-                        boxShadow: shadows.md
+                        boxShadow: '0 10px 30px rgba(16, 185, 129, 0.3)'
                       }}
                       onMouseEnter={(e) => e.currentTarget.style.transform = "translateY(-1px)"}
                       onMouseLeave={(e) => e.currentTarget.style.transform = "translateY(0)"}
@@ -1283,7 +1540,7 @@ export default function OrderDetails() {
               <h3 style={{
                 fontSize: typography.fontSize.base,
                 fontWeight: typography.fontWeight.semibold,
-                color: colors.neutral[500],
+                color: '#94a3b8',
                 marginBottom: spacing[4]
               }}>
                 Rapporterad tid ({timeReports.length})
@@ -1292,20 +1549,22 @@ export default function OrderDetails() {
                 <div style={{
                   textAlign: "center",
                   padding: spacing[12],
-                  color: colors.neutral[500]
+                  color: '#94a3b8'
                 }}>
-                  <Clock size={48} style={{ marginBottom: spacing[4], opacity: 0.5 }} />
+                  <Clock size={48} style={{ marginBottom: spacing[4], opacity: 0.5, color: '#94a3b8' }} />
                   <p style={{
                     fontSize: typography.fontSize.lg,
                     fontWeight: typography.fontWeight.medium,
                     margin: 0,
-                    marginBottom: spacing[2]
+                    marginBottom: spacing[2],
+                    color: '#cbd5e1'
                   }}>
                     Ingen tid rapporterad än
                   </p>
                   <p style={{
                     fontSize: typography.fontSize.sm,
-                    margin: 0
+                    margin: 0,
+                    color: '#94a3b8'
                   }}>
                     Klicka på "Rapportera tid" för att börja
                   </p>
@@ -1322,9 +1581,9 @@ export default function OrderDetails() {
                         className="hover-lift"
                         style={{
                           padding: spacing[4],
-                          backgroundColor: "white",
+                          backgroundColor: 'rgba(255, 255, 255, 0.03)',
                           borderRadius: borderRadius.lg,
-                          border: `1px solid ${colors.neutral[200]}`,
+                          border: '1px solid rgba(255, 255, 255, 0.1)',
                           display: "grid",
                           gridTemplateColumns: "auto 1fr auto",
                           gap: spacing[4],
@@ -1335,7 +1594,7 @@ export default function OrderDetails() {
                         <div style={{
                           width: "4px",
                           height: "60px",
-                          backgroundColor: timeCode?.color || colors.primary[500],
+                          backgroundColor: timeCode?.color || '#3b82f6',
                           borderRadius: borderRadius.sm
                         }} />
 
@@ -1347,17 +1606,17 @@ export default function OrderDetails() {
                             marginBottom: spacing[2]
                           }}>
                             <Badge variant="info">
-                              {timeCode?.name || "Normal tid"}
+                              {timeCode?.name || report.timeCodeName || "Normal tid"}
                             </Badge>
                             <span style={{
                               fontSize: typography.fontSize.sm,
-                              color: colors.neutral[500]
+                              color: '#94a3b8'
                             }}>
                               {new Date(report.datum).toLocaleDateString('sv-SE')}
                             </span>
                             <span style={{
                               fontSize: typography.fontSize.sm,
-                              color: colors.neutral[500]
+                              color: '#94a3b8'
                             }}>
                               {report.userName || "Okänd"}
                             </span>
@@ -1366,7 +1625,7 @@ export default function OrderDetails() {
                           <div style={{ display: "flex", alignItems: "center", gap: spacing[4] }}>
                             <span style={{
                               fontSize: typography.fontSize.sm,
-                              color: colors.neutral[900],
+                              color: '#fff',
                               fontWeight: typography.fontWeight.semibold
                             }}>
                               {report.antalTimmar}h
@@ -1374,7 +1633,7 @@ export default function OrderDetails() {
                             {report.fakturerbar !== false && (
                               <span style={{
                                 fontSize: typography.fontSize.sm,
-                                color: colors.success[600],
+                                color: '#34d399',
                                 fontWeight: typography.fontWeight.semibold
                               }}>
                                 {reportValue.toLocaleString('sv-SE')} kr (ex. moms)
@@ -1385,7 +1644,7 @@ export default function OrderDetails() {
                           {report.kommentar && (
                             <p style={{
                               fontSize: typography.fontSize.sm,
-                              color: colors.neutral[500],
+                              color: '#94a3b8',
                               margin: `${spacing[2]} 0 0 0`,
                               fontStyle: "italic"
                             }}>
@@ -1410,8 +1669,7 @@ export default function OrderDetails() {
                             <ActionButton
                               onClick={() => handleEditTimeReport(report)}
                               icon={<Edit3 size={12} />}
-                              color={colors.primary[500]}
-                              hoverColor={colors.primary[600]}
+                              variant="primary"
                               size="sm"
                             >
                               Redigera
@@ -1419,8 +1677,7 @@ export default function OrderDetails() {
                             <ActionButton
                               onClick={() => handleDeleteTimeReport(report.id)}
                               icon={<Trash2 size={12} />}
-                              color={colors.error[500]}
-                              hoverColor={colors.error[600]}
+                              variant="danger"
                               size="sm"
                             >
                               Radera
@@ -1436,9 +1693,9 @@ export default function OrderDetails() {
                     <div style={{
                       marginTop: spacing[4],
                       padding: spacing[6],
-                      background: colors.gradients.primary,
+                      background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
                       borderRadius: borderRadius.xl,
-                      boxShadow: shadows.lg
+                      boxShadow: '0 25px 50px rgba(59, 130, 246, 0.4)'
                     }}>
                       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: spacing[6] }}>
                         <div>
@@ -1594,13 +1851,14 @@ function ApprovalBadge({ approved, reportId, onChange }) {
             top: position.openUpward ? "auto" : `${position.top}px`,
             bottom: position.openUpward ? `${window.innerHeight - position.top}px` : "auto",
             left: `${position.left}px`,
-            backgroundColor: "white",
+            backgroundColor: 'rgba(30, 41, 59, 0.98)',
+            backdropFilter: 'blur(20px)',
             borderRadius: borderRadius.lg,
-            boxShadow: shadows.lg,
+            boxShadow: '0 25px 50px rgba(0, 0, 0, 0.5)',
             padding: spacing[2],
             zIndex: 9999,
             minWidth: "150px",
-            border: `1px solid ${colors.neutral[200]}`
+            border: '1px solid rgba(255, 255, 255, 0.1)'
           }}>
           {approvalOptions.map((option) => (
             <div
@@ -1610,18 +1868,18 @@ function ApprovalBadge({ approved, reportId, onChange }) {
                 padding: spacing[2],
                 cursor: "pointer",
                 borderRadius: borderRadius.md,
-                backgroundColor: approved === option.value ? colors.neutral[100] : "transparent",
+                backgroundColor: approved === option.value ? 'rgba(255, 255, 255, 0.1)' : "transparent",
                 transition: "background-color 0.15s",
                 display: "flex",
                 alignItems: "center",
                 gap: spacing[2],
                 fontSize: typography.fontSize.sm,
                 fontWeight: approved === option.value ? typography.fontWeight.semibold : typography.fontWeight.normal,
-                color: colors.neutral[900]
+                color: '#fff'
               }}
               onMouseEnter={(e) => {
                 if (approved !== option.value) {
-                  e.currentTarget.style.backgroundColor = colors.neutral[50];
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
                 }
               }}
               onMouseLeave={(e) => {

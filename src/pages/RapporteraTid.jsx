@@ -29,14 +29,15 @@ import {
   List
 } from "lucide-react";
 
-// Styles
+// Dark theme styles
 const cardStyle = {
-  backgroundColor: "white",
+  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  backdropFilter: 'blur(20px)',
   borderRadius: "12px",
   padding: "1.5rem",
   marginBottom: "1.5rem",
-  boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-  border: "1px solid #e2e8f0"
+  boxShadow: "0 25px 50px rgba(0, 0, 0, 0.3)",
+  border: '1px solid rgba(255, 255, 255, 0.1)'
 };
 
 const sectionHeaderStyle = {
@@ -45,24 +46,33 @@ const sectionHeaderStyle = {
   gap: "0.75rem",
   fontSize: "1.1rem",
   fontWeight: "600",
-  color: "#0f172a",
+  color: '#fff',
   marginBottom: "1.5rem",
   paddingBottom: "0.75rem",
-  borderBottom: "2px solid #f1f5f9"
+  borderBottom: '2px solid rgba(255, 255, 255, 0.1)'
 };
 
 const inputStyle = {
   width: "100%",
   padding: "0.75rem",
   borderRadius: "8px",
-  border: "1px solid #e2e8f0",
+  border: '1px solid rgba(255, 255, 255, 0.1)',
   fontSize: "0.95rem",
-  color: "#0f172a",
+  color: '#fff',
   outline: "none",
   transition: "all 0.2s ease",
-  backgroundColor: "white",
-  fontFamily: "inherit"
+  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+  fontFamily: "inherit",
+  boxSizing: "border-box"
 };
+
+// Add CSS for dark select options
+const selectOptionStyle = `
+  select option {
+    background-color: #1a1a2e;
+    color: #fff;
+  }
+`;
 
 const buttonStyle = {
   padding: "0.75rem 1.5rem",
@@ -102,15 +112,15 @@ function TabButton({ active, onClick, icon, children }) {
         border: "none",
         borderRadius: "8px",
         cursor: "pointer",
-        backgroundColor: active ? "#3b82f6" : "transparent",
-        color: active ? "white" : "#64748b",
+        backgroundColor: active ? "#60a5fa" : "transparent",
+        color: active ? "white" : '#94a3b8',
         fontWeight: active ? "600" : "500",
         fontSize: "0.95rem",
         transition: "all 0.2s ease"
       }}
       onMouseEnter={(e) => {
         if (!active) {
-          e.currentTarget.style.backgroundColor = "#f8fafc";
+          e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
         }
       }}
       onMouseLeave={(e) => {
@@ -132,7 +142,7 @@ function FormField({ label, required, children, helper }) {
         display: "block",
         fontSize: "0.875rem",
         fontWeight: "600",
-        color: "#374151",
+        color: '#e2e8f0',
         marginBottom: "0.5rem"
       }}>
         {label}
@@ -140,7 +150,7 @@ function FormField({ label, required, children, helper }) {
       </label>
       {children}
       {helper && (
-        <div style={{ marginTop: "0.25rem", fontSize: "0.75rem", color: "#64748b" }}>
+        <div style={{ marginTop: "0.25rem", fontSize: "0.75rem", color: '#94a3b8' }}>
           {helper}
         </div>
       )}
@@ -164,13 +174,13 @@ function StatCard({ icon, label, value, color, subValue, onClick }) {
       onMouseEnter={(e) => {
         if (onClick) {
           e.currentTarget.style.transform = "translateY(-2px)";
-          e.currentTarget.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.15)";
+          e.currentTarget.style.boxShadow = "0 30px 60px rgba(0, 0, 0, 0.4)";
         }
       }}
       onMouseLeave={(e) => {
         if (onClick) {
           e.currentTarget.style.transform = "translateY(0)";
-          e.currentTarget.style.boxShadow = "0 1px 3px rgba(0, 0, 0, 0.1)";
+          e.currentTarget.style.boxShadow = "0 25px 50px rgba(0, 0, 0, 0.3)";
         }
       }}
     >
@@ -178,7 +188,7 @@ function StatCard({ icon, label, value, color, subValue, onClick }) {
         width: "56px",
         height: "56px",
         borderRadius: "12px",
-        backgroundColor: `${color}15`,
+        backgroundColor: `${color}20`,
         display: "flex",
         alignItems: "center",
         justifyContent: "center"
@@ -186,14 +196,14 @@ function StatCard({ icon, label, value, color, subValue, onClick }) {
         {React.cloneElement(icon, { size: 28, color: color })}
       </div>
       <div style={{ flex: 1 }}>
-        <div style={{ fontSize: "0.875rem", color: "#64748b", marginBottom: "0.25rem" }}>
+        <div style={{ fontSize: "0.875rem", color: '#94a3b8', marginBottom: "0.25rem" }}>
           {label}
         </div>
-        <div style={{ fontSize: "1.5rem", fontWeight: "700", color: "#0f172a" }}>
+        <div style={{ fontSize: "1.5rem", fontWeight: "700", color: '#fff' }}>
           {value}
         </div>
         {subValue && (
-          <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: "0.25rem" }}>
+          <div style={{ fontSize: "0.75rem", color: '#94a3b8', marginTop: "0.25rem" }}>
             {subValue}
           </div>
         )}
@@ -315,6 +325,7 @@ export default function RapporteraTid() {
         const { data: timeCodesData, error: timeCodesError } = await supabase
           .from('time_codes')
           .select('*')
+          .eq('organization_id', userDetails.organizationId)
           .order('code', { ascending: true });
 
         if (timeCodesError && timeCodesError.code !== 'PGRST116') {
@@ -428,6 +439,54 @@ export default function RapporteraTid() {
     fetchData();
   }, [success, id, userDetails]);
 
+  // Real-time listener for time_codes changes
+  useEffect(() => {
+    if (!userDetails?.organizationId) return;
+
+    console.log('🔄 RapporteraTid: Setting up real-time listener for time_codes');
+
+    const channel = supabase
+      .channel('rapportera_tid_time_codes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'time_codes',
+          filter: `organization_id=eq.${userDetails.organizationId}`
+        },
+        async (payload) => {
+          console.log('🔔 RapporteraTid: Time codes changed:', payload);
+
+          // Re-fetch time codes
+          const { data: timeCodesData, error: timeCodesError } = await supabase
+            .from('time_codes')
+            .select('*')
+            .eq('organization_id', userDetails.organizationId)
+            .order('code', { ascending: true });
+
+          if (!timeCodesError && timeCodesData) {
+            const convertedTimeCodes = timeCodesData.map(tc => ({
+              id: tc.code || tc.id,
+              name: tc.name,
+              color: "#3b82f6",
+              billable: tc.type === 'Arbetstid',
+              hourlyRate: tc.rate || 0
+            }));
+
+            setTimeCodes(convertedTimeCodes);
+            console.log("✅ RapporteraTid: Time codes updated from real-time:", convertedTimeCodes.length);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log('🔌 RapporteraTid: Cleaning up time_codes listener');
+      supabase.removeChannel(channel);
+    };
+  }, [userDetails?.organizationId]);
+
   // Set default timeCode when timeCodes are loaded
   useEffect(() => {
     if (TIME_CODES.length > 0 && !form.timeCode) {
@@ -506,7 +565,7 @@ export default function RapporteraTid() {
             fakturerbar: form.fakturerbar,
             kommentar: form.kommentar,
             organization_id: userDetails.organizationId,
-            user_id: currentUser.uid,
+            user_id: currentUser.id,
             user_name: userDetails.displayName || userDetails.email || "Användare",
             godkand: true,
             timestamp: new Date().toISOString()
@@ -636,7 +695,7 @@ export default function RapporteraTid() {
         'Kund': order?.kundnamn || '-',
         'Titel': order?.title || '-',
         'Timmar': rapport.antalTimmar,
-        'Tidkod': timeCode?.name || 'Normal tid',
+        'Tidkod': timeCode?.name || rapport.timeCodeName || 'Normal tid',
         'Fakturerbar': rapport.fakturerbar !== false ? 'Ja' : 'Nej',
         'Värde (kr)': parseFloat(rapport.antalTimmar || 0) * (rapport.hourlyRate || 0),
         'Status': rapport.godkand ? 'Godkänd' : 'Väntande',
@@ -757,6 +816,9 @@ export default function RapporteraTid() {
       margin: "0 auto",
       fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
     }}>
+      {/* Dark theme CSS for select options */}
+      <style>{selectOptionStyle}</style>
+
       {/* Header */}
       <div style={{ marginBottom: "2rem" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
@@ -766,16 +828,16 @@ export default function RapporteraTid() {
                 onClick={() => navigate(`/orders/${id}`)}
                 style={{
                   ...buttonStyle,
-                  backgroundColor: "white",
-                  color: "#64748b",
-                  border: "1px solid #e2e8f0",
+                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                  color: '#94a3b8',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
                   padding: "0.65rem 1rem"
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = "#f8fafc";
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.12)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = "white";
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
                 }}
               >
                 <ArrowLeft size={18} />
@@ -786,16 +848,16 @@ export default function RapporteraTid() {
               <h1 style={{
                 fontSize: "2rem",
                 fontWeight: "700",
-                color: "#0f172a",
+                color: '#fff',
                 margin: 0,
                 display: "flex",
                 alignItems: "center",
                 gap: "0.75rem"
               }}>
-                <Clock size={32} color="#3b82f6" />
+                <Clock size={32} color="#60a5fa" />
                 Tidrapportering
               </h1>
-              <p style={{ color: "#64748b", fontSize: "0.9rem", margin: "0.25rem 0 0 0", paddingLeft: "2.75rem" }}>
+              <p style={{ color: '#94a3b8', fontSize: "0.9rem", margin: "0.25rem 0 0 0", paddingLeft: "2.75rem" }}>
                 {id ? `Tidrapportering för order #${orders.find(o => o.id === id)?.ordernummer || id.substring(0, 8)}` : "Hantera alla tidrapporter"}
               </p>
             </div>
@@ -811,10 +873,10 @@ export default function RapporteraTid() {
             padding: "1rem 1.5rem"
           }}>
             <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: "0.75rem", color: "#64748b", marginBottom: "0.25rem" }}>
+              <div style={{ fontSize: "0.75rem", color: '#94a3b8', marginBottom: "0.25rem" }}>
                 Timer
               </div>
-              <div style={{ fontSize: "1.5rem", fontWeight: "700", color: "#0f172a", fontFamily: "monospace" }}>
+              <div style={{ fontSize: "1.5rem", fontWeight: "700", color: '#fff', fontFamily: "monospace" }}>
                 {formatTime(timerElapsed)}
               </div>
             </div>
@@ -871,7 +933,7 @@ export default function RapporteraTid() {
       {/* Time Period Filter and Export */}
       <div style={{ marginBottom: "1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
-          <span style={{ fontSize: "0.875rem", fontWeight: "600", color: "#64748b" }}>Period:</span>
+          <span style={{ fontSize: "0.875rem", fontWeight: "600", color: '#94a3b8' }}>Period:</span>
           <div style={{ display: "flex", gap: "0.5rem" }}>
             {["today", "week", "month", "all"].map(period => (
               <button
@@ -882,11 +944,11 @@ export default function RapporteraTid() {
                 }}
                 style={{
                   padding: "0.5rem 1rem",
-                  border: "1px solid #e2e8f0",
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
                   borderRadius: "8px",
                   cursor: "pointer",
-                  backgroundColor: timePeriod === period && !dateRange.start ? "#3b82f6" : "white",
-                  color: timePeriod === period && !dateRange.start ? "white" : "#64748b",
+                  backgroundColor: timePeriod === period && !dateRange.start ? "#60a5fa" : 'rgba(255, 255, 255, 0.05)',
+                  color: timePeriod === period && !dateRange.start ? "white" : '#94a3b8',
                   fontWeight: "600",
                   fontSize: "0.875rem",
                   transition: "all 0.2s ease"
@@ -964,11 +1026,13 @@ export default function RapporteraTid() {
 
       {/* Tabs Navigation */}
       <div style={{
-        backgroundColor: "white",
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        backdropFilter: 'blur(20px)',
         borderRadius: "12px",
         padding: "0.5rem",
         marginBottom: "1.5rem",
-        boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+        boxShadow: "0 25px 50px rgba(0, 0, 0, 0.3)",
+        border: '1px solid rgba(255, 255, 255, 0.1)',
         display: "inline-flex",
         gap: "0.5rem"
       }}>
@@ -1092,7 +1156,7 @@ export default function RapporteraTid() {
                     onChange={handleChange}
                     style={{ width: "18px", height: "18px", cursor: "pointer" }}
                   />
-                  <span style={{ fontSize: "0.875rem", fontWeight: "600", color: "#374151" }}>
+                  <span style={{ fontSize: "0.875rem", fontWeight: "600", color: '#e2e8f0' }}>
                     Fakturerbar tid
                   </span>
                 </label>
@@ -1116,18 +1180,18 @@ export default function RapporteraTid() {
             {form.antalTimmar && form.fakturerbar && (
               <div style={{
                 padding: "1rem",
-                backgroundColor: "#f0f9ff",
-                border: "1px solid #3b82f6",
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                border: '2px solid rgba(59, 130, 246, 0.3)',
                 borderRadius: "8px",
                 marginBottom: "1rem",
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center"
               }}>
-                <span style={{ color: "#0369a1", fontWeight: "600" }}>
+                <span style={{ color: '#60a5fa', fontWeight: "600" }}>
                   Beräknat värde:
                 </span>
-                <span style={{ fontSize: "1.25rem", fontWeight: "700", color: "#0369a1" }}>
+                <span style={{ fontSize: "1.25rem", fontWeight: "700", color: '#60a5fa' }}>
                   {(parseFloat(form.antalTimmar) * (TIME_CODES.find(tc => tc.id === form.timeCode)?.hourlyRate || 0)).toLocaleString('sv-SE')} kr
                 </span>
               </div>
@@ -1135,9 +1199,9 @@ export default function RapporteraTid() {
 
             {success && (
               <div style={{
-                backgroundColor: "#d1fae5",
-                border: "1px solid #10b981",
-                color: "#065f46",
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                border: '2px solid rgba(16, 185, 129, 0.3)',
+                color: '#10b981',
                 padding: "0.75rem 1rem",
                 borderRadius: "8px",
                 marginBottom: "1rem",
@@ -1152,9 +1216,9 @@ export default function RapporteraTid() {
 
             {error && (
               <div style={{
-                backgroundColor: "#fee2e2",
-                border: "1px solid #ef4444",
-                color: "#991b1b",
+                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                border: '2px solid rgba(239, 68, 68, 0.3)',
+                color: '#ef4444',
                 padding: "0.75rem 1rem",
                 borderRadius: "8px",
                 marginBottom: "1rem",
@@ -1174,12 +1238,12 @@ export default function RapporteraTid() {
                   onClick={cancelEdit}
                   style={{
                     ...buttonStyle,
-                    backgroundColor: "white",
-                    color: "#64748b",
-                    border: "1px solid #e2e8f0"
+                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                    color: '#94a3b8',
+                    border: '1px solid rgba(255, 255, 255, 0.1)'
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f8fafc"}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "white"}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.12)'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)'}
                 >
                   <X size={18} />
                   Avbryt
@@ -1218,11 +1282,13 @@ export default function RapporteraTid() {
                 onClick={() => setViewMode(viewMode === "list" ? "grid" : "list")}
                 style={{
                   ...buttonStyle,
-                  backgroundColor: "white",
-                  color: "#64748b",
-                  border: "1px solid #e2e8f0",
+                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                  color: '#94a3b8',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
                   padding: "0.5rem 1rem"
                 }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.12)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)'}
               >
                 {viewMode === "list" ? <Grid3x3 size={18} /> : <List size={18} />}
               </button>
@@ -1259,17 +1325,27 @@ export default function RapporteraTid() {
                   onClick={() => setFilterStatus(filter.id)}
                   style={{
                     padding: "0.75rem 1.25rem",
-                    border: "1px solid #e2e8f0",
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: "8px",
                     cursor: "pointer",
                     backgroundColor: filterStatus === filter.id ?
-                      (filter.id === "approved" ? "#10b981" : filter.id === "pending" ? "#f59e0b" : "#3b82f6") :
-                      "white",
-                    color: filterStatus === filter.id ? "white" : "#64748b",
+                      (filter.id === "approved" ? "#10b981" : filter.id === "pending" ? "#f59e0b" : "#60a5fa") :
+                      'rgba(255, 255, 255, 0.05)',
+                    color: filterStatus === filter.id ? "white" : '#94a3b8',
                     fontWeight: "600",
                     fontSize: "0.875rem",
                     transition: "all 0.2s ease",
                     whiteSpace: "nowrap"
+                  }}
+                  onMouseEnter={(e) => {
+                    if (filterStatus !== filter.id) {
+                      e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (filterStatus !== filter.id) {
+                      e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+                    }
                   }}
                 >
                   {filter.label} ({filter.count})
@@ -1282,15 +1358,15 @@ export default function RapporteraTid() {
           {selectedReports.length > 0 && (
             <div style={{
               padding: "1rem",
-              backgroundColor: "#f0f9ff",
-              border: "1px solid #3b82f6",
+              backgroundColor: 'rgba(59, 130, 246, 0.1)',
+              border: '2px solid rgba(59, 130, 246, 0.3)',
               borderRadius: "8px",
               marginBottom: "1.5rem",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center"
             }}>
-              <span style={{ color: "#0369a1", fontWeight: "600" }}>
+              <span style={{ color: '#60a5fa', fontWeight: "600" }}>
                 {selectedReports.length} rapport{selectedReports.length > 1 ? "er" : ""} valda
               </span>
               <div style={{ display: "flex", gap: "0.5rem" }}>
@@ -1310,11 +1386,13 @@ export default function RapporteraTid() {
                   onClick={() => setSelectedReports([])}
                   style={{
                     ...buttonStyle,
-                    backgroundColor: "white",
-                    color: "#64748b",
-                    border: "1px solid #e2e8f0",
+                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                    color: '#94a3b8',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
                     padding: "0.5rem 1rem"
                   }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.12)'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)'}
                 >
                   <X size={18} />
                   Avmarkera
@@ -1328,10 +1406,10 @@ export default function RapporteraTid() {
             <div style={{
               textAlign: "center",
               padding: "3rem",
-              color: "#64748b"
+              color: '#94a3b8'
             }}>
               <Clock size={48} style={{ marginBottom: "1rem", opacity: 0.5 }} />
-              <p style={{ fontSize: "1.1rem", fontWeight: "500" }}>Inga tidrapporter hittades</p>
+              <p style={{ fontSize: "1.1rem", fontWeight: "500", color: '#e2e8f0' }}>Inga tidrapporter hittades</p>
               <p style={{ fontSize: "0.9rem" }}>
                 {searchTerm || filterStatus !== "all"
                   ? "Försök ändra dina filterinställningar"
@@ -1355,19 +1433,19 @@ export default function RapporteraTid() {
                     key={rapport.id}
                     style={{
                       padding: "1.25rem",
-                      backgroundColor: isSelected ? "#f0f9ff" : "#f8fafc",
+                      backgroundColor: isSelected ? 'rgba(59, 130, 246, 0.1)' : 'rgba(255, 255, 255, 0.03)',
                       borderRadius: "8px",
-                      border: `1px solid ${isSelected ? "#3b82f6" : "#e2e8f0"}`,
+                      border: `1px solid ${isSelected ? 'rgba(59, 130, 246, 0.4)' : 'rgba(255, 255, 255, 0.1)'}`,
                       transition: "all 0.2s ease",
                       cursor: "pointer"
                     }}
                     onClick={() => toggleReportSelection(rapport.id)}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = "#cbd5e1";
-                      e.currentTarget.style.boxShadow = "0 2px 8px rgba(0, 0, 0, 0.05)";
+                      e.currentTarget.style.borderColor = isSelected ? 'rgba(59, 130, 246, 0.5)' : 'rgba(255, 255, 255, 0.2)';
+                      e.currentTarget.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.4)";
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = isSelected ? "#3b82f6" : "#e2e8f0";
+                      e.currentTarget.style.borderColor = isSelected ? 'rgba(59, 130, 246, 0.4)' : 'rgba(255, 255, 255, 0.1)';
                       e.currentTarget.style.boxShadow = "none";
                     }}
                   >
@@ -1396,7 +1474,7 @@ export default function RapporteraTid() {
                             backgroundColor: `${timeCodeInfo?.color || "#3b82f6"}15`,
                             color: timeCodeInfo?.color || "#3b82f6"
                           }}>
-                            {timeCodeInfo?.name || "Normal tid"}
+                            {timeCodeInfo?.name || rapport.timeCodeName || "Normal tid"}
                           </span>
                           {rapport.fakturerbar === false && (
                             <span style={{
@@ -1413,21 +1491,21 @@ export default function RapporteraTid() {
                             </span>
                           )}
                         </div>
-                        <div style={{ fontWeight: "600", color: "#0f172a", marginBottom: "0.25rem" }}>
+                        <div style={{ fontWeight: "600", color: '#fff', marginBottom: "0.25rem" }}>
                           AO #{order?.ordernummer || rapport.arbetsorder.substring(0,5)}
                         </div>
-                        <div style={{ color: "#64748b", fontSize: "0.875rem", marginBottom: "0.25rem" }}>
+                        <div style={{ color: '#94a3b8', fontSize: "0.875rem", marginBottom: "0.25rem" }}>
                           {order?.kundnamn || "Okänd kund"}
                         </div>
                         {order?.title && (
-                          <div style={{ fontSize: "0.875rem", color: "#475569", marginBottom: "0.5rem" }}>
+                          <div style={{ fontSize: "0.875rem", color: '#cbd5e1', marginBottom: "0.5rem" }}>
                             {order.title}
                           </div>
                         )}
                       </div>
 
                       <div style={{ textAlign: "right" }}>
-                        <div style={{ fontSize: "1.5rem", fontWeight: "700", color: "#0f172a" }}>
+                        <div style={{ fontSize: "1.5rem", fontWeight: "700", color: '#fff' }}>
                           {rapport.antalTimmar}h
                         </div>
                         {rapport.fakturerbar !== false && (
@@ -1438,7 +1516,7 @@ export default function RapporteraTid() {
                       </div>
                     </div>
 
-                    <div style={{ display: "flex", alignItems: "center", gap: "1rem", fontSize: "0.875rem", color: "#64748b", marginBottom: "0.75rem" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "1rem", fontSize: "0.875rem", color: '#94a3b8', marginBottom: "0.75rem" }}>
                       <span style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
                         <Calendar size={14} />
                         {formatDate(rapport.datum)}
@@ -1458,7 +1536,7 @@ export default function RapporteraTid() {
                     </div>
 
                     {rapport.kommentar && (
-                      <div style={{ marginBottom: "0.75rem", fontSize: "0.875rem", color: "#475569", fontStyle: "italic", padding: "0.5rem", backgroundColor: "white", borderRadius: "6px" }}>
+                      <div style={{ marginBottom: "0.75rem", fontSize: "0.875rem", color: '#cbd5e1', fontStyle: "italic", padding: "0.5rem", backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: "6px" }}>
                         "{rapport.kommentar}"
                       </div>
                     )}
@@ -1551,7 +1629,7 @@ export default function RapporteraTid() {
 
           {/* Week summary by time code */}
           <div style={{ marginBottom: "2rem" }}>
-            <h3 style={{ fontSize: "1rem", fontWeight: "600", color: "#0f172a", marginBottom: "1rem" }}>
+            <h3 style={{ fontSize: "1rem", fontWeight: "600", color: '#fff', marginBottom: "1rem" }}>
               Fördelning per tidkod
             </h3>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem" }}>
@@ -1578,7 +1656,7 @@ export default function RapporteraTid() {
                     <div style={{ fontSize: "1.75rem", fontWeight: "700", color: timeCode.color }}>
                       {codeHours.toFixed(1)}h
                     </div>
-                    <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: "0.25rem" }}>
+                    <div style={{ fontSize: "0.75rem", color: '#94a3b8', marginTop: "0.25rem" }}>
                       {codeReports.length} rapport{codeReports.length !== 1 ? "er" : ""}
                     </div>
                     {timeCode.billable && (
@@ -1594,7 +1672,7 @@ export default function RapporteraTid() {
 
           {/* Daily breakdown */}
           <div>
-            <h3 style={{ fontSize: "1rem", fontWeight: "600", color: "#0f172a", marginBottom: "1rem" }}>
+            <h3 style={{ fontSize: "1rem", fontWeight: "600", color: '#fff', marginBottom: "1rem" }}>
               Daglig fördelning
             </h3>
             <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
@@ -1611,8 +1689,8 @@ export default function RapporteraTid() {
                     key={dateStr}
                     style={{
                       padding: "1rem",
-                      backgroundColor: dayHours > 0 ? "#f8fafc" : "white",
-                      border: "1px solid #e2e8f0",
+                      backgroundColor: dayHours > 0 ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.02)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
                       borderRadius: "8px",
                       display: "flex",
                       justifyContent: "space-between",
@@ -1620,18 +1698,18 @@ export default function RapporteraTid() {
                     }}
                   >
                     <div>
-                      <div style={{ fontWeight: "600", color: "#0f172a" }}>
+                      <div style={{ fontWeight: "600", color: '#fff' }}>
                         {date.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'short' })}
                       </div>
                       {dayReports.length > 0 && (
-                        <div style={{ fontSize: "0.875rem", color: "#64748b", marginTop: "0.25rem" }}>
+                        <div style={{ fontSize: "0.875rem", color: '#94a3b8', marginTop: "0.25rem" }}>
                           {dayReports.length} rapport{dayReports.length !== 1 ? "er" : ""}
                         </div>
                       )}
                     </div>
                     <div style={{ display: "flex", gap: "2rem", alignItems: "center" }}>
                       <div style={{ textAlign: "right" }}>
-                        <div style={{ fontSize: "1.25rem", fontWeight: "700", color: dayHours > 0 ? "#0f172a" : "#cbd5e1" }}>
+                        <div style={{ fontSize: "1.25rem", fontWeight: "700", color: dayHours > 0 ? '#fff' : '#475569' }}>
                           {dayHours.toFixed(1)}h
                         </div>
                         {dayValue > 0 && (
@@ -1641,11 +1719,11 @@ export default function RapporteraTid() {
                         )}
                       </div>
                       {/* Visual bar */}
-                      <div style={{ width: "100px", height: "8px", backgroundColor: "#e2e8f0", borderRadius: "4px", overflow: "hidden" }}>
+                      <div style={{ width: "100px", height: "8px", backgroundColor: 'rgba(255, 255, 255, 0.1)', borderRadius: "4px", overflow: "hidden" }}>
                         <div style={{
                           width: `${Math.min((dayHours / 10) * 100, 100)}%`,
                           height: "100%",
-                          backgroundColor: "#3b82f6",
+                          backgroundColor: "#60a5fa",
                           transition: "width 0.3s ease"
                         }} />
                       </div>

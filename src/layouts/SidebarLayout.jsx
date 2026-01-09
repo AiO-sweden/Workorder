@@ -64,7 +64,7 @@ export default function SidebarLayout() {
         style={{
           width: isExpanded ? "240px" : "80px",
           height: "100vh",
-          background: "linear-gradient(180deg, #1e293b 0%, #0f172a 100%)",
+          background: '#ffffff',
           padding: "1.5rem 0",
           display: "flex",
           flexDirection: "column",
@@ -74,7 +74,8 @@ export default function SidebarLayout() {
           left: 0,
           zIndex: 1001,
           transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-          boxShadow: "4px 0 24px rgba(0, 0, 0, 0.12)",
+          boxShadow: "2px 0 10px rgba(0, 0, 0, 0.1)",
+          borderRight: '1px solid #e5e7eb',
         }}
         onMouseEnter={() => setIsExpanded(true)}
         onMouseLeave={() => setIsExpanded(false)}
@@ -108,7 +109,7 @@ export default function SidebarLayout() {
             {isExpanded && (
               <span
                 style={{
-                  color: "white",
+                  color: "#1e293b",
                   fontSize: "1.25rem",
                   fontWeight: "700",
                   marginLeft: "0.75rem",
@@ -140,8 +141,8 @@ export default function SidebarLayout() {
             style={{
               width: "100%",
               backgroundColor: "transparent",
-              color: "#ef4444",
-              border: "1px solid rgba(239, 68, 68, 0.3)",
+              color: "#1e293b",
+              border: "1px solid #e5e7eb",
               padding: isExpanded ? "0.75rem 1rem" : "0.75rem",
               borderRadius: "10px",
               display: "flex",
@@ -154,12 +155,12 @@ export default function SidebarLayout() {
               fontWeight: "500",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = "rgba(239, 68, 68, 0.1)";
-              e.currentTarget.style.borderColor = "#ef4444";
+              e.currentTarget.style.backgroundColor = "#f1f5f9";
+              e.currentTarget.style.borderColor = "#cbd5e1";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = "transparent";
-              e.currentTarget.style.borderColor = "rgba(239, 68, 68, 0.3)";
+              e.currentTarget.style.borderColor = "#e5e7eb";
             }}
             title="Logga ut"
           >
@@ -175,7 +176,7 @@ export default function SidebarLayout() {
           flex: 1,
           marginLeft: "80px",
           minHeight: "100vh",
-          backgroundColor: "#f8fafc",
+          background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
           transition: "margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         }}
       >
@@ -194,8 +195,8 @@ function SidebarNavItem({ to, icon: Icon, label, isExpanded }) {
       to={to}
       title={label}
       style={({ isActive }) => ({
-        color: isActive ? "#3b82f6" : "#94a3b8",
-        backgroundColor: isActive ? "rgba(59, 130, 246, 0.1)" : "transparent",
+        color: isActive ? "#3b82f6" : "#1e293b",
+        backgroundColor: isActive ? "rgba(59, 130, 246, 0.15)" : "transparent",
         textDecoration: "none",
         padding: isExpanded ? "0.75rem 1rem" : "0.75rem",
         borderRadius: "10px",
@@ -239,7 +240,7 @@ function SidebarNavItem({ to, icon: Icon, label, isExpanded }) {
 const style = document.createElement("style");
 style.textContent = `
   .sidebar-nav-item:hover {
-    background-color: rgba(59, 130, 246, 0.08) !important;
+    background-color: #f1f5f9 !important;
     color: #3b82f6 !important;
   }
 `;

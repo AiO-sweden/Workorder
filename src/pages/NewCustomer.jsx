@@ -19,8 +19,7 @@ import {
 import ActionButton from "../components/shared/ActionButton";
 import Toast from "../components/shared/Toast";
 import FormField from "../components/shared/FormField";
-import { cardStyle, inputStyle, sectionHeaderStyle } from "../components/shared/styles";
-import { colors, spacing, shadows, borderRadius, typography } from "../components/shared/theme";
+import { spacing, shadows, borderRadius, typography, transitions } from "../components/shared/styles";
 
 export default function NewCustomer() {
   const navigate = useNavigate();
@@ -57,6 +56,45 @@ export default function NewCustomer() {
   const [toast, setToast] = useState(null);
   const [fetchingCompanyData, setFetchingCompanyData] = useState(false);
   const [companyDataFetched, setCompanyDataFetched] = useState(false);
+
+  // Dark theme style constants
+  const darkInputStyle = {
+    width: "100%",
+    padding: `${spacing[3]} ${spacing[4]}`,
+    borderRadius: borderRadius.lg,
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    fontSize: typography.fontSize.base,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    color: '#fff',
+    outline: "none",
+    transition: 'all 0.2s ease',
+    fontFamily: typography.fontFamily.sans,
+    fontWeight: typography.fontWeight.normal,
+    boxSizing: "border-box",
+  };
+
+  const darkCardStyle = {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backdropFilter: 'blur(20px)',
+    borderRadius: borderRadius.xl,
+    padding: spacing[8],
+    marginBottom: spacing[6],
+    boxShadow: '0 25px 50px rgba(0, 0, 0, 0.3)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    transition: 'all 0.2s ease',
+  };
+
+  const darkSectionHeaderStyle = {
+    display: "flex",
+    alignItems: "center",
+    gap: spacing[3],
+    fontSize: typography.fontSize.xl,
+    fontWeight: typography.fontWeight.semibold,
+    color: '#fff',
+    marginBottom: spacing[6],
+    paddingBottom: spacing[4],
+    borderBottom: '2px solid rgba(255, 255, 255, 0.1)',
+  };
 
   useEffect(() => {
     const generateCustomerNumber = async () => {
@@ -269,7 +307,7 @@ export default function NewCustomer() {
               width: "56px",
               height: "56px",
               borderRadius: borderRadius.xl,
-              background: colors.gradients.primary,
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -282,12 +320,12 @@ export default function NewCustomer() {
                 margin: 0,
                 fontSize: typography.fontSize['3xl'],
                 fontWeight: typography.fontWeight.bold,
-                color: colors.neutral[900]
+                color: '#fff'
               }}>
                 Ny kund
               </h1>
               <p style={{
-                color: colors.neutral[500],
+                color: '#94a3b8',
                 fontSize: typography.fontSize.base,
                 margin: `${spacing[1]} 0 0 0`
               }}>
@@ -307,9 +345,9 @@ export default function NewCustomer() {
 
       <form onSubmit={handleSubmit}>
         {/* Customer Type Selection */}
-        <div style={cardStyle}>
-          <div style={sectionHeaderStyle}>
-            <User size={20} />
+        <div style={darkCardStyle}>
+          <div style={darkSectionHeaderStyle}>
+            <User size={20} color="#60a5fa" />
             Kunduppgifter
           </div>
 
@@ -319,7 +357,7 @@ export default function NewCustomer() {
               display: "block",
               fontSize: typography.fontSize.sm,
               fontWeight: typography.fontWeight.semibold,
-              color: colors.neutral[700],
+              color: '#e2e8f0',
               marginBottom: spacing[3]
             }}>
               Kundtyp
@@ -334,8 +372,8 @@ export default function NewCustomer() {
                     gap: spacing[3],
                     padding: spacing[4],
                     borderRadius: borderRadius.lg,
-                    border: `2px solid ${customerType === type ? colors.primary[500] : colors.neutral[200]}`,
-                    backgroundColor: customerType === type ? colors.primary[50] : "white",
+                    border: `2px solid ${customerType === type ? '#60a5fa' : 'rgba(255, 255, 255, 0.1)'}`,
+                    backgroundColor: customerType === type ? 'rgba(59, 130, 246, 0.1)' : 'rgba(255, 255, 255, 0.03)',
                     cursor: "pointer",
                     transition: "all 0.2s ease"
                   }}
@@ -350,12 +388,12 @@ export default function NewCustomer() {
                       width: "20px",
                       height: "20px",
                       cursor: "pointer",
-                      accentColor: colors.primary[500]
+                      accentColor: '#60a5fa'
                     }}
                   />
                   <span style={{
                     fontWeight: typography.fontWeight.medium,
-                    color: customerType === type ? colors.primary[700] : colors.neutral[700]
+                    color: customerType === type ? '#60a5fa' : '#94a3b8'
                   }}>
                     {type}
                   </span>
@@ -371,7 +409,7 @@ export default function NewCustomer() {
                 <h3 style={{
                   fontSize: typography.fontSize.lg,
                   fontWeight: typography.fontWeight.semibold,
-                  color: colors.neutral[800],
+                  color: '#e2e8f0',
                   margin: `0 0 ${spacing[4]} 0`
                 }}>
                   Primärkontakt
@@ -384,7 +422,7 @@ export default function NewCustomer() {
                     name="firstName"
                     value={form.firstName}
                     onChange={handleChange}
-                    style={inputStyle}
+                    style={darkInputStyle}
                     placeholder="Förnamn"
                     required
                   />
@@ -395,7 +433,7 @@ export default function NewCustomer() {
                     name="lastName"
                     value={form.lastName}
                     onChange={handleChange}
-                    style={inputStyle}
+                    style={darkInputStyle}
                     placeholder="Efternamn"
                     required
                   />
@@ -408,7 +446,7 @@ export default function NewCustomer() {
                     name="phone"
                     value={form.phone}
                     onChange={handleChange}
-                    style={inputStyle}
+                    style={darkInputStyle}
                     placeholder="070-123 45 67"
                   />
                 </FormField>
@@ -419,7 +457,7 @@ export default function NewCustomer() {
                     name="email"
                     value={form.email}
                     onChange={handleChange}
-                    style={inputStyle}
+                    style={darkInputStyle}
                     placeholder="namn@example.com"
                   />
                 </FormField>
@@ -430,7 +468,7 @@ export default function NewCustomer() {
                   name="personnummer"
                   value={form.personnummer}
                   onChange={handleChange}
-                  style={inputStyle}
+                  style={darkInputStyle}
                   placeholder="ÅÅÅÅMMDD-XXXX"
                 />
               </FormField>
@@ -439,7 +477,7 @@ export default function NewCustomer() {
                 <h3 style={{
                   fontSize: typography.fontSize.lg,
                   fontWeight: typography.fontWeight.semibold,
-                  color: colors.neutral[800],
+                  color: '#e2e8f0',
                   margin: `0 0 ${spacing[4]} 0`
                 }}>
                   Grunduppgifter
@@ -452,7 +490,7 @@ export default function NewCustomer() {
                     name="name"
                     value={form.name || `${form.firstName} ${form.lastName}`.trim()}
                     onChange={handleChange}
-                    style={inputStyle}
+                    style={darkInputStyle}
                     placeholder="Autofylls från för- och efternamn"
                     required
                   />
@@ -464,9 +502,9 @@ export default function NewCustomer() {
                     value={form.customerNumber}
                     readOnly
                     style={{
-                      ...inputStyle,
-                      backgroundColor: colors.neutral[50],
-                      color: colors.neutral[500],
+                      ...darkInputStyle,
+                      backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                      color: '#94a3b8',
                       cursor: 'not-allowed'
                     }}
                   />
@@ -482,7 +520,7 @@ export default function NewCustomer() {
                 <h3 style={{
                   fontSize: typography.fontSize.lg,
                   fontWeight: typography.fontWeight.semibold,
-                  color: colors.neutral[800],
+                  color: '#e2e8f0',
                   margin: `0 0 ${spacing[4]} 0`
                 }}>
                   Företagsuppgifter
@@ -495,7 +533,7 @@ export default function NewCustomer() {
                     name="name"
                     value={form.name}
                     onChange={handleChange}
-                    style={inputStyle}
+                    style={darkInputStyle}
                     placeholder="Företagsnamn AB"
                     required
                   />
@@ -507,9 +545,9 @@ export default function NewCustomer() {
                     value={form.customerNumber}
                     readOnly
                     style={{
-                      ...inputStyle,
-                      backgroundColor: colors.neutral[50],
-                      color: colors.neutral[500],
+                      ...darkInputStyle,
+                      backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                      color: '#94a3b8',
                       cursor: 'not-allowed'
                     }}
                   />
@@ -522,7 +560,7 @@ export default function NewCustomer() {
                     name="alias"
                     value={form.alias}
                     onChange={handleChange}
-                    style={inputStyle}
+                    style={darkInputStyle}
                     placeholder="Kortnamn"
                   />
                 </FormField>
@@ -532,7 +570,7 @@ export default function NewCustomer() {
                     name="vatNr"
                     value={form.vatNr}
                     onChange={handleChange}
-                    style={inputStyle}
+                    style={darkInputStyle}
                     placeholder="SE123456789001"
                   />
                 </FormField>
@@ -545,10 +583,10 @@ export default function NewCustomer() {
                     value={form.orgNr}
                     onChange={handleChange}
                     style={{
-                      ...inputStyle,
+                      ...darkInputStyle,
                       flex: 1,
-                      borderColor: companyDataFetched ? colors.success[500] : colors.neutral[200],
-                      boxShadow: companyDataFetched ? shadows.glowSuccess : 'none'
+                      borderColor: companyDataFetched ? '#10b981' : 'rgba(255, 255, 255, 0.1)',
+                      boxShadow: companyDataFetched ? '0 0 20px rgba(16, 185, 129, 0.3)' : 'none'
                     }}
                     placeholder="XXXXXX-XXXX"
                   />
@@ -568,7 +606,7 @@ export default function NewCustomer() {
                       alignItems: "center",
                       gap: spacing[2],
                       justifyContent: "center",
-                      background: fetchingCompanyData ? colors.neutral[400] : colors.gradients.blue,
+                      background: fetchingCompanyData ? '#6b7280' : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
                       color: "white",
                       opacity: !isValidOrgNr(form.orgNr) || fetchingCompanyData ? 0.6 : 1,
                       whiteSpace: "nowrap",
@@ -612,7 +650,7 @@ export default function NewCustomer() {
                 <h3 style={{
                   fontSize: typography.fontSize.lg,
                   fontWeight: typography.fontWeight.semibold,
-                  color: colors.neutral[800],
+                  color: '#e2e8f0',
                   margin: `0 0 ${spacing[4]} 0`
                 }}>
                   Organisationsuppgifter
@@ -625,7 +663,7 @@ export default function NewCustomer() {
                     name="name"
                     value={form.name}
                     onChange={handleChange}
-                    style={inputStyle}
+                    style={darkInputStyle}
                     placeholder="Föreningsnamn"
                     required
                   />
@@ -637,9 +675,9 @@ export default function NewCustomer() {
                     value={form.customerNumber}
                     readOnly
                     style={{
-                      ...inputStyle,
-                      backgroundColor: colors.neutral[50],
-                      color: colors.neutral[500],
+                      ...darkInputStyle,
+                      backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                      color: '#94a3b8',
                       cursor: 'not-allowed'
                     }}
                   />
@@ -651,7 +689,7 @@ export default function NewCustomer() {
                   name="orgNr"
                   value={form.orgNr}
                   onChange={handleChange}
-                  style={inputStyle}
+                  style={darkInputStyle}
                   placeholder="XXXXXX-XXXX"
                 />
               </FormField>
@@ -660,9 +698,9 @@ export default function NewCustomer() {
         </div>
 
         {/* Adress - Common for all types */}
-        <div style={cardStyle}>
-          <div style={sectionHeaderStyle}>
-            <Home size={20} />
+        <div style={darkCardStyle}>
+          <div style={darkSectionHeaderStyle}>
+            <Home size={20} color="#60a5fa" />
             Fakturaadress
           </div>
 
@@ -671,7 +709,7 @@ export default function NewCustomer() {
               name="address"
               value={form.address}
               onChange={handleChange}
-              style={inputStyle}
+              style={darkInputStyle}
               placeholder="Gatuadress"
             />
           </FormField>
@@ -682,7 +720,7 @@ export default function NewCustomer() {
                 name="zipCity"
                 value={form.zipCity}
                 onChange={handleChange}
-                style={inputStyle}
+                style={darkInputStyle}
                 placeholder="123 45 Stad"
               />
             </FormField>
@@ -692,34 +730,34 @@ export default function NewCustomer() {
                 name="country"
                 value={form.country}
                 onChange={handleChange}
-                style={inputStyle}
+                style={darkInputStyle}
               />
             </FormField>
           </div>
         </div>
 
         {/* Fakturering */}
-        <div style={cardStyle}>
-          <div style={sectionHeaderStyle}>
-            <CreditCard size={20} />
+        <div style={darkCardStyle}>
+          <div style={darkSectionHeaderStyle}>
+            <CreditCard size={20} color="#60a5fa" />
             Fakturering
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[6] }}>
             <FormField label="Betalningsvillkor">
-              <select name="paymentTerms" value={form.paymentTerms} onChange={handleChange} style={inputStyle}>
-                <option value="10 dagar">10 dagar</option>
-                <option value="15 dagar">15 dagar</option>
-                <option value="20 dagar">20 dagar</option>
-                <option value="25 dagar">25 dagar</option>
-                <option value="30 dagar">30 dagar</option>
+              <select name="paymentTerms" value={form.paymentTerms} onChange={handleChange} style={darkInputStyle}>
+                <option value="10 dagar" style={{ backgroundColor: '#1a1a2e' }}>10 dagar</option>
+                <option value="15 dagar" style={{ backgroundColor: '#1a1a2e' }}>15 dagar</option>
+                <option value="20 dagar" style={{ backgroundColor: '#1a1a2e' }}>20 dagar</option>
+                <option value="25 dagar" style={{ backgroundColor: '#1a1a2e' }}>25 dagar</option>
+                <option value="30 dagar" style={{ backgroundColor: '#1a1a2e' }}>30 dagar</option>
               </select>
             </FormField>
 
             <FormField label="Fakturor skickas med">
-              <select name="invoiceBy" value={form.invoiceBy} onChange={handleChange} style={inputStyle}>
-                <option value="E-post">E-post</option>
-                <option value="Brev">Brev</option>
+              <select name="invoiceBy" value={form.invoiceBy} onChange={handleChange} style={darkInputStyle}>
+                <option value="E-post" style={{ backgroundColor: '#1a1a2e' }}>E-post</option>
+                <option value="Brev" style={{ backgroundColor: '#1a1a2e' }}>Brev</option>
               </select>
             </FormField>
           </div>
@@ -727,12 +765,12 @@ export default function NewCustomer() {
           {form.invoiceBy === "Brev" && (
             <div style={{
               padding: spacing[4],
-              backgroundColor: colors.warning[100],
-              border: `2px solid ${colors.warning[400]}`,
+              backgroundColor: 'rgba(251, 146, 60, 0.1)',
+              border: '2px solid rgba(251, 146, 60, 0.3)',
               borderRadius: borderRadius.lg,
               marginBottom: spacing[6]
             }}>
-              <div style={{ display: "flex", alignItems: "center", gap: spacing[2], color: colors.warning[800] }}>
+              <div style={{ display: "flex", alignItems: "center", gap: spacing[2], color: '#fbbf24' }}>
                 <AlertCircle size={18} />
                 <span style={{ fontWeight: typography.fontWeight.semibold, fontSize: typography.fontSize.sm }}>
                   Vid fakturering via brev tillkommer en avgift på 50 kr per faktura.
@@ -748,7 +786,7 @@ export default function NewCustomer() {
                 name="invoiceEmail"
                 value={form.invoiceEmail}
                 onChange={handleChange}
-                style={inputStyle}
+                style={darkInputStyle}
                 placeholder="faktura@example.com"
               />
             </FormField>
@@ -759,7 +797,7 @@ export default function NewCustomer() {
               name="invoiceAddress"
               value={form.invoiceAddress}
               onChange={handleChange}
-              style={inputStyle}
+              style={darkInputStyle}
               placeholder="Fakturaadress"
             />
           </FormField>
@@ -767,24 +805,24 @@ export default function NewCustomer() {
 
         {/* ROT & RUT - Only for Privatperson */}
         {customerType === "Privatperson" && (
-          <div style={cardStyle}>
-            <div style={sectionHeaderStyle}>
-              <Home size={20} />
+          <div style={darkCardStyle}>
+            <div style={darkSectionHeaderStyle}>
+              <Home size={20} color="#60a5fa" />
               ROT & RUT-avdrag
             </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[6], marginBottom: spacing[6] }}>
             <FormField label="ROT-kund" helper="Renovering, Ombyggnad, Tillbyggnad">
-              <select name="rotCustomer" value={form.rotCustomer} onChange={handleChange} style={inputStyle}>
-                <option value="Nej">Nej</option>
-                <option value="Ja">Ja</option>
+              <select name="rotCustomer" value={form.rotCustomer} onChange={handleChange} style={darkInputStyle}>
+                <option value="Nej" style={{ backgroundColor: '#1a1a2e' }}>Nej</option>
+                <option value="Ja" style={{ backgroundColor: '#1a1a2e' }}>Ja</option>
               </select>
             </FormField>
 
             <FormField label="RUT-kund" helper="Reparation, Underhåll, Tvätt">
-              <select name="rutCustomer" value={form.rutCustomer} onChange={handleChange} style={inputStyle}>
-                <option value="Nej">Nej</option>
-                <option value="Ja">Ja</option>
+              <select name="rutCustomer" value={form.rutCustomer} onChange={handleChange} style={darkInputStyle}>
+                <option value="Nej" style={{ backgroundColor: '#1a1a2e' }}>Nej</option>
+                <option value="Ja" style={{ backgroundColor: '#1a1a2e' }}>Ja</option>
               </select>
             </FormField>
           </div>
@@ -792,14 +830,14 @@ export default function NewCustomer() {
           {form.rotCustomer === "Ja" && (
             <div style={{
               padding: spacing[6],
-              backgroundColor: colors.success[50],
-              border: `2px solid ${colors.success[300]}`,
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              border: '2px solid rgba(16, 185, 129, 0.3)',
               borderRadius: borderRadius.xl,
               marginBottom: spacing[6]
             }}>
               <h4 style={{
                 margin: `0 0 ${spacing[4]} 0`,
-                color: colors.success[700],
+                color: '#10b981',
                 fontWeight: typography.fontWeight.semibold,
                 fontSize: typography.fontSize.lg
               }}>
@@ -810,7 +848,7 @@ export default function NewCustomer() {
                   name="rotPersonnummer"
                   value={form.rotPersonnummer}
                   onChange={handleChange}
-                  style={inputStyle}
+                  style={darkInputStyle}
                   placeholder="19800101-1234"
                 />
               </FormField>
@@ -819,7 +857,7 @@ export default function NewCustomer() {
                   name="propertyId"
                   value={form.propertyId}
                   onChange={handleChange}
-                  style={inputStyle}
+                  style={darkInputStyle}
                   placeholder="KOMMUN OMRÅDE 1:1"
                 />
               </FormField>
@@ -829,14 +867,14 @@ export default function NewCustomer() {
           {form.rutCustomer === "Ja" && (
             <div style={{
               padding: spacing[6],
-              backgroundColor: colors.primary[50],
-              border: `2px solid ${colors.primary[300]}`,
+              backgroundColor: 'rgba(59, 130, 246, 0.1)',
+              border: '2px solid rgba(59, 130, 246, 0.3)',
               borderRadius: borderRadius.xl,
               marginBottom: spacing[6]
             }}>
               <h4 style={{
                 margin: `0 0 ${spacing[4]} 0`,
-                color: colors.primary[700],
+                color: '#60a5fa',
                 fontWeight: typography.fontWeight.semibold,
                 fontSize: typography.fontSize.lg
               }}>
@@ -847,8 +885,17 @@ export default function NewCustomer() {
                   name="rutPersonnummer"
                   value={form.rutPersonnummer}
                   onChange={handleChange}
-                  style={inputStyle}
+                  style={darkInputStyle}
                   placeholder="19800101-1234"
+                />
+              </FormField>
+              <FormField label="Fastighetsbeteckning">
+                <input
+                  name="propertyId"
+                  value={form.propertyId}
+                  onChange={handleChange}
+                  style={darkInputStyle}
+                  placeholder="KOMMUN OMRÅDE 1:1"
                 />
               </FormField>
             </div>
@@ -872,7 +919,7 @@ export default function NewCustomer() {
               alignItems: "center",
               gap: spacing[2],
               justifyContent: "center",
-              background: colors.gradients.success,
+              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
               color: "white",
               boxShadow: shadows.md,
               flex: 1

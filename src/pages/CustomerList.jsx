@@ -17,16 +17,41 @@ import {
   ArrowUpDown,
   Upload
 } from "lucide-react";
-import { cardStyle, inputStyle, tableHeaderStyle, tableCellStyle } from "../components/shared/styles";
-import { colors, spacing, shadows, borderRadius, transitions } from "../components/shared/theme";
+import { spacing, shadows, borderRadius, typography, transitions } from "../components/shared/theme";
 import ActionButton from "../components/shared/ActionButton";
 import StatsCard from "../components/shared/StatsCard";
 import Badge from "../components/shared/Badge";
 import "../components/shared/animations.css";
 
-// Custom input style for search with icon
-const searchInputStyle = {
-  ...inputStyle,
+// Dark theme styles
+const darkCardStyle = {
+  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  backdropFilter: 'blur(20px)',
+  borderRadius: borderRadius.xl,
+  padding: spacing[8],
+  marginBottom: spacing[6],
+  boxShadow: '0 25px 50px rgba(0, 0, 0, 0.3)',
+  border: '1px solid rgba(255, 255, 255, 0.1)',
+  transition: `all ${transitions.base}`,
+};
+
+const darkInputStyle = {
+  width: "100%",
+  padding: `${spacing[3]} ${spacing[4]}`,
+  borderRadius: borderRadius.lg,
+  border: '1px solid rgba(255, 255, 255, 0.1)',
+  fontSize: typography.fontSize.base,
+  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+  color: '#fff',
+  outline: "none",
+  transition: `all ${transitions.base}`,
+  fontFamily: typography.fontFamily.sans,
+  fontWeight: typography.fontWeight.normal,
+  boxSizing: "border-box",
+};
+
+const darkSearchInputStyle = {
+  ...darkInputStyle,
   paddingLeft: "2.5rem",
 };
 
@@ -37,29 +62,29 @@ function FilterButton({ active, onClick, children, icon }) {
       onClick={onClick}
       style={{
         padding: `${spacing[2]} ${spacing[4]}`,
-        border: `2px solid ${active ? colors.primary[500] : colors.neutral[200]}`,
+        border: `2px solid ${active ? '#60a5fa' : 'rgba(255, 255, 255, 0.1)'}`,
         borderRadius: borderRadius.lg,
         cursor: "pointer",
-        backgroundColor: active ? colors.primary[500] : "white",
-        color: active ? "white" : colors.neutral[600],
+        backgroundColor: active ? '#60a5fa' : 'rgba(255, 255, 255, 0.05)',
+        color: active ? "white" : '#94a3b8',
         fontWeight: 600,
         fontSize: "0.875rem",
         transition: `all ${transitions.base}`,
         display: "flex",
         alignItems: "center",
         gap: spacing[2],
-        boxShadow: active ? shadows.md : shadows.sm,
+        boxShadow: active ? shadows.md : 'none',
       }}
       onMouseEnter={(e) => {
         if (!active) {
-          e.currentTarget.style.backgroundColor = colors.neutral[50];
-          e.currentTarget.style.borderColor = colors.primary[300];
+          e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+          e.currentTarget.style.borderColor = 'rgba(96, 165, 250, 0.5)';
         }
       }}
       onMouseLeave={(e) => {
         if (!active) {
-          e.currentTarget.style.backgroundColor = "white";
-          e.currentTarget.style.borderColor = colors.neutral[200];
+          e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+          e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
         }
       }}
     >
@@ -258,19 +283,19 @@ export default function CustomerList() {
               width: "56px",
               height: "56px",
               borderRadius: borderRadius.xl,
-              background: colors.gradients.blue,
+              background: 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)',
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              boxShadow: shadows.md,
+              boxShadow: '0 10px 25px rgba(96, 165, 250, 0.3)',
             }}>
               <Users size={28} color="white" />
             </div>
             <div>
-              <h1 style={{ margin: 0, fontSize: "2rem", fontWeight: "700", color: colors.neutral[900] }}>
+              <h1 style={{ margin: 0, fontSize: "2rem", fontWeight: "700", color: '#fff' }}>
                 Kundregister
               </h1>
-              <p style={{ color: colors.neutral[600], fontSize: "0.95rem", margin: `${spacing[1]} 0 0 0` }}>
+              <p style={{ color: '#94a3b8', fontSize: "0.95rem", margin: `${spacing[1]} 0 0 0` }}>
                 Hantera alla dina kunder och deras information
               </p>
             </div>
@@ -337,12 +362,12 @@ export default function CustomerList() {
       </div>
 
       {/* Search and Filter */}
-      <div className="card-enter" style={cardStyle}>
+      <div className="card-enter" style={darkCardStyle}>
         {/* Search */}
         <div style={{ marginBottom: spacing[6], position: "relative" }}>
           <Search
             size={20}
-            color={colors.neutral[400]}
+            color="#94a3b8"
             style={{ position: "absolute", left: spacing[3], top: "50%", transform: "translateY(-50%)", zIndex: 1 }}
           />
           <input
@@ -350,7 +375,7 @@ export default function CustomerList() {
             placeholder="Sök efter kund, e-post, telefon, kundnummer..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            style={searchInputStyle}
+            style={darkSearchInputStyle}
           />
           {searchTerm && (
             <button
@@ -370,13 +395,13 @@ export default function CustomerList() {
                 transition: `all ${transitions.base}`,
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = colors.neutral[100];
+                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = "transparent";
               }}
             >
-              <X size={18} color={colors.neutral[500]} />
+              <X size={18} color="#94a3b8" />
             </button>
           )}
         </div>
@@ -387,7 +412,7 @@ export default function CustomerList() {
             display: "flex",
             alignItems: "center",
             gap: spacing[2],
-            color: colors.neutral[600],
+            color: '#e2e8f0',
             fontWeight: 600,
             fontSize: "0.875rem"
           }}>
@@ -413,14 +438,23 @@ export default function CustomerList() {
       </div>
 
       {/* Customer Table */}
-      <div className="card-enter" style={cardStyle}>
+      <div className="card-enter" style={darkCardStyle}>
         <div style={{ overflowX: "auto" }}>
           {sortedCustomers.length > 0 ? (
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
                   <th
-                    style={{ ...tableHeaderStyle, cursor: "pointer" }}
+                    style={{
+                      padding: spacing[4],
+                      textAlign: "left",
+                      fontSize: typography.fontSize.sm,
+                      fontWeight: typography.fontWeight.semibold,
+                      color: '#94a3b8',
+                      backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                      borderBottom: '2px solid rgba(255, 255, 255, 0.1)',
+                      cursor: "pointer"
+                    }}
                     onClick={() => handleSort("customerNumber")}
                   >
                     <div style={{ display: "flex", alignItems: "center", gap: spacing[2] }}>
@@ -429,7 +463,16 @@ export default function CustomerList() {
                     </div>
                   </th>
                   <th
-                    style={{ ...tableHeaderStyle, cursor: "pointer" }}
+                    style={{
+                      padding: spacing[4],
+                      textAlign: "left",
+                      fontSize: typography.fontSize.sm,
+                      fontWeight: typography.fontWeight.semibold,
+                      color: '#94a3b8',
+                      backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                      borderBottom: '2px solid rgba(255, 255, 255, 0.1)',
+                      cursor: "pointer"
+                    }}
                     onClick={() => handleSort("name")}
                   >
                     <div style={{ display: "flex", alignItems: "center", gap: spacing[2] }}>
@@ -437,10 +480,42 @@ export default function CustomerList() {
                       <ArrowUpDown size={14} />
                     </div>
                   </th>
-                  <th style={tableHeaderStyle}>Typ</th>
-                  <th style={tableHeaderStyle}>Kontakt</th>
-                  <th style={tableHeaderStyle}>Adress</th>
-                  <th style={tableHeaderStyle}>ROT/RUT</th>
+                  <th style={{
+                    padding: spacing[4],
+                    textAlign: "left",
+                    fontSize: typography.fontSize.sm,
+                    fontWeight: typography.fontWeight.semibold,
+                    color: '#94a3b8',
+                    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                    borderBottom: '2px solid rgba(255, 255, 255, 0.1)',
+                  }}>Typ</th>
+                  <th style={{
+                    padding: spacing[4],
+                    textAlign: "left",
+                    fontSize: typography.fontSize.sm,
+                    fontWeight: typography.fontWeight.semibold,
+                    color: '#94a3b8',
+                    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                    borderBottom: '2px solid rgba(255, 255, 255, 0.1)',
+                  }}>Kontakt</th>
+                  <th style={{
+                    padding: spacing[4],
+                    textAlign: "left",
+                    fontSize: typography.fontSize.sm,
+                    fontWeight: typography.fontWeight.semibold,
+                    color: '#94a3b8',
+                    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                    borderBottom: '2px solid rgba(255, 255, 255, 0.1)',
+                  }}>Adress</th>
+                  <th style={{
+                    padding: spacing[4],
+                    textAlign: "left",
+                    fontSize: typography.fontSize.sm,
+                    fontWeight: typography.fontWeight.semibold,
+                    color: '#94a3b8',
+                    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                    borderBottom: '2px solid rgba(255, 255, 255, 0.1)',
+                  }}>ROT/RUT</th>
                 </tr>
               </thead>
               <tbody>
@@ -452,17 +527,22 @@ export default function CustomerList() {
                       cursor: "pointer"
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = colors.neutral[50];
+                      e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.backgroundColor = "transparent";
                     }}
                   >
-                    <td style={tableCellStyle}>
+                    <td style={{
+                      padding: spacing[4],
+                      borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+                      fontSize: typography.fontSize.base,
+                      color: '#fff',
+                    }}>
                       <Link
                         to={`/customers/${customer.id}`}
                         style={{
-                          color: colors.primary[600],
+                          color: '#60a5fa',
                           textDecoration: "none",
                           fontWeight: 600,
                           transition: `color ${transitions.base}`
@@ -471,11 +551,16 @@ export default function CustomerList() {
                         #{customer.customerNumber}
                       </Link>
                     </td>
-                    <td style={tableCellStyle}>
+                    <td style={{
+                      padding: spacing[4],
+                      borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+                      fontSize: typography.fontSize.base,
+                      color: '#fff',
+                    }}>
                       <Link
                         to={`/customers/${customer.id}`}
                         style={{
-                          color: colors.neutral[900],
+                          color: '#fff',
                           textDecoration: "none",
                           fontWeight: 600,
                           transition: `color ${transitions.base}`
@@ -484,46 +569,66 @@ export default function CustomerList() {
                         {customer.name}
                       </Link>
                     </td>
-                    <td style={tableCellStyle}>
+                    <td style={{
+                      padding: spacing[4],
+                      borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+                      fontSize: typography.fontSize.base,
+                      color: '#fff',
+                    }}>
                       <div style={{ display: "flex", alignItems: "center", gap: spacing[2] }}>
                         {customer.orgNr && customer.orgNr.trim() !== "" ? (
                           <>
-                            <Building2 size={16} color={colors.warning[500]} />
-                            <span style={{ fontSize: "0.875rem", color: colors.neutral[600] }}>Företag</span>
+                            <Building2 size={16} color="#fbbf24" />
+                            <span style={{ fontSize: "0.875rem", color: '#cbd5e1' }}>Företag</span>
                           </>
                         ) : (
                           <>
-                            <Users size={16} color={colors.primary[500]} />
-                            <span style={{ fontSize: "0.875rem", color: colors.neutral[600] }}>Privat</span>
+                            <Users size={16} color="#60a5fa" />
+                            <span style={{ fontSize: "0.875rem", color: '#cbd5e1' }}>Privat</span>
                           </>
                         )}
                       </div>
                     </td>
-                    <td style={tableCellStyle}>
+                    <td style={{
+                      padding: spacing[4],
+                      borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+                      fontSize: typography.fontSize.base,
+                      color: '#fff',
+                    }}>
                       <div style={{ display: "flex", flexDirection: "column", gap: spacing[1] }}>
                         {customer.email && (
-                          <div style={{ display: "flex", alignItems: "center", gap: spacing[2], fontSize: "0.875rem" }}>
-                            <Mail size={14} color={colors.neutral[400]} />
+                          <div style={{ display: "flex", alignItems: "center", gap: spacing[2], fontSize: "0.875rem", color: '#cbd5e1' }}>
+                            <Mail size={14} color="#94a3b8" />
                             <span>{customer.email}</span>
                           </div>
                         )}
                         {customer.phone && (
-                          <div style={{ display: "flex", alignItems: "center", gap: spacing[2], fontSize: "0.875rem" }}>
-                            <Phone size={14} color={colors.neutral[400]} />
+                          <div style={{ display: "flex", alignItems: "center", gap: spacing[2], fontSize: "0.875rem", color: '#cbd5e1' }}>
+                            <Phone size={14} color="#94a3b8" />
                             <span>{customer.phone}</span>
                           </div>
                         )}
                       </div>
                     </td>
-                    <td style={tableCellStyle}>
+                    <td style={{
+                      padding: spacing[4],
+                      borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+                      fontSize: typography.fontSize.base,
+                      color: '#fff',
+                    }}>
                       {customer.address && (
-                        <div style={{ display: "flex", alignItems: "center", gap: spacing[2], fontSize: "0.875rem" }}>
-                          <MapPin size={14} color={colors.neutral[400]} />
+                        <div style={{ display: "flex", alignItems: "center", gap: spacing[2], fontSize: "0.875rem", color: '#cbd5e1' }}>
+                          <MapPin size={14} color="#94a3b8" />
                           <span>{customer.address}</span>
                         </div>
                       )}
                     </td>
-                    <td style={tableCellStyle}>
+                    <td style={{
+                      padding: spacing[4],
+                      borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+                      fontSize: typography.fontSize.base,
+                      color: '#fff',
+                    }}>
                       <div style={{ display: "flex", gap: spacing[2] }}>
                         {customer.rotCustomer === "Ja" && (
                           <Badge variant="success">ROT</Badge>
@@ -538,9 +643,9 @@ export default function CustomerList() {
               </tbody>
             </table>
           ) : (
-            <div style={{ textAlign: "center", padding: spacing[12], color: colors.neutral[500] }}>
-              <Users size={48} color={colors.neutral[300]} style={{ marginBottom: spacing[4] }} />
-              <p style={{ fontSize: "1.1rem", fontWeight: 600, marginBottom: spacing[2], color: colors.neutral[700] }}>
+            <div style={{ textAlign: "center", padding: spacing[12], color: '#94a3b8' }}>
+              <Users size={48} color="#475569" style={{ marginBottom: spacing[4] }} />
+              <p style={{ fontSize: "1.1rem", fontWeight: 600, marginBottom: spacing[2], color: '#e2e8f0' }}>
                 Inga kunder hittades
               </p>
               <p style={{ fontSize: "0.9rem" }}>
@@ -557,7 +662,7 @@ export default function CustomerList() {
       <div style={{
         marginTop: spacing[4],
         textAlign: "center",
-        color: colors.neutral[500],
+        color: '#94a3b8',
         fontSize: "0.875rem",
         fontWeight: 500
       }}>

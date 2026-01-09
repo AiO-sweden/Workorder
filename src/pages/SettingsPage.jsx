@@ -20,15 +20,59 @@ import {
   Home,
   Wrench,
   Building,
+  Building2,
   MoreHorizontal,
   Mail,
-  UserPlus
+  UserPlus,
+  Upload,
+  Image,
+  FileText,
+  CreditCard
 } from "lucide-react";
-import { cardStyle, sectionHeaderStyle, inputStyle, colors, spacing, typography, shadows, borderRadius, transitions } from "../components/shared/styles";
+import { spacing, typography, shadows, borderRadius, transitions } from "../components/shared/styles";
 import ActionButton from "../components/shared/ActionButton";
 import FormField from "../components/shared/FormField";
 import Badge from "../components/shared/Badge";
 import Toast from "../components/shared/Toast";
+
+// Dark theme styles
+const darkCardStyle = {
+  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  backdropFilter: 'blur(20px)',
+  borderRadius: borderRadius.xl,
+  padding: spacing[8],
+  marginBottom: spacing[6],
+  boxShadow: '0 25px 50px rgba(0, 0, 0, 0.3)',
+  border: '1px solid rgba(255, 255, 255, 0.1)',
+  transition: `all ${transitions.base}`,
+};
+
+const darkSectionHeaderStyle = {
+  display: "flex",
+  alignItems: "center",
+  gap: spacing[3],
+  fontSize: typography.fontSize.xl,
+  fontWeight: typography.fontWeight.semibold,
+  color: '#fff',
+  marginBottom: spacing[6],
+  paddingBottom: spacing[4],
+  borderBottom: '2px solid rgba(255, 255, 255, 0.1)',
+};
+
+const darkInputStyle = {
+  width: "100%",
+  padding: `${spacing[3]} ${spacing[4]}`,
+  borderRadius: borderRadius.lg,
+  border: '1px solid rgba(255, 255, 255, 0.1)',
+  fontSize: typography.fontSize.base,
+  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+  color: '#fff',
+  outline: "none",
+  transition: `all ${transitions.base}`,
+  fontFamily: typography.fontFamily.sans,
+  fontWeight: typography.fontWeight.normal,
+  boxSizing: "border-box",
+};
 
 const DEFAULT_TIME_CODES = [
   { id: "normal", name: "Normal tid", color: "#3b82f6", billable: true, hourlyRate: 650 },
@@ -65,15 +109,20 @@ const IconComponent = ({ iconName, size = 20, color }) => {
 export default function SettingsPage() {
   const { userDetails } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("timeCodes"); // timeCodes, users, workTypes
+  const [activeTab, setActiveTab] = useState("users"); // timeCodes, users, workTypes
   const [timeCodes, setTimeCodes] = useState([]);
   const [users, setUsers] = useState([]);
   const [workTypes, setWorkTypes] = useState([]);
+  const [organization, setOrganization] = useState(null);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [invitingUser, setInvitingUser] = useState(false);
+  const [editingOrg, setEditingOrg] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [fetchingCompanyData, setFetchingCompanyData] = useState(false);
+  const [companyDataFetched, setCompanyDataFetched] = useState(false);
 
   // Redirect non-admin users to dashboard
   useEffect(() => {
@@ -107,6 +156,7 @@ export default function SettingsPage() {
     fetchSettings();
     fetchTimeCodes();
     fetchUsers();
+    fetchOrganization();
   }, [userDetails]);
 
   const fetchTimeCodes = async () => {
@@ -246,6 +296,286 @@ export default function SettingsPage() {
       setUsers(usersList);
     } catch (err) {
       console.error("Error fetching users:", err);
+    }
+  };
+
+  const fetchOrganization = async () => {
+    if (!userDetails?.organizationId) {
+      console.log('⚠️ SettingsPage: No organizationId, skipping organization fetch');
+      return;
+    }
+
+    try {
+      console.log('🔍 SettingsPage: Fetching organization:', userDetails.organizationId);
+      const { data, error } = await supabase
+        .from('organizations')
+        .select('*')
+        .eq('id', userDetails.organizationId)
+        .single();
+
+      if (error) throw error;
+
+      setOrganization(data);
+      console.log('✅ SettingsPage: Organization fetched:', data?.company_name);
+    } catch (err) {
+      console.error("Error fetching organization:", err);
+      setToast({ message: "Kunde inte hämta organisationsinformation", type: "error" });
+    }
+  };
+
+  const handleUpdateOrganization = (field, value) => {
+    setOrganization(prev => ({ ...prev, [field]: value }));
+  };
+
+  // Validate Swedish organization number format
+  const isValidOrgNr = (orgNr) => {
+    const cleaned = orgNr.replace(/[\s-]/g, '');
+    return /^\d{10}$/.test(cleaned);
+  };
+
+  // Swedish bank BIC codes based on clearing numbers
+  const getBICFromIBAN = (iban) => {
+    if (!iban) return '';
+
+    // Remove spaces and convert to uppercase
+    const cleanIban = iban.replace(/\s/g, '').toUpperCase();
+
+    // Check if it's a Swedish IBAN (starts with SE)
+    if (!cleanIban.startsWith('SE')) return '';
+
+    // Extract clearing number from IBAN (positions 4-7 after SE and check digits)
+    const clearingNumber = cleanIban.substring(4, 8);
+    const clearingNum = parseInt(clearingNumber, 10);
+
+    // Map clearing numbers to BIC codes for major Swedish banks
+    const bankBICMap = [
+      { range: [1000, 1999], bic: 'SWEDSESS', name: 'Swedbank' },
+      { range: [2000, 2999], bic: 'SWEDSESS', name: 'Swedbank' },
+      { range: [3000, 3299], bic: 'NDEASESS', name: 'Nordea' },
+      { range: [3300, 3399], bic: 'NDEASESS', name: 'Nordea' },
+      { range: [3400, 3409], bic: 'NDEASESS', name: 'Nordea' },
+      { range: [3410, 3781], bic: 'NDEASESS', name: 'Nordea - Personkonton' },
+      { range: [3782, 3999], bic: 'NDEASESS', name: 'Nordea' },
+      { range: [4000, 4999], bic: 'NDEASESS', name: 'Nordea' },
+      { range: [5000, 5999], bic: 'HANDSESS', name: 'Handelsbanken' },
+      { range: [6000, 6999], bic: 'HANDSESS', name: 'Handelsbanken' },
+      { range: [7000, 7999], bic: 'SWEDSESS', name: 'Swedbank' },
+      { range: [8000, 8999], bic: 'SWEDSESS', name: 'Swedbank' },
+      { range: [9020, 9029], bic: 'ECUTSES2', name: 'Länsförsäkringar Bank' },
+      { range: [9040, 9049], bic: 'CITISGSX', name: 'Citibank' },
+      { range: [9060, 9069], bic: 'FIKUSES3', name: 'Länsförsäkringar Bank' },
+      { range: [9100, 9109], bic: 'ESSESGSG', name: 'Skandiabanken' },
+      { range: [9120, 9124], bic: 'ESSESGSG', name: 'Skandiabanken' },
+      { range: [9130, 9149], bic: 'ESSESESS', name: 'SEB' },
+      { range: [9150, 9169], bic: 'ESSESESS', name: 'SEB' },
+      { range: [9170, 9179], bic: 'IKANO', name: 'IKANO Bank' },
+      { range: [9180, 9189], bic: 'DNBASESS', name: 'DNB Bank' },
+      { range: [9190, 9199], bic: 'DABASESX', name: 'Danske Bank' },
+      { range: [9200, 9209], bic: 'ESSESESS', name: 'SEB' },
+      { range: [9230, 9239], bic: 'ESSESESS', name: 'SEB' },
+      { range: [9250, 9259], bic: 'ESSESESS', name: 'SEB' },
+      { range: [9260, 9269], bic: 'NDEAFIHH', name: 'Nordea Finland' },
+      { range: [9270, 9279], bic: 'ESSESESS', name: 'SEB' },
+      { range: [9300, 9349], bic: 'ESSESESS', name: 'SEB' },
+      { range: [9400, 9449], bic: 'ESSESESS', name: 'SEB' },
+      { range: [9500, 9549], bic: 'ESSESESS', name: 'SEB' },
+      { range: [9570, 9579], bic: 'SPAASES2', name: 'Sparbanken Syd' },
+      { range: [9960, 9969], bic: 'SWEDSESS', name: 'Swedbank' },
+    ];
+
+    // Find matching bank
+    for (const bank of bankBICMap) {
+      if (clearingNum >= bank.range[0] && clearingNum <= bank.range[1]) {
+        return bank.bic;
+      }
+    }
+
+    return '';
+  };
+
+  // Auto-fill BIC when IBAN changes
+  const handleIBANChange = (value) => {
+    handleUpdateOrganization('iban', value);
+
+    // Automatically detect and fill BIC
+    const detectedBIC = getBICFromIBAN(value);
+    if (detectedBIC && !organization.bic) {
+      handleUpdateOrganization('bic', detectedBIC);
+    }
+  };
+
+  // Fetch company data from organization number using Allabolag
+  const fetchCompanyData = async () => {
+    if (!organization?.org_nr || !isValidOrgNr(organization.org_nr)) {
+      setToast({ type: 'error', message: 'Ange ett giltigt organisationsnummer (10 siffror)' });
+      return;
+    }
+
+    setFetchingCompanyData(true);
+    setCompanyDataFetched(false);
+
+    try {
+      // Fetch directly from Allabolag using CORS proxy
+      const cleanedOrgNr = organization.org_nr.replace(/[\s-]/g, '');
+      const allabolagUrl = `https://www.allabolag.se/${cleanedOrgNr}`;
+
+      // Use CORS proxy to bypass CORS restrictions
+      const corsProxy = 'https://corsproxy.io/?';
+      const url = corsProxy + encodeURIComponent(allabolagUrl);
+
+      const response = await fetch(url, {
+        method: 'GET',
+      });
+
+      if (!response.ok) {
+        throw new Error('Företaget kunde inte hittas');
+      }
+
+      const html = await response.text();
+
+      // Extract JSON data from __NEXT_DATA__ script tag
+      const nextDataMatch = html.match(/<script id="__NEXT_DATA__"[^>]*>(.*?)<\/script>/);
+
+      if (!nextDataMatch) {
+        throw new Error('Kunde inte hämta företagsdata');
+      }
+
+      const nextData = JSON.parse(nextDataMatch[1]);
+      const company = nextData?.props?.pageProps?.company;
+
+      if (!company || !company.name) {
+        throw new Error('Kunde inte hitta företagsuppgifter');
+      }
+
+      // Extract and format the data
+      const companyData = {
+        name: company.name || '',
+        address: company.postalAddress?.addressLine || company.visitingAddress?.street || company.address?.street || '',
+        zipCode: company.postalAddress?.zipCode || company.visitingAddress?.postalCode || company.address?.postalCode || '',
+        city: company.postalAddress?.postPlace || company.visitingAddress?.city || company.address?.city || '',
+      };
+
+      console.log('✅ Extracted company data:', companyData);
+
+      // Update organization with fetched data
+      setOrganization(prev => ({
+        ...prev,
+        company_name: companyData.name || prev.company_name,
+        address: companyData.address || prev.address,
+        zip_code: companyData.zipCode || prev.zip_code,
+        city: companyData.city || prev.city
+      }));
+
+      setCompanyDataFetched(true);
+      setToast({ type: 'success', message: 'Företagsuppgifter hämtade!' });
+      setTimeout(() => setCompanyDataFetched(false), 3000);
+
+    } catch (error) {
+      console.error('Error fetching company data:', error);
+      setToast({
+        type: 'error',
+        message: 'Kunde inte hämta företagsuppgifter. Kontrollera organisationsnumret eller fyll i uppgifterna manuellt.'
+      });
+    } finally {
+      setFetchingCompanyData(false);
+    }
+  };
+
+  const handleSaveOrganization = async () => {
+    if (!userDetails?.organizationId) {
+      setToast({ message: "Kunde inte hitta organisations-ID", type: "error" });
+      return;
+    }
+
+    try {
+      // Only update fields that exist in the database
+      const updateData = {};
+
+      if (organization.company_name !== undefined) updateData.company_name = organization.company_name;
+      if (organization.org_nr !== undefined) updateData.org_nr = organization.org_nr;
+      if (organization.vat_nr !== undefined) updateData.vat_nr = organization.vat_nr;
+      if (organization.our_reference !== undefined) updateData.our_reference = organization.our_reference;
+      if (organization.address !== undefined) updateData.address = organization.address;
+      if (organization.zip_code !== undefined) updateData.zip_code = organization.zip_code;
+      if (organization.city !== undefined) updateData.city = organization.city;
+      if (organization.phone !== undefined) updateData.phone = organization.phone;
+      if (organization.email !== undefined) updateData.email = organization.email;
+      if (organization.bankgiro !== undefined) updateData.bankgiro = organization.bankgiro;
+      if (organization.plusgiro !== undefined) updateData.plusgiro = organization.plusgiro;
+      if (organization.iban !== undefined) updateData.iban = organization.iban;
+      if (organization.bic !== undefined) updateData.bic = organization.bic;
+      if (organization.is_fa_approved !== undefined) updateData.is_fa_approved = organization.is_fa_approved;
+
+      updateData.updated_at = new Date().toISOString();
+
+      const { error } = await supabase
+        .from('organizations')
+        .update(updateData)
+        .eq('id', userDetails.organizationId);
+
+      if (error) throw error;
+
+      setToast({ message: "Organisationsinformation sparad!", type: "success" });
+      setEditingOrg(false);
+      await fetchOrganization();
+    } catch (err) {
+      console.error("Error saving organization:", err);
+      setToast({ message: "Kunde inte spara organisationsinformation", type: "error" });
+    }
+  };
+
+  const handleLogoUpload = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setToast({ message: "Vänligen välj en bildfil", type: "error" });
+      return;
+    }
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      setToast({ message: "Bilden får max vara 2MB", type: "error" });
+      return;
+    }
+
+    setUploadingLogo(true);
+
+    try {
+      // Upload to Supabase Storage
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${userDetails.organizationId}/logo.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('organization-logos')
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from('organization-logos')
+        .getPublicUrl(fileName);
+
+      // Update organization with logo URL
+      const { error: updateError } = await supabase
+        .from('organizations')
+        .update({
+          logo_url: urlData.publicUrl,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', userDetails.organizationId);
+
+      if (updateError) throw updateError;
+
+      setToast({ message: "Logotyp uppladdad!", type: "success" });
+      await fetchOrganization();
+    } catch (err) {
+      console.error("Error uploading logo:", err);
+      setToast({ message: "Kunde inte ladda upp logotyp", type: "error" });
+    } finally {
+      setUploadingLogo(false);
     }
   };
 
@@ -541,8 +871,8 @@ Välkommen!`;
   if (loading) {
     return (
       <div style={{ textAlign: "center", padding: "3rem" }}>
-        <Settings size={48} style={{ marginBottom: "1rem", opacity: 0.5 }} />
-        <p>Laddar inställningar...</p>
+        <Settings size={48} style={{ marginBottom: "1rem", opacity: 0.5, color: '#60a5fa' }} />
+        <p style={{ color: '#e2e8f0' }}>Laddar inställningar...</p>
       </div>
     );
   }
@@ -567,17 +897,17 @@ Välkommen!`;
         <h1 style={{
           fontSize: typography.fontSize["4xl"],
           fontWeight: typography.fontWeight.bold,
-          color: colors.neutral[900],
+          color: '#fff',
           margin: 0,
           display: "flex",
           alignItems: "center",
           gap: spacing[3]
         }}>
-          <Settings size={32} color={colors.primary[500]} />
+          <Settings size={32} color="#60a5fa" />
           Inställningar
         </h1>
         <p style={{
-          color: colors.neutral[600],
+          color: '#94a3b8',
           fontSize: typography.fontSize.base,
           margin: `${spacing[2]} 0 0 0`
         }}>
@@ -590,7 +920,7 @@ Välkommen!`;
         display: "flex",
         gap: spacing[2],
         marginBottom: spacing[6],
-        borderBottom: `2px solid ${colors.neutral[200]}`,
+        borderBottom: '2px solid rgba(255, 255, 255, 0.1)',
         flexWrap: "wrap"
       }}>
         <button
@@ -603,8 +933,8 @@ Välkommen!`;
             padding: `${spacing[3]} ${spacing[6]}`,
             border: "none",
             backgroundColor: "transparent",
-            borderBottom: `3px solid ${activeTab === "users" ? colors.primary[500] : "transparent"}`,
-            color: activeTab === "users" ? colors.primary[700] : colors.neutral[600],
+            borderBottom: `3px solid ${activeTab === "users" ? "#60a5fa" : "transparent"}`,
+            color: activeTab === "users" ? "#60a5fa" : "#94a3b8",
             fontWeight: typography.fontWeight.semibold,
             cursor: "pointer",
             display: "flex",
@@ -614,8 +944,8 @@ Välkommen!`;
             transition: `all ${transitions.base}`
           }}
         >
-          <Users size={18} />
-          Användare
+          <Building2 size={18} />
+          Organisation
         </button>
 
         <button
@@ -628,8 +958,8 @@ Välkommen!`;
             padding: `${spacing[3]} ${spacing[6]}`,
             border: "none",
             backgroundColor: "transparent",
-            borderBottom: `3px solid ${activeTab === "timeCodes" ? colors.primary[500] : "transparent"}`,
-            color: activeTab === "timeCodes" ? colors.primary[700] : colors.neutral[600],
+            borderBottom: `3px solid ${activeTab === "timeCodes" ? "#60a5fa" : "transparent"}`,
+            color: activeTab === "timeCodes" ? "#60a5fa" : "#94a3b8",
             fontWeight: typography.fontWeight.semibold,
             cursor: "pointer",
             display: "flex",
@@ -653,8 +983,8 @@ Välkommen!`;
             padding: `${spacing[3]} ${spacing[6]}`,
             border: "none",
             backgroundColor: "transparent",
-            borderBottom: `3px solid ${activeTab === "workTypes" ? colors.primary[500] : "transparent"}`,
-            color: activeTab === "workTypes" ? colors.primary[700] : colors.neutral[600],
+            borderBottom: `3px solid ${activeTab === "workTypes" ? "#60a5fa" : "transparent"}`,
+            color: activeTab === "workTypes" ? "#60a5fa" : "#94a3b8",
             fontWeight: typography.fontWeight.semibold,
             cursor: "pointer",
             display: "flex",
@@ -671,21 +1001,570 @@ Välkommen!`;
 
       {/* Users Tab */}
       {activeTab === "users" && (
-        <div style={{
-          ...cardStyle,
-          animation: 'fadeIn 0.3s ease-out'
-        }}>
-          <div style={sectionHeaderStyle}>
-            <Users size={20} color={colors.primary[500]} />
-            <span>Användare</span>
+        <>
+          {/* Organization Information Section */}
+          <div style={{
+            ...darkCardStyle,
+            animation: 'fadeIn 0.3s ease-out'
+          }}>
+            <div style={darkSectionHeaderStyle}>
+              <Building2 size={20} color="#60a5fa" />
+              <span>Organisationsinformation</span>
+            </div>
+
+            <p style={{
+              color: '#94a3b8',
+              marginBottom: spacing[6]
+            }}>
+              Hantera din organisations detaljer, logotyp och kontaktinformation.
+            </p>
+
+            {organization && (
+              <div>
+                {/* Logo Upload Section */}
+                <div style={{
+                  padding: spacing[6],
+                  backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                  borderRadius: borderRadius.lg,
+                  marginBottom: spacing[6],
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: spacing[6]
+                }}>
+                  <div>
+                    {organization.logo_url ? (
+                      <img
+                        src={organization.logo_url}
+                        alt="Organisationens logotyp"
+                        style={{
+                          width: '120px',
+                          height: '120px',
+                          objectFit: 'contain',
+                          borderRadius: borderRadius.lg,
+                          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                          padding: spacing[3]
+                        }}
+                      />
+                    ) : (
+                      <div style={{
+                        width: '120px',
+                        height: '120px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                        borderRadius: borderRadius.lg,
+                        border: '2px dashed rgba(255, 255, 255, 0.2)'
+                      }}>
+                        <Image size={48} color="#94a3b8" />
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={{ flex: 1 }}>
+                    <h3 style={{
+                      margin: `0 0 ${spacing[2]} 0`,
+                      fontSize: typography.fontSize.lg,
+                      fontWeight: typography.fontWeight.semibold,
+                      color: '#fff'
+                    }}>
+                      Logotyp
+                    </h3>
+                    <p style={{
+                      color: '#94a3b8',
+                      fontSize: typography.fontSize.sm,
+                      marginBottom: spacing[4]
+                    }}>
+                      Ladda upp din organisations logotyp. Används i PDF-rapporter och på fakturor. Max 2MB, PNG/JPG.
+                    </p>
+
+                    <label style={{ cursor: 'pointer' }}>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleLogoUpload}
+                        style={{ display: 'none' }}
+                        disabled={uploadingLogo}
+                      />
+                      <div style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: spacing[2],
+                        padding: `${spacing[2]} ${spacing[4]}`,
+                        backgroundColor: uploadingLogo ? 'rgba(255, 255, 255, 0.05)' : 'rgba(59, 130, 246, 0.1)',
+                        color: uploadingLogo ? '#94a3b8' : '#60a5fa',
+                        borderRadius: borderRadius.lg,
+                        border: `2px solid ${uploadingLogo ? 'rgba(255, 255, 255, 0.1)' : 'rgba(59, 130, 246, 0.3)'}`,
+                        fontSize: typography.fontSize.sm,
+                        fontWeight: typography.fontWeight.semibold,
+                        transition: `all ${transitions.base}`,
+                        cursor: uploadingLogo ? 'not-allowed' : 'pointer'
+                      }}>
+                        <Upload size={18} />
+                        {uploadingLogo ? 'Laddar upp...' : 'Välj logotyp'}
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Edit Button */}
+                {!editingOrg && (
+                  <div style={{ marginBottom: spacing[6] }}>
+                    <ActionButton
+                      onClick={() => setEditingOrg(true)}
+                      variant="primary"
+                      icon={<Edit3 size={18} />}
+                    >
+                      Redigera organisationsinformation
+                    </ActionButton>
+                  </div>
+                )}
+
+                {/* Organization Form */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(2, 1fr)',
+                  gap: spacing[4]
+                }}>
+                  {/* Företagsinformation */}
+                  <div style={{ gridColumn: '1 / -1' }}>
+                    <h3 style={{
+                      fontSize: typography.fontSize.lg,
+                      fontWeight: typography.fontWeight.semibold,
+                      color: '#60a5fa',
+                      marginBottom: spacing[4],
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: spacing[2]
+                    }}>
+                      <Building size={18} />
+                      Företagsinformation
+                    </h3>
+                  </div>
+
+                  <FormField label="Företagsnamn" required>
+                    <input
+                      type="text"
+                      value={organization.company_name || ''}
+                      onChange={(e) => handleUpdateOrganization('company_name', e.target.value)}
+                      disabled={!editingOrg}
+                      style={{
+                        ...darkInputStyle,
+                        backgroundColor: editingOrg ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.03)',
+                        cursor: editingOrg ? 'text' : 'not-allowed'
+                      }}
+                      placeholder="Ditt Företag AB"
+                    />
+                  </FormField>
+
+                  <FormField label="Organisationsnummer">
+                    <div style={{ display: 'flex', gap: spacing[2], alignItems: 'flex-start' }}>
+                      <input
+                        type="text"
+                        value={organization.org_nr || ''}
+                        onChange={(e) => handleUpdateOrganization('org_nr', e.target.value)}
+                        disabled={!editingOrg}
+                        style={{
+                          ...darkInputStyle,
+                          backgroundColor: editingOrg ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.03)',
+                          cursor: editingOrg ? 'text' : 'not-allowed',
+                          flex: 1
+                        }}
+                        placeholder="XXXXXX-XXXX"
+                      />
+                      {editingOrg && (
+                        <button
+                          onClick={fetchCompanyData}
+                          disabled={fetchingCompanyData || !organization?.org_nr}
+                          style={{
+                            padding: `${spacing[3]} ${spacing[4]}`,
+                            backgroundColor: fetchingCompanyData
+                              ? 'rgba(255, 255, 255, 0.05)'
+                              : companyDataFetched
+                              ? 'rgba(34, 197, 94, 0.2)'
+                              : 'rgba(59, 130, 246, 0.2)',
+                            color: fetchingCompanyData
+                              ? '#94a3b8'
+                              : companyDataFetched
+                              ? '#22c55e'
+                              : '#60a5fa',
+                            border: `2px solid ${
+                              fetchingCompanyData
+                                ? 'rgba(255, 255, 255, 0.1)'
+                                : companyDataFetched
+                                ? 'rgba(34, 197, 94, 0.3)'
+                                : 'rgba(59, 130, 246, 0.3)'
+                            }`,
+                            borderRadius: borderRadius.lg,
+                            cursor: fetchingCompanyData || !organization?.org_nr ? 'not-allowed' : 'pointer',
+                            fontWeight: typography.fontWeight.semibold,
+                            fontSize: typography.fontSize.sm,
+                            transition: `all ${transitions.base}`,
+                            whiteSpace: 'nowrap',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: spacing[2]
+                          }}
+                          onMouseEnter={(e) => {
+                            if (!fetchingCompanyData && organization?.org_nr) {
+                              e.currentTarget.style.backgroundColor = companyDataFetched
+                                ? 'rgba(34, 197, 94, 0.3)'
+                                : 'rgba(59, 130, 246, 0.3)';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (!fetchingCompanyData) {
+                              e.currentTarget.style.backgroundColor = companyDataFetched
+                                ? 'rgba(34, 197, 94, 0.2)'
+                                : 'rgba(59, 130, 246, 0.2)';
+                            }
+                          }}
+                        >
+                          {fetchingCompanyData ? (
+                            <>
+                              <div style={{
+                                width: '14px',
+                                height: '14px',
+                                border: '2px solid rgba(255, 255, 255, 0.3)',
+                                borderTopColor: '#94a3b8',
+                                borderRadius: '50%',
+                                animation: 'spin 0.8s linear infinite'
+                              }} />
+                              Hämtar...
+                            </>
+                          ) : companyDataFetched ? (
+                            <>✓ Hämtat</>
+                          ) : (
+                            <>Hämta uppgifter</>
+                          )}
+                        </button>
+                      )}
+                    </div>
+                    {editingOrg && (
+                      <p style={{
+                        fontSize: typography.fontSize.xs,
+                        color: '#94a3b8',
+                        marginTop: spacing[2]
+                      }}>
+                        Ange organisationsnummer och klicka på "Hämta uppgifter" för att automatiskt fylla i företagsdata från Allabolag.
+                      </p>
+                    )}
+                  </FormField>
+
+                  <FormField label="Momsnummer">
+                    <input
+                      type="text"
+                      value={organization.vat_nr || ''}
+                      onChange={(e) => handleUpdateOrganization('vat_nr', e.target.value)}
+                      disabled={!editingOrg}
+                      style={{
+                        ...darkInputStyle,
+                        backgroundColor: editingOrg ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.03)',
+                        cursor: editingOrg ? 'text' : 'not-allowed'
+                      }}
+                      placeholder="SE123456789001"
+                    />
+                  </FormField>
+
+                  <FormField label="Vår referens">
+                    <input
+                      type="text"
+                      value={organization.our_reference || ''}
+                      onChange={(e) => handleUpdateOrganization('our_reference', e.target.value)}
+                      disabled={!editingOrg}
+                      style={{
+                        ...darkInputStyle,
+                        backgroundColor: editingOrg ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.03)',
+                        cursor: editingOrg ? 'text' : 'not-allowed'
+                      }}
+                      placeholder="Namn Namnsson"
+                    />
+                  </FormField>
+
+                  {/* Adressinformation */}
+                  <div style={{ gridColumn: '1 / -1', marginTop: spacing[4] }}>
+                    <h3 style={{
+                      fontSize: typography.fontSize.lg,
+                      fontWeight: typography.fontWeight.semibold,
+                      color: '#60a5fa',
+                      marginBottom: spacing[4],
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: spacing[2]
+                    }}>
+                      <Home size={18} />
+                      Adress
+                    </h3>
+                  </div>
+
+                  <FormField label="Gatuadress" style={{ gridColumn: '1 / -1' }}>
+                    <input
+                      type="text"
+                      value={organization.address || ''}
+                      onChange={(e) => handleUpdateOrganization('address', e.target.value)}
+                      disabled={!editingOrg}
+                      style={{
+                        ...darkInputStyle,
+                        backgroundColor: editingOrg ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.03)',
+                        cursor: editingOrg ? 'text' : 'not-allowed'
+                      }}
+                      placeholder="Exempelgatan 1"
+                    />
+                  </FormField>
+
+                  <FormField label="Postnummer">
+                    <input
+                      type="text"
+                      value={organization.zip_code || ''}
+                      onChange={(e) => handleUpdateOrganization('zip_code', e.target.value)}
+                      disabled={!editingOrg}
+                      style={{
+                        ...darkInputStyle,
+                        backgroundColor: editingOrg ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.03)',
+                        cursor: editingOrg ? 'text' : 'not-allowed'
+                      }}
+                      placeholder="123 45"
+                    />
+                  </FormField>
+
+                  <FormField label="Ort">
+                    <input
+                      type="text"
+                      value={organization.city || ''}
+                      onChange={(e) => handleUpdateOrganization('city', e.target.value)}
+                      disabled={!editingOrg}
+                      style={{
+                        ...darkInputStyle,
+                        backgroundColor: editingOrg ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.03)',
+                        cursor: editingOrg ? 'text' : 'not-allowed'
+                      }}
+                      placeholder="Stockholm"
+                    />
+                  </FormField>
+
+                  {/* Kontaktinformation */}
+                  <div style={{ gridColumn: '1 / -1', marginTop: spacing[4] }}>
+                    <h3 style={{
+                      fontSize: typography.fontSize.lg,
+                      fontWeight: typography.fontWeight.semibold,
+                      color: '#60a5fa',
+                      marginBottom: spacing[4],
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: spacing[2]
+                    }}>
+                      <Mail size={18} />
+                      Kontaktinformation
+                    </h3>
+                  </div>
+
+                  <FormField label="Telefonnummer">
+                    <input
+                      type="tel"
+                      value={organization.phone || ''}
+                      onChange={(e) => handleUpdateOrganization('phone', e.target.value)}
+                      disabled={!editingOrg}
+                      style={{
+                        ...darkInputStyle,
+                        backgroundColor: editingOrg ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.03)',
+                        cursor: editingOrg ? 'text' : 'not-allowed'
+                      }}
+                      placeholder="070-123 45 67"
+                    />
+                  </FormField>
+
+                  <FormField label="E-postadress">
+                    <input
+                      type="email"
+                      value={organization.email || ''}
+                      onChange={(e) => handleUpdateOrganization('email', e.target.value)}
+                      disabled={!editingOrg}
+                      style={{
+                        ...darkInputStyle,
+                        backgroundColor: editingOrg ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.03)',
+                        cursor: editingOrg ? 'text' : 'not-allowed'
+                      }}
+                      placeholder="info@dittforetag.se"
+                    />
+                  </FormField>
+
+                  {/* Betalningsinformation */}
+                  <div style={{ gridColumn: '1 / -1', marginTop: spacing[4] }}>
+                    <h3 style={{
+                      fontSize: typography.fontSize.lg,
+                      fontWeight: typography.fontWeight.semibold,
+                      color: '#60a5fa',
+                      marginBottom: spacing[4],
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: spacing[2]
+                    }}>
+                      <CreditCard size={18} />
+                      Betalningsinformation
+                    </h3>
+                  </div>
+
+                  <FormField label="Bankgiro">
+                    <input
+                      type="text"
+                      value={organization.bankgiro || ''}
+                      onChange={(e) => handleUpdateOrganization('bankgiro', e.target.value)}
+                      disabled={!editingOrg}
+                      style={{
+                        ...darkInputStyle,
+                        backgroundColor: editingOrg ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.03)',
+                        cursor: editingOrg ? 'text' : 'not-allowed'
+                      }}
+                      placeholder="123-4567"
+                    />
+                  </FormField>
+
+                  <FormField label="Plusgiro">
+                    <input
+                      type="text"
+                      value={organization.plusgiro || ''}
+                      onChange={(e) => handleUpdateOrganization('plusgiro', e.target.value)}
+                      disabled={!editingOrg}
+                      style={{
+                        ...darkInputStyle,
+                        backgroundColor: editingOrg ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.03)',
+                        cursor: editingOrg ? 'text' : 'not-allowed'
+                      }}
+                      placeholder="12 34 56-7"
+                    />
+                  </FormField>
+
+                  <FormField label="IBAN">
+                    <input
+                      type="text"
+                      value={organization.iban || ''}
+                      onChange={(e) => handleIBANChange(e.target.value)}
+                      disabled={!editingOrg}
+                      style={{
+                        ...darkInputStyle,
+                        backgroundColor: editingOrg ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.03)',
+                        cursor: editingOrg ? 'text' : 'not-allowed'
+                      }}
+                      placeholder="SE89 3000 0000 0101 2345 6789"
+                    />
+                    {editingOrg && organization.iban && getBICFromIBAN(organization.iban) && (
+                      <p style={{
+                        fontSize: typography.fontSize.xs,
+                        color: '#22c55e',
+                        marginTop: spacing[2],
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: spacing[1]
+                      }}>
+                        ✓ BIC-kod identifierad automatiskt
+                      </p>
+                    )}
+                  </FormField>
+
+                  <FormField label="BIC/SWIFT">
+                    <input
+                      type="text"
+                      value={organization.bic || ''}
+                      onChange={(e) => handleUpdateOrganization('bic', e.target.value)}
+                      disabled={!editingOrg}
+                      style={{
+                        ...darkInputStyle,
+                        backgroundColor: editingOrg ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.03)',
+                        cursor: editingOrg ? 'text' : 'not-allowed'
+                      }}
+                      placeholder="SWEDSESS"
+                    />
+                  </FormField>
+
+                  {/* F-skatt godkännande */}
+                  <div style={{ gridColumn: '1 / -1', marginTop: spacing[4] }}>
+                    <label style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: spacing[3],
+                      cursor: editingOrg ? 'pointer' : 'not-allowed',
+                      padding: spacing[3],
+                      backgroundColor: 'rgba(59, 130, 246, 0.08)',
+                      borderRadius: borderRadius.lg,
+                      border: '1px solid rgba(59, 130, 246, 0.2)',
+                      transition: transitions.base
+                    }}>
+                      <input
+                        type="checkbox"
+                        checked={organization.is_fa_approved || false}
+                        onChange={(e) => handleUpdateOrganization('is_fa_approved', e.target.checked)}
+                        disabled={!editingOrg}
+                        style={{
+                          width: '20px',
+                          height: '20px',
+                          cursor: editingOrg ? 'pointer' : 'not-allowed',
+                          accentColor: '#3b82f6'
+                        }}
+                      />
+                      <div>
+                        <div style={{
+                          color: '#e2e8f0',
+                          fontWeight: typography.fontWeight.semibold,
+                          fontSize: typography.fontSize.base
+                        }}>
+                          Godkänd för F-skatt
+                        </div>
+                        <div style={{
+                          color: '#94a3b8',
+                          fontSize: typography.fontSize.sm,
+                          marginTop: spacing[1]
+                        }}>
+                          Företaget är registrerat för F-skatt hos Skatteverket
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+
+                </div>
+
+                {/* Save/Cancel buttons when editing */}
+                {editingOrg && (
+                  <div style={{ display: 'flex', gap: spacing[3], marginTop: spacing[6] }}>
+                    <ActionButton
+                      onClick={handleSaveOrganization}
+                      variant="success"
+                      icon={<Save size={18} />}
+                    >
+                      Spara ändringar
+                    </ActionButton>
+                    <ActionButton
+                      onClick={() => {
+                        setEditingOrg(false);
+                        fetchOrganization(); // Reset changes
+                      }}
+                      variant="secondary"
+                      icon={<X size={18} />}
+                    >
+                      Avbryt
+                    </ActionButton>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
-          <p style={{
-            color: colors.neutral[600],
-            marginBottom: spacing[6]
+          {/* Users Section */}
+          <div style={{
+            ...darkCardStyle,
+            animation: 'fadeIn 0.3s ease-out'
           }}>
-            Hantera användare som kan schemaläggas och använda systemet.
-          </p>
+            <div style={darkSectionHeaderStyle}>
+              <Users size={20} color="#60a5fa" />
+              <span>Användare</span>
+            </div>
+
+            <p style={{
+              color: '#94a3b8',
+              marginBottom: spacing[6]
+            }}>
+              Hantera användare som kan schemaläggas och använda systemet.
+            </p>
 
           {/* Add User Button */}
           <div style={{ marginBottom: spacing[6] }}>
@@ -702,17 +1581,17 @@ Välkommen!`;
           {showAddForm && (
             <div style={{
               padding: spacing[6],
-              backgroundColor: colors.neutral[50],
+              backgroundColor: 'rgba(255, 255, 255, 0.03)',
               borderRadius: borderRadius.lg,
               marginBottom: spacing[6],
-              border: `2px solid ${colors.primary[200]}`,
+              border: '2px solid rgba(96, 165, 250, 0.3)',
               animation: 'slideDown 0.3s ease-out'
             }}>
               <h3 style={{
                 margin: `0 0 ${spacing[4]} 0`,
                 fontSize: typography.fontSize.lg,
                 fontWeight: typography.fontWeight.semibold,
-                color: colors.neutral[900]
+                color: '#fff'
               }}>
                 Bjud in ny användare
               </h3>
@@ -725,14 +1604,14 @@ Välkommen!`;
                       left: spacing[3],
                       top: "50%",
                       transform: "translateY(-50%)",
-                      color: colors.neutral[400]
+                      color: '#94a3b8'
                     }} />
                     <input
                       type="email"
                       value={newUser.email}
                       onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
                       placeholder="anvandare@example.com"
-                      style={{ ...inputStyle, paddingLeft: spacing[10] }}
+                      style={{ ...darkInputStyle, paddingLeft: spacing[10] }}
                     />
                   </div>
                 </FormField>
@@ -741,10 +1620,10 @@ Välkommen!`;
                   <select
                     value={newUser.role}
                     onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-                    style={inputStyle}
+                    style={darkInputStyle}
                   >
-                    <option value="user">Användare</option>
-                    <option value="admin">Admin</option>
+                    <option value="user" style={{ backgroundColor: '#1a1a2e' }}>Användare</option>
+                    <option value="admin" style={{ backgroundColor: '#1a1a2e' }}>Admin</option>
                   </select>
                 </FormField>
               </div>
@@ -768,9 +1647,9 @@ Välkommen!`;
               <div style={{
                 textAlign: "center",
                 padding: spacing[8],
-                color: colors.neutral[500]
+                color: '#94a3b8'
               }}>
-                <Users size={48} style={{ marginBottom: spacing[3], opacity: 0.5 }} />
+                <Users size={48} style={{ marginBottom: spacing[3], opacity: 0.5, color: '#60a5fa' }} />
                 <p>Inga användare ännu. Bjud in din första användare!</p>
               </div>
             ) : (
@@ -779,9 +1658,9 @@ Välkommen!`;
                   key={user.id}
                   style={{
                     padding: spacing[6],
-                    border: `2px solid ${colors.neutral[200]}`,
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: borderRadius.lg,
-                    backgroundColor: "white",
+                    backgroundColor: 'rgba(255, 255, 255, 0.03)',
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
@@ -793,11 +1672,11 @@ Välkommen!`;
                       width: "48px",
                       height: "48px",
                       borderRadius: "50%",
-                      backgroundColor: colors.primary[100],
+                      backgroundColor: 'rgba(96, 165, 250, 0.2)',
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      color: colors.primary[700],
+                      color: '#60a5fa',
                       fontWeight: typography.fontWeight.bold,
                       fontSize: typography.fontSize.lg
                     }}>
@@ -807,14 +1686,14 @@ Välkommen!`;
                       <div style={{
                         fontSize: typography.fontSize.base,
                         fontWeight: typography.fontWeight.semibold,
-                        color: colors.neutral[900],
+                        color: '#fff',
                         marginBottom: spacing[1]
                       }}>
                         {user.name || user.email}
                       </div>
                       <div style={{
                         fontSize: typography.fontSize.sm,
-                        color: colors.neutral[600],
+                        color: '#94a3b8',
                         display: "flex",
                         alignItems: "center",
                         gap: spacing[2]
@@ -832,19 +1711,19 @@ Välkommen!`;
                         value={user.role}
                         onChange={(e) => handleUpdateUserRole(user.id, e.target.value)}
                         style={{
-                          ...inputStyle,
+                          ...darkInputStyle,
                           padding: spacing[2],
                           margin: 0,
                           fontSize: typography.fontSize.sm,
                           fontWeight: typography.fontWeight.semibold,
-                          color: user.role === 'admin' ? colors.warning[700] : colors.neutral[700],
-                          backgroundColor: user.role === 'admin' ? colors.warning[50] : colors.neutral[50],
-                          border: `2px solid ${user.role === 'admin' ? colors.warning[300] : colors.neutral[300]}`,
+                          color: user.role === 'admin' ? '#fbbf24' : '#e2e8f0',
+                          backgroundColor: user.role === 'admin' ? 'rgba(251, 191, 36, 0.1)' : 'rgba(255, 255, 255, 0.05)',
+                          border: `2px solid ${user.role === 'admin' ? 'rgba(251, 191, 36, 0.3)' : 'rgba(255, 255, 255, 0.1)'}`,
                           cursor: 'pointer'
                         }}
                       >
-                        <option value="user">👤 Användare</option>
-                        <option value="admin">👑 Admin</option>
+                        <option value="user" style={{ backgroundColor: '#1a1a2e' }}>👤 Användare</option>
+                        <option value="admin" style={{ backgroundColor: '#1a1a2e' }}>👑 Admin</option>
                       </select>
                     </div>
 
@@ -861,21 +1740,22 @@ Välkommen!`;
             )}
           </div>
         </div>
+        </>
       )}
 
       {/* Time Codes Tab */}
       {activeTab === "timeCodes" && (
         <div style={{
-          ...cardStyle,
+          ...darkCardStyle,
           animation: 'fadeIn 0.3s ease-out'
         }}>
-          <div style={sectionHeaderStyle}>
-            <Clock size={20} color={colors.primary[500]} />
+          <div style={darkSectionHeaderStyle}>
+            <Clock size={20} color="#60a5fa" />
             <span>Tidkoder och priser</span>
           </div>
 
           <p style={{
-            color: colors.neutral[600],
+            color: '#94a3b8',
             marginBottom: spacing[6]
           }}>
             Hantera dina tidkoder och timpris. Dessa används när du rapporterar tid.
@@ -896,17 +1776,17 @@ Välkommen!`;
           {showAddForm && (
             <div style={{
               padding: spacing[6],
-              backgroundColor: colors.neutral[50],
+              backgroundColor: 'rgba(255, 255, 255, 0.03)',
               borderRadius: borderRadius.lg,
               marginBottom: spacing[6],
-              border: `2px solid ${colors.primary[200]}`,
+              border: '2px solid rgba(96, 165, 250, 0.3)',
               animation: 'slideDown 0.3s ease-out'
             }}>
               <h3 style={{
                 margin: `0 0 ${spacing[4]} 0`,
                 fontSize: typography.fontSize.lg,
                 fontWeight: typography.fontWeight.semibold,
-                color: colors.neutral[900]
+                color: '#fff'
               }}>
                 Ny tidkod
               </h3>
@@ -918,7 +1798,7 @@ Välkommen!`;
                     value={newTimeCode.id}
                     onChange={(e) => setNewTimeCode({ ...newTimeCode, id: e.target.value })}
                     placeholder="overtime"
-                    style={inputStyle}
+                    style={darkInputStyle}
                   />
                 </FormField>
 
@@ -928,7 +1808,7 @@ Välkommen!`;
                     value={newTimeCode.name}
                     onChange={(e) => setNewTimeCode({ ...newTimeCode, name: e.target.value })}
                     placeholder="Övertid"
-                    style={inputStyle}
+                    style={darkInputStyle}
                   />
                 </FormField>
 
@@ -937,7 +1817,7 @@ Välkommen!`;
                     type="color"
                     value={newTimeCode.color}
                     onChange={(e) => setNewTimeCode({ ...newTimeCode, color: e.target.value })}
-                    style={{ ...inputStyle, height: "45px" }}
+                    style={{ ...darkInputStyle, height: "45px" }}
                   />
                 </FormField>
 
@@ -947,7 +1827,7 @@ Välkommen!`;
                     value={newTimeCode.hourlyRate}
                     onChange={(e) => setNewTimeCode({ ...newTimeCode, hourlyRate: parseFloat(e.target.value) || 0 })}
                     placeholder="650"
-                    style={inputStyle}
+                    style={darkInputStyle}
                   />
                 </FormField>
 
@@ -967,7 +1847,7 @@ Välkommen!`;
                     <span style={{
                       fontSize: typography.fontSize.sm,
                       fontWeight: typography.fontWeight.semibold,
-                      color: colors.neutral[700]
+                      color: '#e2e8f0'
                     }}>
                       Fakturerbar
                     </span>
@@ -997,9 +1877,9 @@ Välkommen!`;
                   key={timeCode.id}
                   style={{
                     padding: spacing[6],
-                    border: `2px solid ${isEditing ? timeCode.color : colors.neutral[200]}`,
+                    border: `2px solid ${isEditing ? timeCode.color : 'rgba(255, 255, 255, 0.1)'}`,
                     borderRadius: borderRadius.lg,
-                    backgroundColor: isEditing ? `${timeCode.color}10` : "white",
+                    backgroundColor: isEditing ? `${timeCode.color}10` : 'rgba(255, 255, 255, 0.03)',
                     transition: `all ${transitions.base}`,
                     boxShadow: isEditing ? shadows.lg : shadows.sm,
                     animation: `slideIn 0.3s ease-out ${index * 0.05}s both`
@@ -1015,7 +1895,7 @@ Välkommen!`;
                     <div>
                       <div style={{
                         fontSize: typography.fontSize.xs,
-                        color: colors.neutral[600],
+                        color: '#94a3b8',
                         marginBottom: spacing[1],
                         textTransform: "uppercase",
                         letterSpacing: "0.05em",
@@ -1028,13 +1908,13 @@ Välkommen!`;
                           type="text"
                           value={timeCode.name}
                           onChange={(e) => handleUpdateTimeCode(timeCode.id, 'name', e.target.value)}
-                          style={{ ...inputStyle, padding: spacing[2] }}
+                          style={{ ...darkInputStyle, padding: spacing[2] }}
                         />
                       ) : (
                         <div style={{
                           fontSize: typography.fontSize.base,
                           fontWeight: typography.fontWeight.semibold,
-                          color: colors.neutral[900],
+                          color: '#fff',
                           display: "flex",
                           alignItems: "center",
                           gap: spacing[2]
@@ -1055,7 +1935,7 @@ Välkommen!`;
                     <div>
                       <div style={{
                         fontSize: typography.fontSize.xs,
-                        color: colors.neutral[600],
+                        color: '#94a3b8',
                         marginBottom: spacing[1],
                         textTransform: "uppercase",
                         letterSpacing: "0.05em",
@@ -1068,13 +1948,13 @@ Välkommen!`;
                           type="number"
                           value={timeCode.hourlyRate}
                           onChange={(e) => handleUpdateTimeCode(timeCode.id, 'hourlyRate', parseFloat(e.target.value) || 0)}
-                          style={{ ...inputStyle, padding: spacing[2] }}
+                          style={{ ...darkInputStyle, padding: spacing[2] }}
                         />
                       ) : (
                         <div style={{
                           fontSize: typography.fontSize.lg,
                           fontWeight: typography.fontWeight.bold,
-                          color: colors.neutral[900]
+                          color: '#fff'
                         }}>
                           {timeCode.hourlyRate} kr/h
                         </div>
@@ -1085,7 +1965,7 @@ Välkommen!`;
                     <div>
                       <div style={{
                         fontSize: typography.fontSize.xs,
-                        color: colors.neutral[600],
+                        color: '#94a3b8',
                         marginBottom: spacing[1],
                         textTransform: "uppercase",
                         letterSpacing: "0.05em",
@@ -1108,7 +1988,8 @@ Välkommen!`;
                           />
                           <span style={{
                             fontSize: typography.fontSize.sm,
-                            fontWeight: typography.fontWeight.semibold
+                            fontWeight: typography.fontWeight.semibold,
+                            color: '#e2e8f0'
                           }}>
                             Fakturerbar
                           </span>
@@ -1156,14 +2037,14 @@ Välkommen!`;
                     <div style={{
                       marginTop: spacing[4],
                       paddingTop: spacing[4],
-                      borderTop: `2px solid ${colors.neutral[200]}`
+                      borderTop: '2px solid rgba(255, 255, 255, 0.1)'
                     }}>
                       <FormField label="Färg">
                         <input
                           type="color"
                           value={timeCode.color}
                           onChange={(e) => handleUpdateTimeCode(timeCode.id, 'color', e.target.value)}
-                          style={{ ...inputStyle, height: "45px", width: "200px" }}
+                          style={{ ...darkInputStyle, height: "45px", width: "200px" }}
                         />
                       </FormField>
                     </div>
@@ -1178,16 +2059,16 @@ Välkommen!`;
       {/* Work Types Tab */}
       {activeTab === "workTypes" && (
         <div style={{
-          ...cardStyle,
+          ...darkCardStyle,
           animation: 'fadeIn 0.3s ease-out'
         }}>
-          <div style={sectionHeaderStyle}>
-            <Briefcase size={20} color={colors.primary[500]} />
+          <div style={darkSectionHeaderStyle}>
+            <Briefcase size={20} color="#60a5fa" />
             <span>Arbetstyper</span>
           </div>
 
           <p style={{
-            color: colors.neutral[600],
+            color: '#94a3b8',
             marginBottom: spacing[6]
           }}>
             Hantera dina arbetstyper som används när du skapar arbetsordrar.
@@ -1208,17 +2089,17 @@ Välkommen!`;
           {showAddForm && (
             <div style={{
               padding: spacing[6],
-              backgroundColor: colors.neutral[50],
+              backgroundColor: 'rgba(255, 255, 255, 0.03)',
               borderRadius: borderRadius.lg,
               marginBottom: spacing[6],
-              border: `2px solid ${colors.primary[200]}`,
+              border: '2px solid rgba(96, 165, 250, 0.3)',
               animation: 'slideDown 0.3s ease-out'
             }}>
               <h3 style={{
                 margin: `0 0 ${spacing[4]} 0`,
                 fontSize: typography.fontSize.lg,
                 fontWeight: typography.fontWeight.semibold,
-                color: colors.neutral[900]
+                color: '#fff'
               }}>
                 Ny arbetstyp
               </h3>
@@ -1230,7 +2111,7 @@ Välkommen!`;
                     value={newWorkType.id}
                     onChange={(e) => setNewWorkType({ ...newWorkType, id: e.target.value })}
                     placeholder="maleri"
-                    style={inputStyle}
+                    style={darkInputStyle}
                   />
                 </FormField>
 
@@ -1240,7 +2121,7 @@ Välkommen!`;
                     value={newWorkType.name}
                     onChange={(e) => setNewWorkType({ ...newWorkType, name: e.target.value })}
                     placeholder="Måleri"
-                    style={inputStyle}
+                    style={darkInputStyle}
                   />
                 </FormField>
 
@@ -1251,9 +2132,9 @@ Välkommen!`;
                       gridTemplateColumns: "repeat(auto-fill, minmax(60px, 1fr))",
                       gap: spacing[2],
                       padding: spacing[3],
-                      backgroundColor: "white",
+                      backgroundColor: 'rgba(255, 255, 255, 0.03)',
                       borderRadius: borderRadius.base,
-                      border: `2px solid ${colors.neutral[200]}`
+                      border: '1px solid rgba(255, 255, 255, 0.1)'
                     }}>
                       {Object.keys(AVAILABLE_ICONS).map(iconName => {
                         const isSelected = newWorkType.icon === iconName;
@@ -1265,9 +2146,9 @@ Välkommen!`;
                             onClick={() => setNewWorkType({ ...newWorkType, icon: iconName })}
                             style={{
                               padding: spacing[3],
-                              border: `2px solid ${isSelected ? newWorkType.color : colors.neutral[200]}`,
+                              border: `2px solid ${isSelected ? newWorkType.color : 'rgba(255, 255, 255, 0.1)'}`,
                               borderRadius: borderRadius.base,
-                              backgroundColor: isSelected ? `${newWorkType.color}15` : "white",
+                              backgroundColor: isSelected ? `${newWorkType.color}15` : 'rgba(255, 255, 255, 0.03)',
                               cursor: "pointer",
                               display: "flex",
                               flexDirection: "column",
@@ -1278,21 +2159,21 @@ Välkommen!`;
                             }}
                             onMouseEnter={(e) => {
                               if (!isSelected) {
-                                e.currentTarget.style.backgroundColor = colors.neutral[50];
-                                e.currentTarget.style.borderColor = colors.neutral[300];
+                                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
+                                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
                               }
                             }}
                             onMouseLeave={(e) => {
                               if (!isSelected) {
-                                e.currentTarget.style.backgroundColor = "white";
-                                e.currentTarget.style.borderColor = colors.neutral[200];
+                                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)';
+                                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
                               }
                             }}
                           >
-                            <Icon size={24} color={isSelected ? newWorkType.color : colors.neutral[600]} />
+                            <Icon size={24} color={isSelected ? newWorkType.color : '#94a3b8'} />
                             <span style={{
                               fontSize: typography.fontSize.xs,
-                              color: isSelected ? newWorkType.color : colors.neutral[600],
+                              color: isSelected ? newWorkType.color : '#94a3b8',
                               fontWeight: isSelected ? typography.fontWeight.semibold : typography.fontWeight.normal,
                               textAlign: "center"
                             }}>
@@ -1310,7 +2191,7 @@ Välkommen!`;
                     type="color"
                     value={newWorkType.color}
                     onChange={(e) => setNewWorkType({ ...newWorkType, color: e.target.value })}
-                    style={{ ...inputStyle, height: "45px" }}
+                    style={{ ...darkInputStyle, height: "45px" }}
                   />
                 </FormField>
               </div>
@@ -1341,9 +2222,9 @@ Välkommen!`;
                   key={workType.id}
                   style={{
                     padding: spacing[6],
-                    border: `2px solid ${isEditing ? workType.color : colors.neutral[200]}`,
+                    border: `2px solid ${isEditing ? workType.color : 'rgba(255, 255, 255, 0.1)'}`,
                     borderRadius: borderRadius.lg,
-                    backgroundColor: isEditing ? `${workType.color}10` : "white",
+                    backgroundColor: isEditing ? `${workType.color}10` : 'rgba(255, 255, 255, 0.03)',
                     transition: `all ${transitions.base}`,
                     boxShadow: isEditing ? shadows.lg : shadows.sm,
                     animation: `slideIn 0.3s ease-out ${index * 0.05}s both`
@@ -1356,7 +2237,7 @@ Välkommen!`;
                           type="text"
                           value={workType.name}
                           onChange={(e) => handleUpdateWorkType(workType.id, 'name', e.target.value)}
-                          style={inputStyle}
+                          style={darkInputStyle}
                         />
                       </FormField>
 
@@ -1366,9 +2247,9 @@ Välkommen!`;
                           gridTemplateColumns: "repeat(auto-fill, minmax(60px, 1fr))",
                           gap: spacing[2],
                           padding: spacing[3],
-                          backgroundColor: "white",
+                          backgroundColor: 'rgba(255, 255, 255, 0.03)',
                           borderRadius: borderRadius.base,
-                          border: `2px solid ${colors.neutral[200]}`
+                          border: '1px solid rgba(255, 255, 255, 0.1)'
                         }}>
                           {Object.keys(AVAILABLE_ICONS).map(iconName => {
                             const isSelected = workType.icon === iconName;
@@ -1380,9 +2261,9 @@ Välkommen!`;
                                 onClick={() => handleUpdateWorkType(workType.id, 'icon', iconName)}
                                 style={{
                                   padding: spacing[3],
-                                  border: `2px solid ${isSelected ? workType.color : colors.neutral[200]}`,
+                                  border: `2px solid ${isSelected ? workType.color : 'rgba(255, 255, 255, 0.1)'}`,
                                   borderRadius: borderRadius.base,
-                                  backgroundColor: isSelected ? `${workType.color}15` : "white",
+                                  backgroundColor: isSelected ? `${workType.color}15` : 'rgba(255, 255, 255, 0.03)',
                                   cursor: "pointer",
                                   display: "flex",
                                   flexDirection: "column",
@@ -1393,21 +2274,21 @@ Välkommen!`;
                                 }}
                                 onMouseEnter={(e) => {
                                   if (!isSelected) {
-                                    e.currentTarget.style.backgroundColor = colors.neutral[50];
-                                    e.currentTarget.style.borderColor = colors.neutral[300];
+                                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
+                                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
                                   }
                                 }}
                                 onMouseLeave={(e) => {
                                   if (!isSelected) {
-                                    e.currentTarget.style.backgroundColor = "white";
-                                    e.currentTarget.style.borderColor = colors.neutral[200];
+                                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)';
+                                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
                                   }
                                 }}
                               >
-                                <Icon size={24} color={isSelected ? workType.color : colors.neutral[600]} />
+                                <Icon size={24} color={isSelected ? workType.color : '#94a3b8'} />
                                 <span style={{
                                   fontSize: typography.fontSize.xs,
-                                  color: isSelected ? workType.color : colors.neutral[600],
+                                  color: isSelected ? workType.color : '#94a3b8',
                                   fontWeight: isSelected ? typography.fontWeight.semibold : typography.fontWeight.normal,
                                   textAlign: "center"
                                 }}>
@@ -1424,7 +2305,7 @@ Välkommen!`;
                           type="color"
                           value={workType.color}
                           onChange={(e) => handleUpdateWorkType(workType.id, 'color', e.target.value)}
-                          style={{ ...inputStyle, height: "45px" }}
+                          style={{ ...darkInputStyle, height: "45px" }}
                         />
                       </FormField>
 
@@ -1460,7 +2341,7 @@ Välkommen!`;
                         <div style={{
                           fontSize: typography.fontSize.lg,
                           fontWeight: typography.fontWeight.semibold,
-                          color: colors.neutral[900]
+                          color: '#fff'
                         }}>
                           {workType.name}
                         </div>

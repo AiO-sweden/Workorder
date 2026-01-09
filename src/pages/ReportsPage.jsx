@@ -7,14 +7,11 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import {
   BarChart3,
-  TrendingUp,
   Clock,
   DollarSign,
   Users,
   Download,
   FileText,
-  Calendar,
-  Filter,
   Search,
   ChevronDown,
   ChevronUp,
@@ -36,8 +33,35 @@ import ActionButton from "../components/shared/ActionButton";
 import Badge from "../components/shared/Badge";
 import Toast from "../components/shared/Toast";
 import StatsCard from "../components/shared/StatsCard";
-import { cardStyle, inputStyle } from "../components/shared/styles";
-import { colors, spacing, shadows, borderRadius, typography } from "../components/shared/theme";
+import { inputStyle } from "../components/shared/styles";
+import { colors, spacing, shadows, borderRadius, typography, transitions } from "../components/shared/theme";
+
+// Dark glasmorphism card style to match NewOrder
+const darkCardStyle = {
+  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  backdropFilter: 'blur(20px)',
+  borderRadius: borderRadius.xl,
+  padding: spacing[8],
+  marginBottom: spacing[6],
+  boxShadow: '0 25px 50px rgba(0, 0, 0, 0.3)',
+  border: '1px solid rgba(255, 255, 255, 0.1)',
+};
+
+// Dark input style to match NewOrder
+const darkInputStyle = {
+  width: "100%",
+  padding: `${spacing[3]} ${spacing[4]}`,
+  borderRadius: borderRadius.lg,
+  border: '1px solid rgba(255, 255, 255, 0.1)',
+  fontSize: typography.fontSize.base,
+  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+  color: '#fff',
+  outline: "none",
+  transition: `all ${transitions.base}`,
+  fontFamily: typography.fontFamily.sans,
+  fontWeight: typography.fontWeight.normal,
+  boxSizing: "border-box",
+};
 
 // Default time codes if none exist
 const DEFAULT_TIME_CODES = [
@@ -63,17 +87,17 @@ function TabButton({ active, onClick, icon, children }) {
         border: "none",
         borderRadius: borderRadius.lg,
         cursor: "pointer",
-        backgroundColor: active ? colors.primary[500] : "transparent",
-        color: active ? "white" : colors.neutral[600],
+        backgroundColor: active ? "#60a5fa" : "rgba(15, 23, 42, 0.4)",
+        color: active ? "white" : '#94a3b8',
         fontWeight: active ? typography.fontWeight.semibold : typography.fontWeight.medium,
         fontSize: typography.fontSize.base,
         transition: "all 0.2s ease",
       }}
       onMouseEnter={(e) => {
-        if (!active) e.currentTarget.style.backgroundColor = colors.neutral[50];
+        if (!active) e.currentTarget.style.backgroundColor = 'rgba(96, 165, 250, 0.2)';
       }}
       onMouseLeave={(e) => {
-        if (!active) e.currentTarget.style.backgroundColor = "transparent";
+        if (!active) e.currentTarget.style.backgroundColor = "rgba(15, 23, 42, 0.4)";
       }}
     >
       {icon}
@@ -89,7 +113,7 @@ function FormField({ label, required, children, helper }) {
         display: "block",
         fontSize: typography.fontSize.sm,
         fontWeight: typography.fontWeight.semibold,
-        color: colors.neutral[700],
+        color: '#e2e8f0',
         marginBottom: spacing[2]
       }}>
         {label}
@@ -97,7 +121,7 @@ function FormField({ label, required, children, helper }) {
       </label>
       {children}
       {helper && (
-        <div style={{ marginTop: spacing[1], fontSize: typography.fontSize.xs, color: colors.neutral[500] }}>
+        <div style={{ marginTop: spacing[1], fontSize: typography.fontSize.xs, color: '#94a3b8' }}>
           {helper}
         </div>
       )}
@@ -131,14 +155,14 @@ function BarChart({ data, maxValue, color = colors.primary[500] }) {
                   transform: "translateX(-50%)",
                   fontSize: typography.fontSize.xs,
                   fontWeight: typography.fontWeight.semibold,
-                  color: colors.neutral[900],
+                  color: '#fff',
                   whiteSpace: "nowrap"
                 }}>
                   {item.value > 0 ? item.value.toFixed(1) : ""}
                 </div>
               </div>
             </div>
-            <div style={{ fontSize: typography.fontSize.xs, color: colors.neutral[500], fontWeight: typography.fontWeight.medium }}>
+            <div style={{ fontSize: typography.fontSize.xs, color: '#94a3b8', fontWeight: typography.fontWeight.medium }}>
               {item.label}
             </div>
           </div>
@@ -182,12 +206,12 @@ function PieChartDisplay({ data, total }) {
               key={index}
               d={pathData}
               fill={item.color}
-              stroke="white"
+              stroke="rgba(26, 26, 46, 0.5)"
               strokeWidth="2"
             />
           );
         })}
-        <circle cx={centerX} cy={centerY} r="40" fill="white" />
+        <circle cx={centerX} cy={centerY} r="40" fill="rgba(26, 26, 46, 0.8)" />
       </svg>
 
       <div style={{ display: "flex", flexDirection: "column", gap: spacing[2] }}>
@@ -199,10 +223,10 @@ function PieChartDisplay({ data, total }) {
               borderRadius: borderRadius.sm,
               backgroundColor: item.color
             }} />
-            <div style={{ fontSize: typography.fontSize.sm, color: colors.neutral[600] }}>
+            <div style={{ fontSize: typography.fontSize.sm, color: '#94a3b8' }}>
               {item.label}
             </div>
-            <div style={{ fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: colors.neutral[900], marginLeft: "auto" }}>
+            <div style={{ fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: '#fff', marginLeft: "auto" }}>
               {item.value.toFixed(1)}h ({total > 0 ? ((item.value / total) * 100).toFixed(0) : 0}%)
             </div>
           </div>
@@ -221,6 +245,7 @@ export default function ReportsPage() {
   const [customers, setCustomers] = useState([]);
   const [users, setUsers] = useState([]);
   const [timeCodes, setTimeCodes] = useState(DEFAULT_TIME_CODES);
+  const [organization, setOrganization] = useState(null);
   const [loading, setLoading] = useState(true);
 
   // UI state
@@ -228,7 +253,6 @@ export default function ReportsPage() {
   const [timePeriod, setTimePeriod] = useState("month");
   const [dateRange, setDateRange] = useState({ start: "", end: "" });
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCustomers, setSelectedCustomers] = useState([]);
   const [selectedTimeCode, setSelectedTimeCode] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterBillable, setFilterBillable] = useState("all");
@@ -251,10 +275,12 @@ export default function ReportsPage() {
   // Toast state
   const [toast, setToast] = useState(null);
 
-  // PDF Export filter state
+  // Export filter state
+  const [exportType, setExportType] = useState("pdf"); // pdf, csv, excel
   const [pdfFilterCustomer, setPdfFilterCustomer] = useState("");
   const [pdfFilterOrder, setPdfFilterOrder] = useState("");
   const [pdfFilterUser, setPdfFilterUser] = useState("");
+  const [pdfShowComments, setPdfShowComments] = useState(true);
 
   const formatDate = (dateString) => {
     if (!dateString) return "";
@@ -290,6 +316,7 @@ export default function ReportsPage() {
         const { data: timeCodesData, error: timeCodesError } = await supabase
           .from('time_codes')
           .select('*')
+          .eq('organization_id', userDetails.organizationId)
           .order('code', { ascending: true });
 
         if (timeCodesError && timeCodesError.code !== 'PGRST116') {
@@ -305,8 +332,14 @@ export default function ReportsPage() {
             billable: tc.type === 'Arbetstid',
             hourlyRate: tc.rate || 0
           }));
-          setTimeCodes(convertedTimeCodes);
-          console.log("✅ ReportsPage: Time codes fetched:", convertedTimeCodes.length);
+
+          // Remove duplicates based on id
+          const uniqueTimeCodes = convertedTimeCodes.filter((code, index, self) =>
+            index === self.findIndex((c) => c.id === code.id)
+          );
+
+          setTimeCodes(uniqueTimeCodes);
+          console.log("✅ ReportsPage: Time codes fetched:", uniqueTimeCodes.length, "(duplicates removed)");
         }
 
         // Fetch time reports
@@ -425,6 +458,20 @@ export default function ReportsPage() {
         setUsers(convertedUsers);
         console.log("✅ ReportsPage: Användare hämtade:", convertedUsers.length);
 
+        // Fetch organization details
+        const { data: orgData, error: orgError } = await supabase
+          .from('organizations')
+          .select('*')
+          .eq('id', userDetails.organizationId)
+          .single();
+
+        if (orgError) {
+          console.error("Error fetching organization:", orgError);
+        } else {
+          setOrganization(orgData);
+          console.log("✅ ReportsPage: Organisation hämtad:", orgData.company_name);
+        }
+
       } catch (error) {
         console.error("❌ ReportsPage: Fel vid hämtning av data:", error);
         showToast("Ett fel uppstod vid hämtning av data. Försök igen.", "error");
@@ -435,6 +482,58 @@ export default function ReportsPage() {
 
     fetchData();
   }, [userDetails, toast?.message]);
+
+  // Real-time listener for time_codes changes
+  useEffect(() => {
+    if (!userDetails?.organizationId) return;
+
+    console.log('🔄 ReportsPage: Setting up real-time listener for time_codes');
+
+    const channel = supabase
+      .channel('time_codes_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'time_codes',
+          filter: `organization_id=eq.${userDetails.organizationId}`
+        },
+        async (payload) => {
+          console.log('🔔 ReportsPage: Time codes changed:', payload);
+
+          // Re-fetch time codes
+          const { data: timeCodesData, error: timeCodesError } = await supabase
+            .from('time_codes')
+            .select('*')
+            .eq('organization_id', userDetails.organizationId)
+            .order('code', { ascending: true });
+
+          if (!timeCodesError && timeCodesData) {
+            const convertedTimeCodes = timeCodesData.map(tc => ({
+              id: tc.code || tc.id,
+              name: tc.name,
+              color: "#3b82f6",
+              billable: tc.type === 'Arbetstid',
+              hourlyRate: tc.rate || 0
+            }));
+
+            const uniqueTimeCodes = convertedTimeCodes.filter((code, index, self) =>
+              index === self.findIndex((c) => c.id === code.id)
+            );
+
+            setTimeCodes(uniqueTimeCodes);
+            console.log("✅ ReportsPage: Time codes updated from real-time:", uniqueTimeCodes.length);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log('🔌 ReportsPage: Cleaning up time_codes listener');
+      supabase.removeChannel(channel);
+    };
+  }, [userDetails?.organizationId]);
 
   // Set default timeCode when timeCodes are loaded
   useEffect(() => {
@@ -495,7 +594,7 @@ export default function ReportsPage() {
           kommentar: form.kommentar,
           godkand: true,
           organization_id: userDetails.organizationId,
-          user_id: currentUser.uid,
+          user_id: currentUser.id,
           user_name: userDetails.displayName || userDetails.email || "Användare",
           timestamp: new Date().toISOString()
         }]);
@@ -694,11 +793,6 @@ export default function ReportsPage() {
     const searchString = `${order?.orderNumber || ""} ${order?.title || ""} ${customer?.name || ""} ${report.kommentar || ""} ${report.userName || ""}`.toLowerCase();
     if (searchTerm && !searchString.includes(searchTerm.toLowerCase())) return false;
 
-    if (selectedCustomers.length > 0) {
-      const reportCustomerId = order?.customerId;
-      if (!selectedCustomers.includes(reportCustomerId)) return false;
-    }
-
     if (selectedTimeCode !== "all" && report.timeCode !== selectedTimeCode) return false;
     if (filterStatus === "approved" && !report.godkand) return false;
     if (filterStatus === "pending" && report.godkand) return false;
@@ -802,9 +896,33 @@ export default function ReportsPage() {
       }));
   };
 
-  // Export to Excel
-  const exportToExcel = () => {
-    const exportData = filteredReports.map(report => {
+
+  // Export to CSV
+  const exportToCSV = () => {
+    // Apply filters
+    let exportReports = filteredReports;
+
+    if (pdfFilterCustomer) {
+      exportReports = exportReports.filter(report => {
+        const order = orders.find(o => o.id === report.arbetsorder);
+        return order?.customerId === pdfFilterCustomer;
+      });
+    }
+
+    if (pdfFilterOrder) {
+      exportReports = exportReports.filter(report => report.arbetsorder === pdfFilterOrder);
+    }
+
+    if (pdfFilterUser) {
+      exportReports = exportReports.filter(report => report.userId === pdfFilterUser);
+    }
+
+    if (exportReports.length === 0) {
+      showToast("Inga rapporter att exportera med valda filter.", "warning");
+      return;
+    }
+
+    const exportData = exportReports.map(report => {
       const order = orders.find(o => o.id === report.arbetsorder);
       const customer = order ? customers.find(c => c.id === order.customerId) : null;
       const timeCode = timeCodes.find(tc => tc.id === report.timeCode);
@@ -813,44 +931,102 @@ export default function ReportsPage() {
         'Kund': customer?.name || '-',
         'Ordernr': order?.orderNumber || '-',
         'Ordertitel': order?.title || '-',
-        'Tidkod': timeCode?.name || 'Normal tid',
+        'Tidkod': timeCode?.name || report.timeCodeName || 'Normal tid',
         'Timmar': report.antalTimmar,
         'Fakturerbar': report.fakturerbar !== false ? 'Ja' : 'Nej',
         'Timpris (kr, ex. moms)': report.hourlyRate || 650,
         'Värde (kr, ex. moms)': parseFloat(report.antalTimmar || 0) * (report.hourlyRate || 650),
         'Status': report.godkand ? 'Godkänd' : 'Väntande',
         'Användare': report.userName || '-',
-        'Kommentar': report.kommentar || '-'
+        ...(pdfShowComments && { 'Kommentar': report.kommentar || '-' })
+      };
+    });
+
+    // Convert to CSV
+    const headers = Object.keys(exportData[0]).join(',');
+    const rows = exportData.map(row => Object.values(row).join(','));
+    const csv = [headers, ...rows].join('\n');
+
+    // Download
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `tidsrapporter_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+
+    showToast("CSV-export klar!", "success");
+  };
+
+  // Export to Excel
+  const exportToExcel = () => {
+    // Apply filters
+    let exportReports = filteredReports;
+
+    if (pdfFilterCustomer) {
+      exportReports = exportReports.filter(report => {
+        const order = orders.find(o => o.id === report.arbetsorder);
+        return order?.customerId === pdfFilterCustomer;
+      });
+    }
+
+    if (pdfFilterOrder) {
+      exportReports = exportReports.filter(report => report.arbetsorder === pdfFilterOrder);
+    }
+
+    if (pdfFilterUser) {
+      exportReports = exportReports.filter(report => report.userId === pdfFilterUser);
+    }
+
+    if (exportReports.length === 0) {
+      showToast("Inga rapporter att exportera med valda filter.", "warning");
+      return;
+    }
+
+    const exportData = exportReports.map(report => {
+      const order = orders.find(o => o.id === report.arbetsorder);
+      const customer = order ? customers.find(c => c.id === order.customerId) : null;
+      const timeCode = timeCodes.find(tc => tc.id === report.timeCode);
+      return {
+        'Datum': formatDate(report.datum),
+        'Kund': customer?.name || '-',
+        'Ordernr': order?.orderNumber || '-',
+        'Ordertitel': order?.title || '-',
+        'Tidkod': timeCode?.name || report.timeCodeName || 'Normal tid',
+        'Timmar': report.antalTimmar,
+        'Fakturerbar': report.fakturerbar !== false ? 'Ja' : 'Nej',
+        'Timpris (kr, ex. moms)': report.hourlyRate || 650,
+        'Värde (kr, ex. moms)': parseFloat(report.antalTimmar || 0) * (report.hourlyRate || 650),
+        'Status': report.godkand ? 'Godkänd' : 'Väntande',
+        'Användare': report.userName || '-',
+        ...(pdfShowComments && { 'Kommentar': report.kommentar || '-' })
       };
     });
 
     const ws = XLSX.utils.json_to_sheet(exportData);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Tidsrapporter");
+    XLSX.utils.book_append_sheet(wb, ws, "Tidrapporter");
+    XLSX.writeFile(wb, `tidrapporter_${new Date().toISOString().split('T')[0]}.xlsx`);
 
-    const avgRate = billableReports.length > 0
-      ? billableReports.reduce((sum, r) => sum + (r.hourlyRate || 650), 0) / billableReports.length
-      : 650;
-
-    const summaryData = [
-      { 'Beskrivning': 'Period', 'Värde': getPeriodLabel() },
-      { 'Beskrivning': 'Totalt timmar', 'Värde': totalHours.toFixed(2) },
-      { 'Beskrivning': 'Fakturerbara timmar', 'Värde': billableHours.toFixed(2) },
-      { 'Beskrivning': 'Totalt värde (ex. moms)', 'Värde': `${totalValue.toLocaleString('sv-SE')} kr` },
-      { 'Beskrivning': 'Antal rapporter', 'Värde': periodReports.length },
-      { 'Beskrivning': 'Godkända', 'Värde': approvedReports },
-      { 'Beskrivning': 'Väntande', 'Värde': pendingReports },
-      { 'Beskrivning': 'Medel timpris', 'Värde': `${avgRate.toFixed(0)} kr/h` }
-    ];
-
-    const summaryWs = XLSX.utils.json_to_sheet(summaryData);
-    XLSX.utils.book_append_sheet(wb, summaryWs, "Sammanfattning");
-
-    XLSX.writeFile(wb, `rapporter_${new Date().toISOString().split('T')[0]}.xlsx`);
-    showToast("Excel-rapport exporterad!", "success");
+    showToast("Excel-export klar!", "success");
   };
 
-  // Export to PDF
+  // Handle export based on selected type
+  const handleExport = () => {
+    switch (exportType) {
+      case 'csv':
+        exportToCSV();
+        break;
+      case 'excel':
+        exportToExcel();
+        break;
+      case 'pdf':
+      default:
+        exportToPDF();
+        break;
+    }
+  };
+
+  // Export to PDF - Fortnox style time report
   const exportToPDF = () => {
     // Filter reports based on PDF filters
     let pdfReports = filteredReports;
@@ -875,110 +1051,274 @@ export default function ReportsPage() {
       return;
     }
 
+    // Check if reports are from multiple customers
+    const uniqueCustomerIds = [...new Set(pdfReports.map(report => {
+      const order = orders.find(o => o.id === report.arbetsorder);
+      return order?.customerId;
+    }).filter(Boolean))];
+
+    const isMultipleCustomers = !pdfFilterCustomer && uniqueCustomerIds.length > 1;
+
+    // Get customer info
+    let customer;
+    if (isMultipleCustomers) {
+      // Multiple customers - create a virtual customer object
+      customer = {
+        name: 'Olika kunder',
+        customer_number: '-',
+        reference_person: '-'
+      };
+    } else {
+      // Single customer - get from first report
+      const firstOrder = orders.find(o => o.id === pdfReports[0].arbetsorder);
+      customer = firstOrder ? customers.find(c => c.id === firstOrder.customerId) : null;
+
+      if (!customer) {
+        showToast("Kunde inte hitta kundinformation.", "error");
+        return;
+      }
+    }
+
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
-    const pageMargin = 15;
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 15;
 
-    // Header
-    doc.setFontSize(18);
+    // Calculate totals
+    const totalHours = pdfReports.reduce((sum, r) => sum + parseFloat(r.antalTimmar || 0), 0);
+    const subtotal = pdfReports.reduce((sum, r) => {
+      if (r.fakturerbar === false) return sum;
+      const hours = parseFloat(r.antalTimmar || 0);
+      const rate = r.hourlyRate || 650;
+      return sum + (hours * rate);
+    }, 0);
+    const vat = subtotal * 0.25; // 25% moms
+    const total = subtotal + vat;
+
+    // Generate report number (based on date and random)
+    const reportNr = Math.floor(Math.random() * 1000);
+    const today = new Date();
+
+    // Get period dates from reports
+    const sortedReports = [...pdfReports].sort((a, b) => new Date(a.datum) - new Date(b.datum));
+    const periodStart = sortedReports.length > 0 ? sortedReports[0].datum : today.toISOString();
+    const periodEnd = sortedReports.length > 0 ? sortedReports[sortedReports.length - 1].datum : today.toISOString();
+
+    // ===== HEADER =====
+    // Logo or Company name (top left)
+    if (organization?.logo_url) {
+      // TODO: Add logo image here if available
+      // For now, just show company name
+      doc.setFontSize(16);
+      doc.setFont(undefined, 'bold');
+      doc.text(organization?.company_name || 'Företaget AB', margin, 22);
+    } else {
+      doc.setFontSize(16);
+      doc.setFont(undefined, 'bold');
+      doc.text(organization?.company_name || 'Företaget AB', margin, 22);
+    }
+
+    // "Tidsrapport" title (center)
+    doc.setFontSize(24);
     doc.setFont(undefined, 'bold');
-    doc.text('Tidsrapport', pageMargin, 20);
+    doc.text('Tidsrapport', pageWidth / 2, 30, { align: 'center' });
 
+    // Report details (far right)
     doc.setFontSize(10);
     doc.setFont(undefined, 'normal');
-    doc.text(`Period: ${getPeriodLabel()}`, pageMargin, 28);
-    doc.text(`Exportdatum: ${formatDate(new Date().toISOString())}`, pageMargin, 34);
+    const rightCol = pageWidth - margin - 45;
+    doc.text('Rapportdatum', rightCol, 22);
+    doc.text(formatDate(today.toISOString()), pageWidth - margin, 22, { align: 'right' });
 
-    // Filter info
-    let yPos = 40;
-    if (pdfFilterCustomer) {
-      const customer = customers.find(c => c.id === pdfFilterCustomer);
-      doc.text(`Kund: ${customer?.name || 'Okänd'}`, pageMargin, yPos);
-      yPos += 6;
-    }
-    if (pdfFilterOrder) {
-      const order = orders.find(o => o.id === pdfFilterOrder);
-      doc.text(`Order: #${order?.orderNumber || 'Okänd'}`, pageMargin, yPos);
-      yPos += 6;
-    }
-    if (pdfFilterUser) {
-      const user = users.find(u => u.id === pdfFilterUser);
-      doc.text(`Användare: ${user?.displayName || user?.email || 'Okänd'}`, pageMargin, yPos);
-      yPos += 6;
+    doc.text('Rapport-nr', rightCol, 28);
+    doc.text(String(reportNr), pageWidth - margin, 28, { align: 'right' });
+
+    doc.text('Period', rightCol, 34);
+    if (periodStart === periodEnd) {
+      doc.text(formatDate(periodStart), pageWidth - margin, 34, { align: 'right' });
+    } else {
+      doc.text(`${formatDate(periodStart)} - ${formatDate(periodEnd)}`, pageWidth - margin, 34, { align: 'right' });
     }
 
-    yPos += 5;
+    // ===== CUSTOMER INFO (LEFT SIDE) =====
+    let yPos = 60;
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
 
-    // Table
+    doc.text('Kund', margin, yPos);
+    doc.text(customer.name || '-', margin + 50, yPos);
+
+    yPos += 6;
+    doc.text('Kundnr', margin, yPos);
+    doc.text(customer.customer_number || '-', margin + 50, yPos);
+
+    yPos += 6;
+    doc.text('Vår referens', margin, yPos);
+    doc.text(organization?.our_reference || '-', margin + 50, yPos);
+
+    yPos += 6;
+    doc.text('Er referens', margin, yPos);
+    doc.text(customer.reference_person || '-', margin + 50, yPos);
+
+    yPos += 6;
+    doc.text('Rapporterad av', margin, yPos);
+    const reportUser = pdfFilterUser ? users.find(u => u.id === pdfFilterUser) : null;
+    doc.text(reportUser?.displayName || reportUser?.email || 'Flera användare', margin + 50, yPos);
+
+    // ===== TABLE =====
+    yPos += 15;
+
+    // Format each time report entry
     const tableData = pdfReports.map(report => {
-      const order = orders.find(o => o.id === report.arbetsorder);
-      const customer = order ? customers.find(c => c.id === order.customerId) : null;
       const timeCode = timeCodes.find(tc => tc.id === report.timeCode);
+      const hours = parseFloat(report.antalTimmar || 0);
+      const rate = report.hourlyRate || 650;
+      const amount = report.fakturerbar !== false ? hours * rate : 0;
+
+      // Get customer name for this report if multiple customers
+      const order = orders.find(o => o.id === report.arbetsorder);
+      const reportCustomer = order ? customers.find(c => c.id === order.customerId) : null;
+      const customerPrefix = isMultipleCustomers && reportCustomer ? `${reportCustomer.name} - ` : '';
+
+      // Format with comma as decimal separator
+      const formatSwedish = (num) => num.toFixed(2).replace('.', ',');
+
+      // Build description with optional comment
+      const commentPart = pdfShowComments && report.kommentar ? ` - ${report.kommentar}` : '';
+      const nonBillablePart = report.fakturerbar === false ? ' (ej fakturerbar)' : '';
 
       return [
-        formatDate(report.datum),
-        customer?.name || '-',
-        order?.orderNumber || '-',
-        timeCode?.name || 'Normal tid',
-        report.antalTimmar,
-        report.fakturerbar !== false ? 'Ja' : 'Nej',
-        (parseFloat(report.antalTimmar || 0) * (report.hourlyRate || 650)).toLocaleString('sv-SE'),
-        report.kommentar || '-'
+        `${customerPrefix}${timeCode?.name || report.timeCodeName || 'Normal tid'}${nonBillablePart}${commentPart}`,
+        formatSwedish(hours),
+        formatSwedish(rate),
+        formatSwedish(amount)
       ];
     });
 
+    // Draw gray line above table header
+    doc.setDrawColor(180, 180, 180);
+    doc.setLineWidth(0.5);
+    doc.line(margin, yPos - 2, pageWidth - margin, yPos - 2);
+
     autoTable(doc, {
-      head: [['Datum', 'Kund', 'Order', 'Tidkod', 'Timmar', 'Fakt.', 'Värde (ex. moms)', 'Kommentar']],
+      head: [['Benämning', 'Lev ant', 'Å-pris', 'Summa']],
       body: tableData,
       startY: yPos,
-      theme: 'striped',
-      headStyles: { fillColor: [59, 130, 246], textColor: [255, 255, 255], fontSize: 9, fontStyle: 'bold' },
-      styles: { fontSize: 8, cellPadding: 3 },
+      theme: 'plain',
+      headStyles: {
+        fillColor: [255, 255, 255],
+        textColor: [0, 0, 0],
+        fontSize: 10,
+        fontStyle: 'bold',
+        halign: 'left'
+      },
+      bodyStyles: {
+        fontSize: 9,
+        textColor: [0, 0, 0],
+        fillColor: [255, 255, 255]
+      },
       columnStyles: {
-        0: { cellWidth: 20 },
-        1: { cellWidth: 30 },
-        2: { cellWidth: 20 },
-        3: { cellWidth: 25 },
-        4: { cellWidth: 15, halign: 'right' },
-        5: { cellWidth: 12, halign: 'center' },
-        6: { cellWidth: 25, halign: 'right' },
-        7: { cellWidth: 'auto' }
+        0: { cellWidth: 90 },
+        1: { cellWidth: 25, halign: 'right' },
+        2: { cellWidth: 35, halign: 'right' },
+        3: { cellWidth: 35, halign: 'right' }
+      },
+      styles: {
+        lineWidth: 0,
+        cellPadding: 2
+      },
+      didDrawCell: (data) => {
+        // Draw gray line below header
+        if (data.section === 'head' && data.row.index === 0) {
+          doc.setDrawColor(180, 180, 180);
+          doc.setLineWidth(0.5);
+          doc.line(margin, data.cell.y + data.cell.height, pageWidth - margin, data.cell.y + data.cell.height);
+        }
       }
     });
 
-    // Summary
-    const summaryY = doc.lastAutoTable.finalY + 10;
-    const reportTotal = pdfReports.reduce((sum, r) => sum + parseFloat(r.antalTimmar || 0), 0);
-    const reportBillable = pdfReports.filter(r => r.fakturerbar !== false && r.godkand === true).reduce((sum, r) => sum + parseFloat(r.antalTimmar || 0), 0);
-    const reportValue = pdfReports
-      .filter(r => r.fakturerbar !== false && r.godkand === true)
-      .reduce((sum, r) => {
-        const hours = parseFloat(r.antalTimmar || 0);
-        const rate = r.hourlyRate || 650;
-        return sum + (hours * rate);
-      }, 0);
+    // ===== TOTALS (ABOVE FOOTER) =====
+    const footerLineY = pageHeight - 35;
+    const totalsY = footerLineY - 12;
 
-    const avgRate = reportBillable > 0
-      ? pdfReports
-          .filter(r => r.fakturerbar !== false && r.godkand === true)
-          .reduce((sum, r) => sum + (r.hourlyRate || 650), 0) / pdfReports.filter(r => r.fakturerbar !== false && r.godkand === true).length
-      : 650;
+    // Helper for Swedish number format
+    const formatSwedishNumber = (num) => num.toFixed(2).replace('.', ',');
 
     doc.setFontSize(10);
-    doc.setFont(undefined, 'bold');
-    doc.text(`Totalt antal timmar: ${reportTotal.toFixed(2)}h`, pageMargin, summaryY);
-    doc.text(`Fakturerbara timmar: ${reportBillable.toFixed(2)}h`, pageMargin, summaryY + 6);
-    doc.text(`Totalt värde (ex. moms): ${reportValue.toLocaleString('sv-SE')} kr`, pageMargin, summaryY + 12);
-    doc.text(`Medel timpris: ${avgRate.toFixed(0)} kr/h`, pageMargin, summaryY + 18);
-
-    // Footer
-    const footerY = doc.internal.pageSize.getHeight() - 15;
-    doc.setFontSize(8);
     doc.setFont(undefined, 'normal');
-    doc.text(`Genererad från ${userDetails?.organizationName || 'Workorder App'}`, pageWidth / 2, footerY, { align: 'center' });
 
-    doc.save(`tidsrapport_${new Date().toISOString().split('T')[0]}.pdf`);
-    showToast("PDF-rapport exporterad!", "success");
+    // Left: Moms
+    doc.text('Moms', margin, totalsY);
+    doc.setFont(undefined, 'bold');
+    doc.text(`${formatSwedishNumber(vat)} kr`, margin, totalsY + 6);
+
+    // Center: Total belopp
+    doc.setFont(undefined, 'normal');
+    doc.text('Total belopp', pageWidth / 2, totalsY, { align: 'center' });
+    doc.setFont(undefined, 'bold');
+    doc.setFontSize(12);
+    doc.text(`SEK ${formatSwedishNumber(total)}`, pageWidth / 2, totalsY + 6, { align: 'center' });
+
+    // Right: Totalt rapporterade timmar
+    doc.setFont(undefined, 'normal');
+    doc.setFontSize(10);
+    doc.text('Totalt rapporterade timmar', pageWidth - margin, totalsY, { align: 'right' });
+    doc.setFont(undefined, 'bold');
+    doc.text(`${formatSwedishNumber(totalHours)} h`, pageWidth - margin, totalsY + 6, { align: 'right' });
+
+    // ===== GRAY LINE BEFORE FOOTER =====
+    doc.setDrawColor(180, 180, 180);
+    doc.setLineWidth(0.5);
+    doc.line(margin, footerLineY, pageWidth - margin, footerLineY);
+
+    // ===== FOOTER =====
+    const footerY = footerLineY + 5;
+    doc.setFontSize(9);
+    doc.setFont(undefined, 'normal');
+
+    // Left column - Address
+    let footerTextY = footerY;
+    doc.text('Adress', margin, footerTextY);
+    footerTextY += 5;
+    doc.text(organization?.company_name || 'Företaget AB', margin, footerTextY);
+    footerTextY += 5;
+    if (organization?.address) {
+      doc.text(organization.address, margin, footerTextY);
+      footerTextY += 5;
+    }
+    if (organization?.zip_code || organization?.city) {
+      doc.text(`${organization?.zip_code || ''} ${organization?.city || ''}`.trim(), margin, footerTextY);
+      footerTextY += 5;
+    }
+    if (organization?.country) {
+      doc.text(organization.country, margin, footerTextY);
+    } else {
+      doc.text('Sverige', margin, footerTextY);
+    }
+
+    // Middle column - Contact
+    footerTextY = footerY;
+    const midCol = margin + 70;
+    doc.text('Telefon', midCol, footerTextY);
+    footerTextY += 5;
+    doc.text(organization?.phone || '-', midCol, footerTextY);
+    footerTextY += 10;
+    doc.text('E-post', midCol, footerTextY);
+    footerTextY += 5;
+    doc.text(organization?.email || '-', midCol, footerTextY);
+
+    // Right column - Organization number
+    footerTextY = footerY;
+    const rightFooterCol = pageWidth - margin - 60;
+    doc.text('Organisationsnr', rightFooterCol, footerTextY);
+    footerTextY += 5;
+    doc.text(organization?.org_nr || '-', rightFooterCol, footerTextY);
+
+    // Page number (bottom right corner)
+    doc.text('Sida 1(1)', pageWidth - margin, pageHeight - 5, { align: 'right' });
+
+    doc.save(`tidsrapport_${reportNr}_${customer.name.replace(/\s+/g, '_')}.pdf`);
+    showToast("Tidsrapport exporterad!", "success");
   };
 
   const last7DaysData = getLast7DaysData();
@@ -1013,7 +1353,7 @@ export default function ReportsPage() {
             <h1 style={{
               fontSize: typography.fontSize['4xl'],
               fontWeight: typography.fontWeight.bold,
-              color: colors.neutral[900],
+              color: '#fff',
               margin: 0,
               display: "flex",
               alignItems: "center",
@@ -1023,7 +1363,7 @@ export default function ReportsPage() {
               Rapporter & Analys
             </h1>
             <p style={{
-              color: colors.neutral[600],
+              color: '#94a3b8',
               fontSize: typography.fontSize.base,
               margin: `${spacing[1]} 0 0 ${spacing[10]}`
             }}>
@@ -1055,7 +1395,7 @@ export default function ReportsPage() {
           <span style={{
             fontSize: typography.fontSize.sm,
             fontWeight: typography.fontWeight.semibold,
-            color: colors.neutral[600]
+            color: '#94a3b8'
           }}>
             Period:
           </span>
@@ -1069,14 +1409,24 @@ export default function ReportsPage() {
                 }}
                 style={{
                   padding: `${spacing[2]} ${spacing[4]}`,
-                  border: `2px solid ${colors.neutral[200]}`,
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
                   borderRadius: borderRadius.lg,
                   cursor: "pointer",
-                  backgroundColor: timePeriod === period && !dateRange.start ? colors.primary[500] : "white",
-                  color: timePeriod === period && !dateRange.start ? "white" : colors.neutral[600],
+                  backgroundColor: timePeriod === period && !dateRange.start ? "#60a5fa" : 'rgba(15, 23, 42, 0.4)',
+                  color: timePeriod === period && !dateRange.start ? "white" : '#94a3b8',
                   fontWeight: typography.fontWeight.semibold,
                   fontSize: typography.fontSize.sm,
                   transition: "all 0.2s ease"
+                }}
+                onMouseEnter={(e) => {
+                  if (!(timePeriod === period && !dateRange.start)) {
+                    e.currentTarget.style.backgroundColor = 'rgba(96, 165, 250, 0.2)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!(timePeriod === period && !dateRange.start)) {
+                    e.currentTarget.style.backgroundColor = 'rgba(15, 23, 42, 0.4)';
+                  }
                 }}
               >
                 {period === "today" ? "Idag" : period === "week" ? "Vecka" : period === "month" ? "Månad" : period === "year" ? "År" : "Alla"}
@@ -1089,14 +1439,14 @@ export default function ReportsPage() {
               type="date"
               value={dateRange.start}
               onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
-              style={{ ...inputStyle, width: "auto", padding: spacing[2] }}
+              style={{ ...darkInputStyle, width: "auto", padding: spacing[2] }}
             />
-            <span style={{ color: colors.neutral[500] }}>-</span>
+            <span style={{ color: '#94a3b8' }}>-</span>
             <input
               type="date"
               value={dateRange.end}
               onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
-              style={{ ...inputStyle, width: "auto", padding: spacing[2] }}
+              style={{ ...darkInputStyle, width: "auto", padding: spacing[2] }}
             />
           </div>
         </div>
@@ -1137,11 +1487,13 @@ export default function ReportsPage() {
 
       {/* Tabs Navigation */}
       <div className="card-enter" style={{
-        backgroundColor: "white",
+        backgroundColor: 'rgba(15, 23, 42, 0.6)',
+        backdropFilter: 'blur(20px)',
         borderRadius: borderRadius.xl,
         padding: spacing[2],
         marginBottom: spacing[6],
-        boxShadow: shadows.md,
+        boxShadow: "0 25px 50px rgba(0, 0, 0, 0.3)",
+        border: '1px solid rgba(255, 255, 255, 0.1)',
         display: "inline-flex",
         gap: spacing[2],
         flexWrap: "wrap"
@@ -1186,23 +1538,23 @@ export default function ReportsPage() {
           onClick={() => setActiveView("export")}
           icon={<Download size={18} />}
         >
-          PDF Export
+          Export
         </TabButton>
       </div>
 
       {/* Report Time View */}
       {activeView === "report" && (
-        <div className="card-enter" style={cardStyle}>
+        <div className="card-enter" style={darkCardStyle}>
           <div style={{
             display: "flex",
             alignItems: "center",
             gap: spacing[3],
             fontSize: typography.fontSize.xl,
             fontWeight: typography.fontWeight.semibold,
-            color: colors.neutral[900],
+            color: '#fff',
             marginBottom: spacing[6],
             paddingBottom: spacing[4],
-            borderBottom: `2px solid ${colors.neutral[100]}`
+            borderBottom: '2px solid rgba(255, 255, 255, 0.1)'
           }}>
             <FilePlus size={20} color={colors.primary[500]} />
             <span>Rapportera ny tid</span>
@@ -1212,7 +1564,7 @@ export default function ReportsPage() {
             <div style={{
               textAlign: "center",
               padding: spacing[12],
-              color: colors.neutral[500]
+              color: '#94a3b8'
             }}>
               <Clock size={48} style={{ marginBottom: spacing[4], opacity: 0.5, animation: "spin 2s linear infinite" }} />
               <p style={{ fontSize: typography.fontSize.lg, fontWeight: typography.fontWeight.medium }}>Laddar data...</p>
@@ -1220,18 +1572,18 @@ export default function ReportsPage() {
           ) : orders.length === 0 ? (
             <div style={{
               padding: spacing[8],
-              backgroundColor: colors.warning[50],
+              backgroundColor: 'rgba(251, 146, 60, 0.1)',
               border: `2px solid ${colors.warning[500]}`,
               borderRadius: borderRadius.lg,
               marginBottom: spacing[4]
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: spacing[3], marginBottom: spacing[4] }}>
-                <AlertCircle size={24} color={colors.warning[600]} />
-                <div style={{ fontSize: typography.fontSize.lg, fontWeight: typography.fontWeight.semibold, color: colors.warning[800] }}>
+                <AlertCircle size={24} color={colors.warning[400]} />
+                <div style={{ fontSize: typography.fontSize.lg, fontWeight: typography.fontWeight.semibold, color: '#fff' }}>
                   Inga arbetsordrar tillgängliga
                 </div>
               </div>
-              <p style={{ color: colors.warning[800], marginBottom: spacing[4] }}>
+              <p style={{ color: '#e2e8f0', marginBottom: spacing[4] }}>
                 Du behöver skapa minst en arbetsorder innan du kan rapportera tid. Arbetsordrar skapas från kundvyn.
               </p>
               <ActionButton
@@ -1251,7 +1603,7 @@ export default function ReportsPage() {
                       value={form.arbetsorder}
                       onChange={handleChange}
                       required
-                      style={inputStyle}
+                      style={darkInputStyle}
                     >
                       <option value="">Välj arbetsorder ({orders.length} tillgängliga)</option>
                       {orders.map((order) => {
@@ -1273,7 +1625,7 @@ export default function ReportsPage() {
                   value={form.datum}
                   onChange={handleChange}
                   required
-                  style={inputStyle}
+                  style={darkInputStyle}
                 />
               </FormField>
 
@@ -1282,7 +1634,7 @@ export default function ReportsPage() {
                   name="timeCode"
                   value={form.timeCode}
                   onChange={handleChange}
-                  style={inputStyle}
+                  style={darkInputStyle}
                 >
                   {timeCodes.map(code => (
                     <option key={code.id} value={code.id}>
@@ -1298,7 +1650,7 @@ export default function ReportsPage() {
                   name="startTid"
                   value={form.startTid}
                   onChange={handleChange}
-                  style={inputStyle}
+                  style={darkInputStyle}
                 />
               </FormField>
 
@@ -1308,7 +1660,7 @@ export default function ReportsPage() {
                   name="slutTid"
                   value={form.slutTid}
                   onChange={handleChange}
-                  style={inputStyle}
+                  style={darkInputStyle}
                 />
               </FormField>
 
@@ -1322,7 +1674,7 @@ export default function ReportsPage() {
                   step="0.25"
                   min="0"
                   placeholder="0.00"
-                  style={inputStyle}
+                  style={darkInputStyle}
                 />
               </FormField>
 
@@ -1335,7 +1687,7 @@ export default function ReportsPage() {
                     onChange={handleChange}
                     style={{ width: "18px", height: "18px", cursor: "pointer" }}
                   />
-                  <span style={{ fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: colors.neutral[700] }}>
+                  <span style={{ fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: '#e2e8f0' }}>
                     Fakturerbar tid
                   </span>
                 </label>
@@ -1349,7 +1701,7 @@ export default function ReportsPage() {
                     onChange={handleChange}
                     rows={3}
                     placeholder="Beskriv arbetet som utfördes..."
-                    style={{ ...inputStyle, resize: "vertical" }}
+                    style={{ ...darkInputStyle, resize: "vertical" }}
                   />
                 </FormField>
               </div>
@@ -1393,28 +1745,143 @@ export default function ReportsPage() {
         </div>
       )}
 
-      {/* PDF Export View */}
+      {/* Export View */}
       {activeView === "export" && (
-        <div className="card-enter" style={cardStyle}>
+        <div className="card-enter" style={darkCardStyle}>
           <div style={{
             display: "flex",
             alignItems: "center",
             gap: spacing[3],
             fontSize: typography.fontSize.xl,
             fontWeight: typography.fontWeight.semibold,
-            color: colors.neutral[900],
+            color: '#fff',
             marginBottom: spacing[6],
             paddingBottom: spacing[4],
-            borderBottom: `2px solid ${colors.neutral[100]}`
+            borderBottom: '2px solid rgba(255, 255, 255, 0.1)'
           }}>
             <Download size={20} color={colors.error[500]} />
-            <span>PDF Export med filter</span>
+            <span>Exportera rapporter</span>
           </div>
 
           <div style={{ marginBottom: spacing[8] }}>
-            <p style={{ color: colors.neutral[600], marginBottom: spacing[6] }}>
-              Filtrera rapporter innan export till PDF. Välj kund, arbetsorder och/eller användare för att skapa en skräddarsydd rapport.
+            <p style={{ color: '#94a3b8', marginBottom: spacing[4] }}>
+              Välj exportformat och filtrera rapporter. Du kan exportera till PDF, CSV eller Excel.
             </p>
+
+            <div style={{
+              display: 'flex',
+              gap: spacing[3],
+              marginBottom: spacing[6],
+              padding: spacing[2],
+              backgroundColor: 'rgba(255, 255, 255, 0.03)',
+              borderRadius: borderRadius.lg,
+              border: '1px solid rgba(255, 255, 255, 0.1)'
+            }}>
+              <button
+                onClick={() => setExportType('pdf')}
+                style={{
+                  flex: 1,
+                  padding: `${spacing[3]} ${spacing[4]}`,
+                  borderRadius: borderRadius.lg,
+                  border: exportType === 'pdf' ? `2px solid ${colors.error[500]}` : '2px solid transparent',
+                  backgroundColor: exportType === 'pdf' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(255, 255, 255, 0.05)',
+                  color: exportType === 'pdf' ? colors.error[500] : '#94a3b8',
+                  fontSize: typography.fontSize.sm,
+                  fontWeight: exportType === 'pdf' ? typography.fontWeight.semibold : typography.fontWeight.normal,
+                  cursor: 'pointer',
+                  transition: `all ${transitions.base}`,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: spacing[1]
+                }}
+                onMouseEnter={(e) => {
+                  if (exportType !== 'pdf') {
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
+                    e.currentTarget.style.color = '#fff';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (exportType !== 'pdf') {
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+                    e.currentTarget.style.color = '#94a3b8';
+                  }
+                }}
+              >
+                <span style={{ fontSize: typography.fontSize.base, fontWeight: typography.fontWeight.semibold }}>PDF</span>
+                <span style={{ fontSize: typography.fontSize.xs, opacity: 0.7 }}>Professionell tidsrapport</span>
+              </button>
+
+              <button
+                onClick={() => setExportType('csv')}
+                style={{
+                  flex: 1,
+                  padding: `${spacing[3]} ${spacing[4]}`,
+                  borderRadius: borderRadius.lg,
+                  border: exportType === 'csv' ? `2px solid ${colors.primary[500]}` : '2px solid transparent',
+                  backgroundColor: exportType === 'csv' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(255, 255, 255, 0.05)',
+                  color: exportType === 'csv' ? colors.primary[500] : '#94a3b8',
+                  fontSize: typography.fontSize.sm,
+                  fontWeight: exportType === 'csv' ? typography.fontWeight.semibold : typography.fontWeight.normal,
+                  cursor: 'pointer',
+                  transition: `all ${transitions.base}`,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: spacing[1]
+                }}
+                onMouseEnter={(e) => {
+                  if (exportType !== 'csv') {
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
+                    e.currentTarget.style.color = '#fff';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (exportType !== 'csv') {
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+                    e.currentTarget.style.color = '#94a3b8';
+                  }
+                }}
+              >
+                <span style={{ fontSize: typography.fontSize.base, fontWeight: typography.fontWeight.semibold }}>CSV</span>
+                <span style={{ fontSize: typography.fontSize.xs, opacity: 0.7 }}>Kommaseparerade värden</span>
+              </button>
+
+              <button
+                onClick={() => setExportType('excel')}
+                style={{
+                  flex: 1,
+                  padding: `${spacing[3]} ${spacing[4]}`,
+                  borderRadius: borderRadius.lg,
+                  border: exportType === 'excel' ? `2px solid ${colors.success[500]}` : '2px solid transparent',
+                  backgroundColor: exportType === 'excel' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(255, 255, 255, 0.05)',
+                  color: exportType === 'excel' ? colors.success[500] : '#94a3b8',
+                  fontSize: typography.fontSize.sm,
+                  fontWeight: exportType === 'excel' ? typography.fontWeight.semibold : typography.fontWeight.normal,
+                  cursor: 'pointer',
+                  transition: `all ${transitions.base}`,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: spacing[1]
+                }}
+                onMouseEnter={(e) => {
+                  if (exportType !== 'excel') {
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
+                    e.currentTarget.style.color = '#fff';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (exportType !== 'excel') {
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+                    e.currentTarget.style.color = '#94a3b8';
+                  }
+                }}
+              >
+                <span style={{ fontSize: typography.fontSize.base, fontWeight: typography.fontWeight.semibold }}>Excel</span>
+                <span style={{ fontSize: typography.fontSize.xs, opacity: 0.7 }}>Kalkylblad (.xlsx)</span>
+              </button>
+            </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: spacing[4], marginBottom: spacing[6] }}>
               <FormField label="Filtrera per kund">
@@ -1424,7 +1891,7 @@ export default function ReportsPage() {
                     setPdfFilterCustomer(e.target.value);
                     setPdfFilterOrder(""); // Reset order when customer changes
                   }}
-                  style={inputStyle}
+                  style={darkInputStyle}
                 >
                   <option value="">Alla kunder</option>
                   {customers.map(customer => (
@@ -1437,7 +1904,7 @@ export default function ReportsPage() {
                 <select
                   value={pdfFilterOrder}
                   onChange={(e) => setPdfFilterOrder(e.target.value)}
-                  style={inputStyle}
+                  style={darkInputStyle}
                   disabled={pdfFilterCustomer && pdfCustomerOrders.length === 0}
                 >
                   <option value="">Alla arbetsordrar</option>
@@ -1456,7 +1923,7 @@ export default function ReportsPage() {
                 <select
                   value={pdfFilterUser}
                   onChange={(e) => setPdfFilterUser(e.target.value)}
-                  style={inputStyle}
+                  style={darkInputStyle}
                 >
                   <option value="">Alla användare</option>
                   {users.map(user => (
@@ -1466,26 +1933,49 @@ export default function ReportsPage() {
                   ))}
                 </select>
               </FormField>
+
+              <div style={{ padding: spacing[4] }}>
+                <label style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: spacing[2],
+                  cursor: 'pointer',
+                  color: '#fff'
+                }}>
+                  <input
+                    type="checkbox"
+                    checked={pdfShowComments}
+                    onChange={(e) => setPdfShowComments(e.target.checked)}
+                    style={{
+                      width: '18px',
+                      height: '18px',
+                      cursor: 'pointer',
+                      accentColor: colors.primary[500]
+                    }}
+                  />
+                  <span style={{ fontSize: typography.fontSize.sm }}>Visa kommentarer</span>
+                </label>
+              </div>
             </div>
 
             <div style={{
               padding: spacing[4],
-              backgroundColor: colors.neutral[50],
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
               borderRadius: borderRadius.lg,
-              border: `1px solid ${colors.neutral[200]}`,
+              border: '1px solid rgba(255, 255, 255, 0.1)',
               marginBottom: spacing[6]
             }}>
-              <div style={{ fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: colors.neutral[900], marginBottom: spacing[2] }}>
+              <div style={{ fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: '#fff', marginBottom: spacing[2] }}>
                 Förhandsvisning av export
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: spacing[3] }}>
                 <div>
-                  <div style={{ fontSize: typography.fontSize.xs, color: colors.neutral[500] }}>Period</div>
-                  <div style={{ fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: colors.neutral[900] }}>{getPeriodLabel()}</div>
+                  <div style={{ fontSize: typography.fontSize.xs, color: '#94a3b8' }}>Period</div>
+                  <div style={{ fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: '#fff' }}>{getPeriodLabel()}</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: typography.fontSize.xs, color: colors.neutral[500] }}>Antal rapporter</div>
-                  <div style={{ fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: colors.neutral[900] }}>
+                  <div style={{ fontSize: typography.fontSize.xs, color: '#94a3b8' }}>Antal rapporter</div>
+                  <div style={{ fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: '#fff' }}>
                     {(() => {
                       let count = filteredReports.length;
                       if (pdfFilterCustomer) {
@@ -1506,24 +1996,24 @@ export default function ReportsPage() {
                 </div>
                 {pdfFilterCustomer && (
                   <div>
-                    <div style={{ fontSize: typography.fontSize.xs, color: colors.neutral[500] }}>Vald kund</div>
-                    <div style={{ fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: colors.neutral[900] }}>
+                    <div style={{ fontSize: typography.fontSize.xs, color: '#94a3b8' }}>Vald kund</div>
+                    <div style={{ fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: '#fff' }}>
                       {customers.find(c => c.id === pdfFilterCustomer)?.name}
                     </div>
                   </div>
                 )}
                 {pdfFilterOrder && (
                   <div>
-                    <div style={{ fontSize: typography.fontSize.xs, color: colors.neutral[500] }}>Vald order</div>
-                    <div style={{ fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: colors.neutral[900] }}>
+                    <div style={{ fontSize: typography.fontSize.xs, color: '#94a3b8' }}>Vald order</div>
+                    <div style={{ fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: '#fff' }}>
                       #{orders.find(o => o.id === pdfFilterOrder)?.orderNumber}
                     </div>
                   </div>
                 )}
                 {pdfFilterUser && (
                   <div>
-                    <div style={{ fontSize: typography.fontSize.xs, color: colors.neutral[500] }}>Vald användare</div>
-                    <div style={{ fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: colors.neutral[900] }}>
+                    <div style={{ fontSize: typography.fontSize.xs, color: '#94a3b8' }}>Vald användare</div>
+                    <div style={{ fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: '#fff' }}>
                       {users.find(u => u.id === pdfFilterUser)?.displayName || users.find(u => u.id === pdfFilterUser)?.email}
                     </div>
                   </div>
@@ -1543,11 +2033,11 @@ export default function ReportsPage() {
                 Rensa filter
               </ActionButton>
               <ActionButton
-                onClick={exportToPDF}
+                onClick={handleExport}
                 icon={<Download size={18} />}
                 variant="danger"
               >
-                Generera PDF
+                {exportType === 'pdf' ? 'Generera PDF' : exportType === 'csv' ? 'Exportera CSV' : 'Exportera Excel'}
               </ActionButton>
             </div>
           </div>
@@ -1558,17 +2048,17 @@ export default function ReportsPage() {
       {activeView === "dashboard" && (
         <div className="fade-in">
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(500px, 1fr))", gap: spacing[6], marginBottom: spacing[6] }}>
-            <div className="card-enter" style={cardStyle}>
+            <div className="card-enter" style={darkCardStyle}>
               <div style={{
                 display: "flex",
                 alignItems: "center",
                 gap: spacing[3],
                 fontSize: typography.fontSize.xl,
                 fontWeight: typography.fontWeight.semibold,
-                color: colors.neutral[900],
+                color: '#fff',
                 marginBottom: spacing[6],
                 paddingBottom: spacing[4],
-                borderBottom: `2px solid ${colors.neutral[100]}`
+                borderBottom: '2px solid rgba(255, 255, 255, 0.1)'
               }}>
                 <Activity size={20} color={colors.primary[500]} />
                 <span>Timmar senaste 7 dagarna</span>
@@ -1576,17 +2066,17 @@ export default function ReportsPage() {
               <BarChart data={last7DaysData} maxValue={maxDailyHours} color={colors.primary[500]} />
             </div>
 
-            <div className="card-enter" style={cardStyle}>
+            <div className="card-enter" style={darkCardStyle}>
               <div style={{
                 display: "flex",
                 alignItems: "center",
                 gap: spacing[3],
                 fontSize: typography.fontSize.xl,
                 fontWeight: typography.fontWeight.semibold,
-                color: colors.neutral[900],
+                color: '#fff',
                 marginBottom: spacing[6],
                 paddingBottom: spacing[4],
-                borderBottom: `2px solid ${colors.neutral[100]}`
+                borderBottom: '2px solid rgba(255, 255, 255, 0.1)'
               }}>
                 <PieChart size={20} color={colors.success[500]} />
                 <span>Fördelning per kund (Top 5)</span>
@@ -1597,24 +2087,24 @@ export default function ReportsPage() {
                   total={customerDistribution.reduce((sum, c) => sum + c.value, 0)}
                 />
               ) : (
-                <div style={{ textAlign: "center", padding: spacing[8], color: colors.neutral[500] }}>
+                <div style={{ textAlign: "center", padding: spacing[8], color: '#94a3b8' }}>
                   Ingen data att visa för vald period
                 </div>
               )}
             </div>
           </div>
 
-          <div className="card-enter" style={cardStyle}>
+          <div className="card-enter" style={darkCardStyle}>
             <div style={{
               display: "flex",
               alignItems: "center",
               gap: spacing[3],
               fontSize: typography.fontSize.xl,
               fontWeight: typography.fontWeight.semibold,
-              color: colors.neutral[900],
+              color: '#fff',
               marginBottom: spacing[6],
               paddingBottom: spacing[4],
-              borderBottom: `2px solid ${colors.neutral[100]}`
+              borderBottom: '2px solid rgba(255, 255, 255, 0.1)'
             }}>
               <Layers size={20} color={colors.warning[500]} />
               <span>Fördelning per tidkod</span>
@@ -1640,7 +2130,7 @@ export default function ReportsPage() {
                   <div style={{ fontSize: typography.fontSize['3xl'], fontWeight: typography.fontWeight.bold, color: code.color }}>
                     {code.value.toFixed(1)}h
                   </div>
-                  <div style={{ fontSize: typography.fontSize.xs, color: colors.neutral[500] }}>
+                  <div style={{ fontSize: typography.fontSize.xs, color: '#94a3b8' }}>
                     {((code.value / totalHours) * 100).toFixed(0)}% av totalt
                   </div>
                 </div>
@@ -1652,17 +2142,17 @@ export default function ReportsPage() {
 
       {/* Detailed View */}
       {activeView === "details" && (
-        <div className="card-enter" style={cardStyle}>
+        <div className="card-enter" style={darkCardStyle}>
           <div style={{
             display: "flex",
             alignItems: "center",
             gap: spacing[3],
             fontSize: typography.fontSize.xl,
             fontWeight: typography.fontWeight.semibold,
-            color: colors.neutral[900],
+            color: '#fff',
             marginBottom: spacing[6],
             paddingBottom: spacing[4],
-            borderBottom: `2px solid ${colors.neutral[100]}`
+            borderBottom: '2px solid rgba(255, 255, 255, 0.1)'
           }}>
             <FileText size={20} color={colors.primary[500]} />
             <span>Alla tidrapporter</span>
@@ -1671,13 +2161,13 @@ export default function ReportsPage() {
           <div style={{ display: "flex", gap: spacing[4], marginBottom: spacing[6], flexWrap: "wrap" }}>
             <div style={{ flex: "1", minWidth: "250px" }}>
               <div style={{ position: "relative" }}>
-                <Search size={18} style={{ position: "absolute", left: spacing[3], top: "50%", transform: "translateY(-50%)", color: colors.neutral[500] }} />
+                <Search size={18} style={{ position: "absolute", left: spacing[3], top: "50%", transform: "translateY(-50%)", color: '#94a3b8' }} />
                 <input
                   type="text"
                   placeholder="Sök efter kund, order, kommentar..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  style={{ ...inputStyle, paddingLeft: spacing[10] }}
+                  style={{ ...darkInputStyle, paddingLeft: spacing[10] }}
                 />
               </div>
             </div>
@@ -1685,7 +2175,7 @@ export default function ReportsPage() {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              style={{ ...inputStyle, width: "auto", minWidth: "150px" }}
+              style={{ ...darkInputStyle, width: "auto", minWidth: "150px" }}
             >
               <option value="all">Alla statusar</option>
               <option value="approved">Godkända</option>
@@ -1695,7 +2185,7 @@ export default function ReportsPage() {
             <select
               value={filterBillable}
               onChange={(e) => setFilterBillable(e.target.value)}
-              style={{ ...inputStyle, width: "auto", minWidth: "150px" }}
+              style={{ ...darkInputStyle, width: "auto", minWidth: "150px" }}
             >
               <option value="all">Alla typer</option>
               <option value="billable">Fakturerbar</option>
@@ -1705,7 +2195,7 @@ export default function ReportsPage() {
             <select
               value={selectedTimeCode}
               onChange={(e) => setSelectedTimeCode(e.target.value)}
-              style={{ ...inputStyle, width: "auto", minWidth: "150px" }}
+              style={{ ...darkInputStyle, width: "auto", minWidth: "150px" }}
             >
               <option value="all">Alla tidkoder</option>
               {timeCodes.map(code => (
@@ -1714,12 +2204,12 @@ export default function ReportsPage() {
             </select>
           </div>
 
-          <div style={{ marginBottom: spacing[4], fontSize: typography.fontSize.sm, color: colors.neutral[600] }}>
+          <div style={{ marginBottom: spacing[4], fontSize: typography.fontSize.sm, color: '#94a3b8' }}>
             Visar {filteredReports.length} av {timeReports.length} rapporter
           </div>
 
           {filteredReports.length === 0 ? (
-            <div style={{ textAlign: "center", padding: spacing[12], color: colors.neutral[500] }}>
+            <div style={{ textAlign: "center", padding: spacing[12], color: '#94a3b8' }}>
               <FileText size={48} style={{ marginBottom: spacing[4], opacity: 0.5 }} />
               <p style={{ fontSize: typography.fontSize.lg, fontWeight: typography.fontWeight.medium }}>Inga rapporter hittades</p>
               <p style={{ fontSize: typography.fontSize.base }}>Försök ändra dina filterinställningar</p>
@@ -1728,16 +2218,16 @@ export default function ReportsPage() {
             <div style={{ overflowX: "auto" }}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
-                  <tr style={{ borderBottom: `2px solid ${colors.neutral[200]}` }}>
-                    <th style={{ padding: spacing[3], textAlign: "left", fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: colors.neutral[600] }}>Datum</th>
-                    <th style={{ padding: spacing[3], textAlign: "left", fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: colors.neutral[600] }}>Kund</th>
-                    <th style={{ padding: spacing[3], textAlign: "left", fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: colors.neutral[600] }}>Order</th>
-                    <th style={{ padding: spacing[3], textAlign: "left", fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: colors.neutral[600] }}>Tidkod</th>
-                    <th style={{ padding: spacing[3], textAlign: "right", fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: colors.neutral[600] }}>Timmar</th>
-                    <th style={{ padding: spacing[3], textAlign: "right", fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: colors.neutral[600] }}>Värde</th>
-                    <th style={{ padding: spacing[3], textAlign: "left", fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: colors.neutral[600] }}>Status</th>
-                    <th style={{ padding: spacing[3], textAlign: "left", fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: colors.neutral[600] }}>Användare</th>
-                    <th style={{ padding: spacing[3], textAlign: "center", fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: colors.neutral[600] }}></th>
+                  <tr style={{ borderBottom: '2px solid rgba(255, 255, 255, 0.1)' }}>
+                    <th style={{ padding: spacing[3], textAlign: "left", fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: '#94a3b8' }}>Datum</th>
+                    <th style={{ padding: spacing[3], textAlign: "left", fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: '#94a3b8' }}>Kund</th>
+                    <th style={{ padding: spacing[3], textAlign: "left", fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: '#94a3b8' }}>Order</th>
+                    <th style={{ padding: spacing[3], textAlign: "left", fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: '#94a3b8' }}>Tidkod</th>
+                    <th style={{ padding: spacing[3], textAlign: "right", fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: '#94a3b8' }}>Timmar</th>
+                    <th style={{ padding: spacing[3], textAlign: "right", fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: '#94a3b8' }}>Värde</th>
+                    <th style={{ padding: spacing[3], textAlign: "left", fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: '#94a3b8' }}>Status</th>
+                    <th style={{ padding: spacing[3], textAlign: "left", fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: '#94a3b8' }}>Användare</th>
+                    <th style={{ padding: spacing[3], textAlign: "center", fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: '#94a3b8' }}></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1751,28 +2241,28 @@ export default function ReportsPage() {
                       <React.Fragment key={report.id}>
                         <tr
                           style={{
-                            borderBottom: `1px solid ${colors.neutral[100]}`,
-                            backgroundColor: isExpanded ? colors.neutral[50] : "white",
+                            borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+                            backgroundColor: isExpanded ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.03)',
                             transition: "background-color 0.2s ease"
                           }}
-                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colors.neutral[50]}
-                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = isExpanded ? colors.neutral[50] : "white"}
+                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)'}
+                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = isExpanded ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.03)'}
                         >
-                          <td style={{ padding: spacing[3], fontSize: typography.fontSize.sm, color: colors.neutral[900] }}>
+                          <td style={{ padding: spacing[3], fontSize: typography.fontSize.sm, color: '#fff' }}>
                             {formatDate(report.datum)}
                           </td>
-                          <td style={{ padding: spacing[3], fontSize: typography.fontSize.sm, color: colors.neutral[900] }}>
+                          <td style={{ padding: spacing[3], fontSize: typography.fontSize.sm, color: '#fff' }}>
                             {customer?.name || "Okänd kund"}
                           </td>
-                          <td style={{ padding: spacing[3], fontSize: typography.fontSize.sm, color: colors.neutral[900] }}>
+                          <td style={{ padding: spacing[3], fontSize: typography.fontSize.sm, color: '#fff' }}>
                             #{order?.orderNumber || report.arbetsorder?.substring(0, 8) || "N/A"}
                           </td>
                           <td style={{ padding: spacing[3] }}>
                             <Badge variant="neutral">
-                              {timeCode?.name || "Normal tid"}
+                              {timeCode?.name || report.timeCodeName || "Normal tid"}
                             </Badge>
                           </td>
-                          <td style={{ padding: spacing[3], textAlign: "right", fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: colors.neutral[900] }}>
+                          <td style={{ padding: spacing[3], textAlign: "right", fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: '#fff' }}>
                             {report.antalTimmar}h
                           </td>
                           <td style={{ padding: spacing[3], textAlign: "right", fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: report.fakturerbar !== false ? colors.success[600] : colors.neutral[500] }}>
@@ -1785,7 +2275,7 @@ export default function ReportsPage() {
                               onChange={handleApprovalChange}
                             />
                           </td>
-                          <td style={{ padding: spacing[3], fontSize: typography.fontSize.sm, color: colors.neutral[600] }}>
+                          <td style={{ padding: spacing[3], fontSize: typography.fontSize.sm, color: '#94a3b8' }}>
                             {report.userName || "-"}
                           </td>
                           <td style={{ padding: spacing[3], textAlign: "center" }}>
@@ -1795,7 +2285,7 @@ export default function ReportsPage() {
                                 border: "none",
                                 background: "none",
                                 cursor: "pointer",
-                                color: colors.neutral[600],
+                                color: '#94a3b8',
                                 padding: spacing[1]
                               }}
                             >
@@ -1804,13 +2294,13 @@ export default function ReportsPage() {
                           </td>
                         </tr>
                         {isExpanded && (
-                          <tr style={{ backgroundColor: colors.neutral[50], borderBottom: `1px solid ${colors.neutral[200]}` }}>
+                          <tr style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
                             <td colSpan="9" style={{ padding: spacing[4] }}>
                               {editingReport === report.id ? (
                                 // Editing mode
                                 <div>
                                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: spacing[4] }}>
-                                    <div style={{ fontSize: typography.fontSize.base, fontWeight: typography.fontWeight.semibold, color: colors.neutral[900] }}>
+                                    <div style={{ fontSize: typography.fontSize.base, fontWeight: typography.fontWeight.semibold, color: '#fff' }}>
                                       Redigera tidrapport
                                     </div>
                                     <button
@@ -1819,7 +2309,7 @@ export default function ReportsPage() {
                                         border: "none",
                                         background: "none",
                                         cursor: "pointer",
-                                        color: colors.neutral[600],
+                                        color: '#94a3b8',
                                         padding: spacing[1]
                                       }}
                                     >
@@ -1834,7 +2324,7 @@ export default function ReportsPage() {
                                         value={editForm.arbetsorder}
                                         onChange={handleEditChange}
                                         required
-                                        style={inputStyle}
+                                        style={darkInputStyle}
                                       >
                                         <option value="">Välj arbetsorder</option>
                                         {orders.map((order) => {
@@ -1855,7 +2345,7 @@ export default function ReportsPage() {
                                         value={editForm.datum}
                                         onChange={handleEditChange}
                                         required
-                                        style={inputStyle}
+                                        style={darkInputStyle}
                                       />
                                     </FormField>
 
@@ -1864,7 +2354,7 @@ export default function ReportsPage() {
                                         name="timeCode"
                                         value={editForm.timeCode}
                                         onChange={handleEditChange}
-                                        style={inputStyle}
+                                        style={darkInputStyle}
                                       >
                                         {timeCodes.map(code => (
                                           <option key={code.id} value={code.id}>
@@ -1883,7 +2373,7 @@ export default function ReportsPage() {
                                         required
                                         step="0.25"
                                         min="0"
-                                        style={inputStyle}
+                                        style={darkInputStyle}
                                       />
                                     </FormField>
 
@@ -1893,7 +2383,7 @@ export default function ReportsPage() {
                                         name="startTid"
                                         value={editForm.startTid}
                                         onChange={handleEditChange}
-                                        style={inputStyle}
+                                        style={darkInputStyle}
                                       />
                                     </FormField>
 
@@ -1903,7 +2393,7 @@ export default function ReportsPage() {
                                         name="slutTid"
                                         value={editForm.slutTid}
                                         onChange={handleEditChange}
-                                        style={inputStyle}
+                                        style={darkInputStyle}
                                       />
                                     </FormField>
 
@@ -1914,7 +2404,7 @@ export default function ReportsPage() {
                                           value={editForm.kommentar}
                                           onChange={handleEditChange}
                                           rows={3}
-                                          style={{ ...inputStyle, resize: "vertical" }}
+                                          style={{ ...darkInputStyle, resize: "vertical" }}
                                         />
                                       </FormField>
                                     </div>
@@ -1928,7 +2418,7 @@ export default function ReportsPage() {
                                           onChange={handleEditChange}
                                           style={{ width: "18px", height: "18px", cursor: "pointer" }}
                                         />
-                                        <span style={{ fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: colors.neutral[700] }}>
+                                        <span style={{ fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, color: '#e2e8f0' }}>
                                           Fakturerbar tid
                                         </span>
                                       </label>
@@ -1956,26 +2446,26 @@ export default function ReportsPage() {
                                 <div>
                                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[4], marginBottom: spacing[4] }}>
                                     <div>
-                                      <div style={{ fontSize: typography.fontSize.xs, color: colors.neutral[500], marginBottom: spacing[1] }}>Ordertitel</div>
-                                      <div style={{ fontSize: typography.fontSize.sm, color: colors.neutral[900], fontWeight: typography.fontWeight.medium }}>{order?.title || "Ingen titel"}</div>
+                                      <div style={{ fontSize: typography.fontSize.xs, color: '#94a3b8', marginBottom: spacing[1] }}>Ordertitel</div>
+                                      <div style={{ fontSize: typography.fontSize.sm, color: '#fff', fontWeight: typography.fontWeight.medium }}>{order?.title || "Ingen titel"}</div>
                                     </div>
                                     {report.startTid && report.slutTid && (
                                       <div>
-                                        <div style={{ fontSize: typography.fontSize.xs, color: colors.neutral[500], marginBottom: spacing[1] }}>Arbetstid</div>
-                                        <div style={{ fontSize: typography.fontSize.sm, color: colors.neutral[900], fontWeight: typography.fontWeight.medium }}>{report.startTid} - {report.slutTid}</div>
+                                        <div style={{ fontSize: typography.fontSize.xs, color: '#94a3b8', marginBottom: spacing[1] }}>Arbetstid</div>
+                                        <div style={{ fontSize: typography.fontSize.sm, color: '#fff', fontWeight: typography.fontWeight.medium }}>{report.startTid} - {report.slutTid}</div>
                                       </div>
                                     )}
                                     {report.kommentar && (
                                       <div style={{ gridColumn: "1 / -1" }}>
-                                        <div style={{ fontSize: typography.fontSize.xs, color: colors.neutral[500], marginBottom: spacing[1] }}>Kommentar</div>
-                                        <div style={{ fontSize: typography.fontSize.sm, color: colors.neutral[900], fontStyle: "italic", padding: spacing[2], backgroundColor: "white", borderRadius: borderRadius.base }}>
+                                        <div style={{ fontSize: typography.fontSize.xs, color: '#94a3b8', marginBottom: spacing[1] }}>Kommentar</div>
+                                        <div style={{ fontSize: typography.fontSize.sm, color: '#cbd5e1', fontStyle: "italic", padding: spacing[2], backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: borderRadius.base }}>
                                           "{report.kommentar}"
                                         </div>
                                       </div>
                                     )}
                                   </div>
 
-                                  <div style={{ display: "flex", gap: spacing[3], justifyContent: "flex-end", paddingTop: spacing[2], borderTop: `1px solid ${colors.neutral[200]}` }}>
+                                  <div style={{ display: "flex", gap: spacing[3], justifyContent: "flex-end", paddingTop: spacing[2], borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
                                     <ActionButton
                                       onClick={() => handleEditReport(report)}
                                       icon={<Edit2 size={16} />}
@@ -2008,17 +2498,17 @@ export default function ReportsPage() {
 
       {/* Customer Analysis View */}
       {activeView === "customers" && (
-        <div className="card-enter" style={cardStyle}>
+        <div className="card-enter" style={darkCardStyle}>
           <div style={{
             display: "flex",
             alignItems: "center",
             gap: spacing[3],
             fontSize: typography.fontSize.xl,
             fontWeight: typography.fontWeight.semibold,
-            color: colors.neutral[900],
+            color: '#fff',
             marginBottom: spacing[6],
             paddingBottom: spacing[4],
-            borderBottom: `2px solid ${colors.neutral[100]}`
+            borderBottom: '2px solid rgba(255, 255, 255, 0.1)'
           }}>
             <Users size={20} color={colors.success[500]} />
             <span>Analys per kund</span>
@@ -2046,23 +2536,23 @@ export default function ReportsPage() {
                 className="hover-lift"
                 style={{
                   padding: spacing[5],
-                  backgroundColor: colors.neutral[50],
+                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
                   borderRadius: borderRadius.lg,
                   marginBottom: spacing[4],
-                  border: `1px solid ${colors.neutral[200]}`
+                  border: '1px solid rgba(255, 255, 255, 0.1)'
                 }}
               >
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: spacing[4] }}>
                   <div>
-                    <div style={{ fontSize: typography.fontSize.lg, fontWeight: typography.fontWeight.semibold, color: colors.neutral[900], marginBottom: spacing[1] }}>
+                    <div style={{ fontSize: typography.fontSize.lg, fontWeight: typography.fontWeight.semibold, color: '#fff', marginBottom: spacing[1] }}>
                       {customer.name}
                     </div>
-                    <div style={{ fontSize: typography.fontSize.sm, color: colors.neutral[600] }}>
+                    <div style={{ fontSize: typography.fontSize.sm, color: '#94a3b8' }}>
                       {customerReports.length} rapport{customerReports.length !== 1 ? "er" : ""}
                     </div>
                   </div>
                   <div style={{ textAlign: "right" }}>
-                    <div style={{ fontSize: typography.fontSize['3xl'], fontWeight: typography.fontWeight.bold, color: colors.neutral[900] }}>
+                    <div style={{ fontSize: typography.fontSize['3xl'], fontWeight: typography.fontWeight.bold, color: '#fff' }}>
                       {customerHours.toFixed(1)}h
                     </div>
                     <div style={{ fontSize: typography.fontSize.sm, color: colors.success[600], fontWeight: typography.fontWeight.semibold }}>
@@ -2072,20 +2562,20 @@ export default function ReportsPage() {
                 </div>
 
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: spacing[3] }}>
-                  <div style={{ padding: spacing[3], backgroundColor: "white", borderRadius: borderRadius.base }}>
-                    <div style={{ fontSize: typography.fontSize.xs, color: colors.neutral[600], marginBottom: spacing[1] }}>Fakturerbart</div>
+                  <div style={{ padding: spacing[3], backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: borderRadius.base }}>
+                    <div style={{ fontSize: typography.fontSize.xs, color: '#94a3b8', marginBottom: spacing[1] }}>Fakturerbart</div>
                     <div style={{ fontSize: typography.fontSize.lg, fontWeight: typography.fontWeight.semibold, color: colors.success[600] }}>{customerBillableHours.toFixed(1)}h</div>
                   </div>
-                  <div style={{ padding: spacing[3], backgroundColor: "white", borderRadius: borderRadius.base }}>
-                    <div style={{ fontSize: typography.fontSize.xs, color: colors.neutral[600], marginBottom: spacing[1] }}>Internt</div>
-                    <div style={{ fontSize: typography.fontSize.lg, fontWeight: typography.fontWeight.semibold, color: colors.neutral[600] }}>{(customerHours - customerBillableHours).toFixed(1)}h</div>
+                  <div style={{ padding: spacing[3], backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: borderRadius.base }}>
+                    <div style={{ fontSize: typography.fontSize.xs, color: '#94a3b8', marginBottom: spacing[1] }}>Internt</div>
+                    <div style={{ fontSize: typography.fontSize.lg, fontWeight: typography.fontWeight.semibold, color: '#94a3b8' }}>{(customerHours - customerBillableHours).toFixed(1)}h</div>
                   </div>
-                  <div style={{ padding: spacing[3], backgroundColor: "white", borderRadius: borderRadius.base }}>
-                    <div style={{ fontSize: typography.fontSize.xs, color: colors.neutral[600], marginBottom: spacing[1] }}>Arbetsorder</div>
+                  <div style={{ padding: spacing[3], backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: borderRadius.base }}>
+                    <div style={{ fontSize: typography.fontSize.xs, color: '#94a3b8', marginBottom: spacing[1] }}>Arbetsorder</div>
                     <div style={{ fontSize: typography.fontSize.lg, fontWeight: typography.fontWeight.semibold, color: colors.primary[600] }}>{customerOrders.length}</div>
                   </div>
-                  <div style={{ padding: spacing[3], backgroundColor: "white", borderRadius: borderRadius.base }}>
-                    <div style={{ fontSize: typography.fontSize.xs, color: colors.neutral[600], marginBottom: spacing[1] }}>Snitt/order</div>
+                  <div style={{ padding: spacing[3], backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: borderRadius.base }}>
+                    <div style={{ fontSize: typography.fontSize.xs, color: '#94a3b8', marginBottom: spacing[1] }}>Snitt/order</div>
                     <div style={{ fontSize: typography.fontSize.lg, fontWeight: typography.fontWeight.semibold, color: colors.warning[600] }}>{(customerHours / customerOrders.length).toFixed(1)}h</div>
                   </div>
                 </div>
@@ -2097,17 +2587,17 @@ export default function ReportsPage() {
 
       {/* Time Codes View */}
       {activeView === "timecodes" && (
-        <div className="card-enter" style={cardStyle}>
+        <div className="card-enter" style={darkCardStyle}>
           <div style={{
             display: "flex",
             alignItems: "center",
             gap: spacing[3],
             fontSize: typography.fontSize.xl,
             fontWeight: typography.fontWeight.semibold,
-            color: colors.neutral[900],
+            color: '#fff',
             marginBottom: spacing[6],
             paddingBottom: spacing[4],
-            borderBottom: `2px solid ${colors.neutral[100]}`
+            borderBottom: '2px solid rgba(255, 255, 255, 0.1)'
           }}>
             <Layers size={20} color={colors.warning[500]} />
             <span>Detaljerad tidkodsanalys</span>
@@ -2145,7 +2635,7 @@ export default function ReportsPage() {
                         {timeCode.name}
                       </div>
                     </div>
-                    <div style={{ fontSize: typography.fontSize.xs, color: colors.neutral[600] }}>
+                    <div style={{ fontSize: typography.fontSize.xs, color: '#94a3b8' }}>
                       {timeCode.billable ? `Fakturerbar - ${timeCode.hourlyRate} kr/tim` : "Ej fakturerbar"}
                     </div>
                   </div>
@@ -2162,22 +2652,22 @@ export default function ReportsPage() {
                   </div>
 
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[3] }}>
-                    <div style={{ padding: spacing[3], backgroundColor: "white", borderRadius: borderRadius.base }}>
-                      <div style={{ fontSize: typography.fontSize.xs, color: colors.neutral[600], marginBottom: spacing[1] }}>Rapporter</div>
-                      <div style={{ fontSize: typography.fontSize.xl, fontWeight: typography.fontWeight.bold, color: colors.neutral[900] }}>{codeReports.length}</div>
+                    <div style={{ padding: spacing[3], backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: borderRadius.base }}>
+                      <div style={{ fontSize: typography.fontSize.xs, color: '#94a3b8', marginBottom: spacing[1] }}>Rapporter</div>
+                      <div style={{ fontSize: typography.fontSize.xl, fontWeight: typography.fontWeight.bold, color: '#fff' }}>{codeReports.length}</div>
                     </div>
-                    <div style={{ padding: spacing[3], backgroundColor: "white", borderRadius: borderRadius.base }}>
-                      <div style={{ fontSize: typography.fontSize.xs, color: colors.neutral[600], marginBottom: spacing[1] }}>Andel</div>
-                      <div style={{ fontSize: typography.fontSize.xl, fontWeight: typography.fontWeight.bold, color: colors.neutral[900] }}>
+                    <div style={{ padding: spacing[3], backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: borderRadius.base }}>
+                      <div style={{ fontSize: typography.fontSize.xs, color: '#94a3b8', marginBottom: spacing[1] }}>Andel</div>
+                      <div style={{ fontSize: typography.fontSize.xl, fontWeight: typography.fontWeight.bold, color: '#fff' }}>
                         {totalHours > 0 ? ((codeHours / totalHours) * 100).toFixed(0) : 0}%
                       </div>
                     </div>
                   </div>
 
                   {codeReports.length > 0 && (
-                    <div style={{ marginTop: spacing[4], padding: spacing[3], backgroundColor: "white", borderRadius: borderRadius.base }}>
-                      <div style={{ fontSize: typography.fontSize.xs, color: colors.neutral[600], marginBottom: spacing[1] }}>Snitt per rapport</div>
-                      <div style={{ fontSize: typography.fontSize.lg, fontWeight: typography.fontWeight.bold, color: colors.neutral[900] }}>
+                    <div style={{ marginTop: spacing[4], padding: spacing[3], backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: borderRadius.base }}>
+                      <div style={{ fontSize: typography.fontSize.xs, color: '#94a3b8', marginBottom: spacing[1] }}>Snitt per rapport</div>
+                      <div style={{ fontSize: typography.fontSize.lg, fontWeight: typography.fontWeight.bold, color: '#fff' }}>
                         {(codeHours / codeReports.length).toFixed(1)}h
                       </div>
                     </div>
@@ -2269,13 +2759,13 @@ function ApprovalBadge({ approved, reportId, onChange }) {
             top: position.openUpward ? "auto" : `${position.top}px`,
             bottom: position.openUpward ? `${window.innerHeight - position.top}px` : "auto",
             left: `${position.left}px`,
-            backgroundColor: "white",
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
             borderRadius: borderRadius.lg,
             boxShadow: shadows.lg,
             padding: spacing[2],
             zIndex: 9999,
             minWidth: "150px",
-            border: `1px solid ${colors.neutral[200]}`
+            border: '1px solid rgba(255, 255, 255, 0.1)'
           }}>
           {approvalOptions.map((option) => (
             <div
@@ -2285,18 +2775,18 @@ function ApprovalBadge({ approved, reportId, onChange }) {
                 padding: spacing[2],
                 cursor: "pointer",
                 borderRadius: borderRadius.md,
-                backgroundColor: approved === option.value ? colors.neutral[100] : "transparent",
+                backgroundColor: approved === option.value ? 'rgba(255, 255, 255, 0.15)' : "transparent",
                 transition: "background-color 0.15s",
                 display: "flex",
                 alignItems: "center",
                 gap: spacing[2],
                 fontSize: typography.fontSize.sm,
                 fontWeight: approved === option.value ? typography.fontWeight.semibold : typography.fontWeight.normal,
-                color: colors.neutral[900]
+                color: '#fff'
               }}
               onMouseEnter={(e) => {
                 if (approved !== option.value) {
-                  e.currentTarget.style.backgroundColor = colors.neutral[50];
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
                 }
               }}
               onMouseLeave={(e) => {

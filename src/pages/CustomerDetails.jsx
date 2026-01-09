@@ -25,8 +25,46 @@ import ActionButton from "../components/shared/ActionButton";
 import Badge from "../components/shared/Badge";
 import Toast from "../components/shared/Toast";
 import FormField from "../components/shared/FormField";
-import { cardStyle, inputStyle, sectionHeaderStyle } from "../components/shared/styles";
-import { colors, spacing, borderRadius, typography } from "../components/shared/theme";
+import { spacing, borderRadius, typography, transitions } from "../components/shared/theme";
+
+// Dark theme styles
+const darkCardStyle = {
+  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  backdropFilter: 'blur(20px)',
+  borderRadius: borderRadius.xl,
+  padding: spacing[8],
+  marginBottom: spacing[6],
+  boxShadow: '0 25px 50px rgba(0, 0, 0, 0.3)',
+  border: '1px solid rgba(255, 255, 255, 0.1)',
+  transition: `all ${transitions.base}`,
+};
+
+const darkInputStyle = {
+  width: "100%",
+  padding: `${spacing[3]} ${spacing[4]}`,
+  borderRadius: borderRadius.lg,
+  border: '1px solid rgba(255, 255, 255, 0.1)',
+  fontSize: typography.fontSize.base,
+  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+  color: '#fff',
+  outline: "none",
+  transition: `all ${transitions.base}`,
+  fontFamily: typography.fontFamily.sans,
+  fontWeight: typography.fontWeight.normal,
+  boxSizing: "border-box",
+};
+
+const darkSectionHeaderStyle = {
+  display: "flex",
+  alignItems: "center",
+  gap: spacing[3],
+  fontSize: typography.fontSize.xl,
+  fontWeight: typography.fontWeight.semibold,
+  color: '#fff',
+  marginBottom: spacing[6],
+  paddingBottom: spacing[4],
+  borderBottom: '2px solid rgba(255, 255, 255, 0.1)',
+};
 
 // Helper Components
 function StatCard({ icon, label, value, color }) {
@@ -34,19 +72,18 @@ function StatCard({ icon, label, value, color }) {
     <div
       className="card-enter hover-lift"
       style={{
-        ...cardStyle,
+        ...darkCardStyle,
         display: "flex",
         alignItems: "center",
         gap: spacing[4],
         marginBottom: 0,
-        transition: 'all 0.2s ease',
       }}
     >
       <div style={{
         width: "56px",
         height: "56px",
         borderRadius: borderRadius.xl,
-        backgroundColor: `${color}15`,
+        backgroundColor: `${color}20`,
         display: "flex",
         alignItems: "center",
         justifyContent: "center"
@@ -56,7 +93,7 @@ function StatCard({ icon, label, value, color }) {
       <div style={{ flex: 1 }}>
         <div style={{
           fontSize: typography.fontSize.sm,
-          color: colors.neutral[500],
+          color: '#94a3b8',
           marginBottom: spacing[1]
         }}>
           {label}
@@ -64,7 +101,7 @@ function StatCard({ icon, label, value, color }) {
         <div style={{
           fontSize: typography.fontSize['3xl'],
           fontWeight: typography.fontWeight.bold,
-          color: colors.neutral[900]
+          color: '#fff'
         }}>
           {value}
         </div>
@@ -80,13 +117,13 @@ function TabButton({ active, onClick, children, icon }) {
       style={{
         padding: `${spacing[3]} ${spacing[6]}`,
         border: "none",
-        borderBottom: active ? `3px solid ${colors.primary[500]}` : "3px solid transparent",
+        borderBottom: active ? '3px solid #60a5fa' : "3px solid transparent",
         backgroundColor: "transparent",
         cursor: "pointer",
         fontWeight: active ? typography.fontWeight.semibold : typography.fontWeight.medium,
         fontSize: typography.fontSize.base,
-        color: active ? colors.primary[600] : colors.neutral[500],
-        transition: "all 0.2s ease",
+        color: active ? '#60a5fa' : '#94a3b8',
+        transition: `all ${transitions.base}`,
         display: "flex",
         alignItems: "center",
         gap: spacing[2]
@@ -295,7 +332,7 @@ export default function CustomerDetails() {
   if (!customer) {
     return (
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "400px" }}>
-        <div style={{ textAlign: "center", color: colors.neutral[500] }}>
+        <div style={{ textAlign: "center", color: '#94a3b8' }}>
           Laddar kunddata...
         </div>
       </div>
@@ -332,15 +369,15 @@ export default function CustomerDetails() {
               width: "48px",
               height: "48px",
               borderRadius: borderRadius.xl,
-              backgroundColor: customer.orgNr ? `${colors.warning[500]}15` : `${colors.primary[500]}15`,
+              backgroundColor: customer.orgNr ? 'rgba(251, 191, 36, 0.2)' : 'rgba(96, 165, 250, 0.2)',
               display: "flex",
               alignItems: "center",
               justifyContent: "center"
             }}>
               {customer.orgNr ? (
-                <Building2 size={24} color={colors.warning[500]} />
+                <Building2 size={24} color="#fbbf24" />
               ) : (
-                <User size={24} color={colors.primary[500]} />
+                <User size={24} color="#60a5fa" />
               )}
             </div>
             <div>
@@ -348,12 +385,12 @@ export default function CustomerDetails() {
                 margin: 0,
                 fontSize: typography.fontSize['4xl'],
                 fontWeight: typography.fontWeight.bold,
-                color: colors.neutral[900]
+                color: '#fff'
               }}>
                 {customer.name}
               </h1>
               <div style={{ display: "flex", alignItems: "center", gap: spacing[4], marginTop: spacing[1] }}>
-                <p style={{ color: colors.neutral[500], fontSize: typography.fontSize.base, margin: 0 }}>
+                <p style={{ color: '#94a3b8', fontSize: typography.fontSize.base, margin: 0 }}>
                   Kundnummer: #{customer.customerNumber}
                 </p>
                 {(customer.rotCustomer === "Ja" || customer.rutCustomer === "Ja") && (
@@ -390,30 +427,30 @@ export default function CustomerDetails() {
           icon={<ShoppingCart />}
           label="Totalt antal ordrar"
           value={totalOrders}
-          color={colors.primary[500]}
+          color="#60a5fa"
         />
         <StatCard
           icon={<CheckCircle />}
           label="Färdiga ordrar"
           value={completedOrders}
-          color={colors.success[500]}
+          color="#10b981"
         />
         <StatCard
           icon={<DollarSign />}
           label="Totalt värde"
           value={`${totalValue.toLocaleString('sv-SE')} kr`}
-          color={colors.warning[500]}
+          color="#fbbf24"
         />
         <StatCard
           icon={<Clock />}
           label="Snitt per order"
           value={`${avgValue.toLocaleString('sv-SE')} kr`}
-          color={colors.primary[600]}
+          color="#3b82f6"
         />
       </div>
 
       {/* Tabs */}
-      <div className="card-enter" style={{ ...cardStyle, padding: spacing[2], marginBottom: 0 }}>
+      <div className="card-enter" style={{ ...darkCardStyle, padding: spacing[2], marginBottom: 0 }}>
         <div style={{ display: "flex", gap: spacing[2] }}>
           <TabButton
             active={activeTab === "details"}
@@ -436,7 +473,7 @@ export default function CustomerDetails() {
       {activeTab === "details" && (
         <>
           {/* Action Buttons */}
-          <div className="card-enter" style={{ ...cardStyle, padding: spacing[4] }}>
+          <div className="card-enter" style={{ ...darkCardStyle, padding: spacing[4] }}>
             <div style={{ display: "flex", gap: spacing[4], justifyContent: "flex-end", flexWrap: "wrap" }}>
               {!isEditing ? (
                 <ActionButton
@@ -478,9 +515,9 @@ export default function CustomerDetails() {
           </div>
 
           {/* Customer Details Forms */}
-          <div className="card-enter" style={cardStyle}>
-            <div style={sectionHeaderStyle}>
-              <User size={20} />
+          <div className="card-enter" style={darkCardStyle}>
+            <div style={darkSectionHeaderStyle}>
+              <User size={20} color="#60a5fa" />
               Allmän information
             </div>
 
@@ -490,7 +527,7 @@ export default function CustomerDetails() {
                   name="name"
                   value={customer.name || ""}
                   onChange={handleChange}
-                  style={inputStyle}
+                  style={darkInputStyle}
                   disabled={!isEditing}
                 />
               </FormField>
@@ -500,9 +537,9 @@ export default function CustomerDetails() {
                   value={customer.customerNumber || ""}
                   readOnly
                   style={{
-                    ...inputStyle,
-                    backgroundColor: colors.neutral[50],
-                    color: colors.neutral[500],
+                    ...darkInputStyle,
+                    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                    color: '#94a3b8',
                     cursor: "not-allowed"
                   }}
                 />
@@ -514,7 +551,7 @@ export default function CustomerDetails() {
                 name="orgNr"
                 value={customer.orgNr || ""}
                 onChange={handleChange}
-                style={inputStyle}
+                style={darkInputStyle}
                 disabled={!isEditing}
                 placeholder="XXXXXX-XXXX"
               />
@@ -525,7 +562,7 @@ export default function CustomerDetails() {
                 name="address"
                 value={customer.address || ""}
                 onChange={handleChange}
-                style={inputStyle}
+                style={darkInputStyle}
                 disabled={!isEditing}
               />
             </FormField>
@@ -536,7 +573,7 @@ export default function CustomerDetails() {
                   name="zipCity"
                   value={customer.zipCity || ""}
                   onChange={handleChange}
-                  style={inputStyle}
+                  style={darkInputStyle}
                   disabled={!isEditing}
                 />
               </FormField>
@@ -546,7 +583,7 @@ export default function CustomerDetails() {
                   name="country"
                   value={customer.country || ""}
                   onChange={handleChange}
-                  style={inputStyle}
+                  style={darkInputStyle}
                   disabled={!isEditing}
                 />
               </FormField>
@@ -558,7 +595,7 @@ export default function CustomerDetails() {
                   name="phone"
                   value={customer.phone || ""}
                   onChange={handleChange}
-                  style={inputStyle}
+                  style={darkInputStyle}
                   disabled={!isEditing}
                 />
               </FormField>
@@ -569,7 +606,7 @@ export default function CustomerDetails() {
                   name="email"
                   value={customer.email || ""}
                   onChange={handleChange}
-                  style={inputStyle}
+                  style={darkInputStyle}
                   disabled={!isEditing}
                 />
               </FormField>
@@ -577,9 +614,9 @@ export default function CustomerDetails() {
           </div>
 
           {/* Invoicing */}
-          <div className="card-enter" style={cardStyle}>
-            <div style={sectionHeaderStyle}>
-              <CreditCard size={20} />
+          <div className="card-enter" style={darkCardStyle}>
+            <div style={darkSectionHeaderStyle}>
+              <CreditCard size={20} color="#60a5fa" />
               Fakturering
             </div>
 
@@ -588,7 +625,7 @@ export default function CustomerDetails() {
                 name="vatNr"
                 value={customer.vatNr || ""}
                 onChange={handleChange}
-                style={inputStyle}
+                style={darkInputStyle}
                 disabled={!isEditing}
               />
             </FormField>
@@ -599,15 +636,15 @@ export default function CustomerDetails() {
                   name="paymentTerms"
                   value={customer.paymentTerms || ""}
                   onChange={handleChange}
-                  style={inputStyle}
+                  style={darkInputStyle}
                   disabled={!isEditing}
                 >
-                  <option value="">Välj...</option>
-                  <option value="10 dagar">10 dagar</option>
-                  <option value="15 dagar">15 dagar</option>
-                  <option value="20 dagar">20 dagar</option>
-                  <option value="25 dagar">25 dagar</option>
-                  <option value="30 dagar">30 dagar</option>
+                  <option value="" style={{ backgroundColor: '#1a1a2e' }}>Välj...</option>
+                  <option value="10 dagar" style={{ backgroundColor: '#1a1a2e' }}>10 dagar</option>
+                  <option value="15 dagar" style={{ backgroundColor: '#1a1a2e' }}>15 dagar</option>
+                  <option value="20 dagar" style={{ backgroundColor: '#1a1a2e' }}>20 dagar</option>
+                  <option value="25 dagar" style={{ backgroundColor: '#1a1a2e' }}>25 dagar</option>
+                  <option value="30 dagar" style={{ backgroundColor: '#1a1a2e' }}>30 dagar</option>
                 </select>
               </FormField>
 
@@ -616,12 +653,12 @@ export default function CustomerDetails() {
                   name="invoiceBy"
                   value={customer.invoiceBy || ""}
                   onChange={handleChange}
-                  style={inputStyle}
+                  style={darkInputStyle}
                   disabled={!isEditing}
                 >
-                  <option value="">Välj metod</option>
-                  <option value="E-post">E-post</option>
-                  <option value="Brev">Brev</option>
+                  <option value="" style={{ backgroundColor: '#1a1a2e' }}>Välj metod</option>
+                  <option value="E-post" style={{ backgroundColor: '#1a1a2e' }}>E-post</option>
+                  <option value="Brev" style={{ backgroundColor: '#1a1a2e' }}>Brev</option>
                 </select>
               </FormField>
             </div>
@@ -632,7 +669,7 @@ export default function CustomerDetails() {
                 name="invoiceEmail"
                 value={customer.invoiceEmail || ""}
                 onChange={handleChange}
-                style={inputStyle}
+                style={darkInputStyle}
                 disabled={!isEditing}
               />
             </FormField>
@@ -642,16 +679,16 @@ export default function CustomerDetails() {
                 name="invoiceAddress"
                 value={customer.invoiceAddress || ""}
                 onChange={handleChange}
-                style={inputStyle}
+                style={darkInputStyle}
                 disabled={!isEditing}
               />
             </FormField>
           </div>
 
           {/* ROT & RUT */}
-          <div className="card-enter" style={cardStyle}>
-            <div style={sectionHeaderStyle}>
-              <Home size={20} />
+          <div className="card-enter" style={darkCardStyle}>
+            <div style={darkSectionHeaderStyle}>
+              <Home size={20} color="#60a5fa" />
               ROT & RUT-avdrag
             </div>
 
@@ -661,11 +698,11 @@ export default function CustomerDetails() {
                   name="rotCustomer"
                   value={customer.rotCustomer || "Nej"}
                   onChange={handleChange}
-                  style={inputStyle}
+                  style={darkInputStyle}
                   disabled={!isEditing}
                 >
-                  <option value="Nej">Nej</option>
-                  <option value="Ja">Ja</option>
+                  <option value="Nej" style={{ backgroundColor: '#1a1a2e' }}>Nej</option>
+                  <option value="Ja" style={{ backgroundColor: '#1a1a2e' }}>Ja</option>
                 </select>
               </FormField>
 
@@ -674,11 +711,11 @@ export default function CustomerDetails() {
                   name="rutCustomer"
                   value={customer.rutCustomer || "Nej"}
                   onChange={handleChange}
-                  style={inputStyle}
+                  style={darkInputStyle}
                   disabled={!isEditing}
                 >
-                  <option value="Nej">Nej</option>
-                  <option value="Ja">Ja</option>
+                  <option value="Nej" style={{ backgroundColor: '#1a1a2e' }}>Nej</option>
+                  <option value="Ja" style={{ backgroundColor: '#1a1a2e' }}>Ja</option>
                 </select>
               </FormField>
             </div>
@@ -686,14 +723,14 @@ export default function CustomerDetails() {
             {customer.rotCustomer === "Ja" && (
               <div style={{
                 padding: spacing[6],
-                backgroundColor: colors.success[50],
-                border: `2px solid ${colors.success[200]}`,
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                border: '2px solid rgba(16, 185, 129, 0.3)',
                 borderRadius: borderRadius.lg,
                 marginBottom: spacing[6]
               }}>
                 <h4 style={{
                   margin: `0 0 ${spacing[4]} 0`,
-                  color: colors.success[700],
+                  color: '#10b981',
                   fontWeight: typography.fontWeight.semibold,
                   fontSize: typography.fontSize.lg
                 }}>
@@ -704,7 +741,7 @@ export default function CustomerDetails() {
                     name="rotPersonnummer"
                     value={customer.rotPersonnummer || ""}
                     onChange={handleChange}
-                    style={inputStyle}
+                    style={darkInputStyle}
                     disabled={!isEditing}
                   />
                 </FormField>
@@ -713,7 +750,7 @@ export default function CustomerDetails() {
                     name="propertyId"
                     value={customer.propertyId || ""}
                     onChange={handleChange}
-                    style={inputStyle}
+                    style={darkInputStyle}
                     disabled={!isEditing}
                   />
                 </FormField>
@@ -723,13 +760,13 @@ export default function CustomerDetails() {
             {customer.rutCustomer === "Ja" && (
               <div style={{
                 padding: spacing[6],
-                backgroundColor: colors.primary[50],
-                border: `2px solid ${colors.primary[200]}`,
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                border: '2px solid rgba(59, 130, 246, 0.3)',
                 borderRadius: borderRadius.lg
               }}>
                 <h4 style={{
                   margin: `0 0 ${spacing[4]} 0`,
-                  color: colors.primary[700],
+                  color: '#60a5fa',
                   fontWeight: typography.fontWeight.semibold,
                   fontSize: typography.fontSize.lg
                 }}>
@@ -740,7 +777,7 @@ export default function CustomerDetails() {
                     name="rutPersonnummer"
                     value={customer.rutPersonnummer || ""}
                     onChange={handleChange}
-                    style={inputStyle}
+                    style={darkInputStyle}
                     disabled={!isEditing}
                   />
                 </FormField>
@@ -751,7 +788,7 @@ export default function CustomerDetails() {
       )}
 
       {activeTab === "orders" && (
-        <div className="card-enter" style={cardStyle}>
+        <div className="card-enter" style={darkCardStyle}>
           {/* Filter and Create Button */}
           <div style={{
             display: "flex",
@@ -766,11 +803,11 @@ export default function CustomerDetails() {
                 onClick={() => setOrderFilter("all")}
                 style={{
                   padding: `${spacing[2]} ${spacing[4]}`,
-                  border: `2px solid ${colors.neutral[200]}`,
+                  border: `2px solid ${orderFilter === "all" ? '#60a5fa' : 'rgba(255, 255, 255, 0.1)'}`,
                   borderRadius: borderRadius.lg,
                   cursor: "pointer",
-                  backgroundColor: orderFilter === "all" ? colors.primary[500] : "white",
-                  color: orderFilter === "all" ? "white" : colors.neutral[600],
+                  backgroundColor: orderFilter === "all" ? '#60a5fa' : 'rgba(255, 255, 255, 0.05)',
+                  color: orderFilter === "all" ? "white" : '#94a3b8',
                   fontWeight: typography.fontWeight.semibold,
                   fontSize: typography.fontSize.sm,
                   transition: "all 0.2s ease"
@@ -782,11 +819,11 @@ export default function CustomerDetails() {
                 onClick={() => setOrderFilter("Planerad")}
                 style={{
                   padding: `${spacing[2]} ${spacing[4]}`,
-                  border: `2px solid ${colors.neutral[200]}`,
+                  border: `2px solid ${orderFilter === "Planerad" ? '#60a5fa' : 'rgba(255, 255, 255, 0.1)'}`,
                   borderRadius: borderRadius.lg,
                   cursor: "pointer",
-                  backgroundColor: orderFilter === "Planerad" ? colors.primary[500] : "white",
-                  color: orderFilter === "Planerad" ? "white" : colors.neutral[600],
+                  backgroundColor: orderFilter === "Planerad" ? '#60a5fa' : 'rgba(255, 255, 255, 0.05)',
+                  color: orderFilter === "Planerad" ? "white" : '#94a3b8',
                   fontWeight: typography.fontWeight.semibold,
                   fontSize: typography.fontSize.sm,
                   transition: "all 0.2s ease"
@@ -798,11 +835,11 @@ export default function CustomerDetails() {
                 onClick={() => setOrderFilter("Pågående")}
                 style={{
                   padding: `${spacing[2]} ${spacing[4]}`,
-                  border: `2px solid ${colors.neutral[200]}`,
+                  border: `2px solid ${orderFilter === "Pågående" ? '#60a5fa' : 'rgba(255, 255, 255, 0.1)'}`,
                   borderRadius: borderRadius.lg,
                   cursor: "pointer",
-                  backgroundColor: orderFilter === "Pågående" ? colors.primary[500] : "white",
-                  color: orderFilter === "Pågående" ? "white" : colors.neutral[600],
+                  backgroundColor: orderFilter === "Pågående" ? '#60a5fa' : 'rgba(255, 255, 255, 0.05)',
+                  color: orderFilter === "Pågående" ? "white" : '#94a3b8',
                   fontWeight: typography.fontWeight.semibold,
                   fontSize: typography.fontSize.sm,
                   transition: "all 0.2s ease"
@@ -814,11 +851,11 @@ export default function CustomerDetails() {
                 onClick={() => setOrderFilter("Färdig")}
                 style={{
                   padding: `${spacing[2]} ${spacing[4]}`,
-                  border: `2px solid ${colors.neutral[200]}`,
+                  border: `2px solid ${orderFilter === "Färdig" ? '#60a5fa' : 'rgba(255, 255, 255, 0.1)'}`,
                   borderRadius: borderRadius.lg,
                   cursor: "pointer",
-                  backgroundColor: orderFilter === "Färdig" ? colors.primary[500] : "white",
-                  color: orderFilter === "Färdig" ? "white" : colors.neutral[600],
+                  backgroundColor: orderFilter === "Färdig" ? '#60a5fa' : 'rgba(255, 255, 255, 0.05)',
+                  color: orderFilter === "Färdig" ? "white" : '#94a3b8',
                   fontWeight: typography.fontWeight.semibold,
                   fontSize: typography.fontSize.sm,
                   transition: "all 0.2s ease"
@@ -882,21 +919,21 @@ export default function CustomerDetails() {
             <div style={{
               textAlign: "center",
               padding: spacing[12],
-              color: colors.neutral[500]
+              color: '#94a3b8'
             }}>
-              <ShoppingCart size={48} color={colors.neutral[300]} style={{ marginBottom: spacing[4] }} />
+              <ShoppingCart size={48} color="#475569" style={{ marginBottom: spacing[4] }} />
               <p style={{
                 fontSize: typography.fontSize.xl,
                 fontWeight: typography.fontWeight.semibold,
                 marginBottom: spacing[2],
-                color: colors.neutral[700]
+                color: '#e2e8f0'
               }}>
                 {orderFilter === "all" ? "Inga arbetsordrar ännu" : `Inga ordrar med status "${orderFilter}"`}
               </p>
               <p style={{
                 fontSize: typography.fontSize.base,
                 marginBottom: spacing[6],
-                color: colors.neutral[500]
+                color: '#94a3b8'
               }}>
                 {orderFilter === "all"
                   ? "Denna kund har inga arbetsordrar registrerade"
@@ -937,16 +974,16 @@ const thStyle = {
   textAlign: "left",
   fontSize: typography.fontSize.xs,
   fontWeight: typography.fontWeight.bold,
-  color: colors.neutral[600],
+  color: '#94a3b8',
   textTransform: "uppercase",
   letterSpacing: "0.05em",
-  backgroundColor: colors.neutral[50]
+  backgroundColor: 'rgba(255, 255, 255, 0.03)'
 };
 
 const tdStyle = {
   padding: spacing[4],
-  borderBottom: `1px solid ${colors.neutral[100]}`,
-  color: colors.neutral[900],
+  borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+  color: '#fff',
   fontSize: typography.fontSize.sm
 };
 
@@ -955,7 +992,7 @@ const trStyle = {
 };
 
 const linkStyle = {
-  color: colors.primary[600],
+  color: '#60a5fa',
   textDecoration: "none",
   transition: "color 0.2s ease",
   fontWeight: typography.fontWeight.medium

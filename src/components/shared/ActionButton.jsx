@@ -33,21 +33,24 @@ export default function ActionButton({
   // Variant styles (backwards compatible)
   const variantStyles = {
     primary: {
-      backgroundColor: colors.primary[500],
+      backgroundColor: '#3b82f6',
       color: "white",
+      border: 'none',
     },
     secondary: {
-      backgroundColor: "white",
-      color: colors.primary[600],
-      border: `2px solid ${colors.primary[200]}`,
+      backgroundColor: 'rgba(255, 255, 255, 0.08)',
+      color: '#fff',
+      border: '1px solid rgba(255, 255, 255, 0.1)',
     },
     success: {
-      backgroundColor: colors.success[500],
+      backgroundColor: '#10b981',
       color: "white",
+      border: 'none',
     },
     danger: {
-      backgroundColor: colors.error[500],
+      backgroundColor: '#ef4444',
       color: "white",
+      border: 'none',
     },
   };
 
@@ -64,11 +67,12 @@ export default function ActionButton({
     if (hoverColor) return hoverColor;
     if (variant && variantStyles[variant]) {
       // Darker version for hover
-      if (variant === "primary") return colors.primary[600];
-      if (variant === "success") return colors.success[600];
-      if (variant === "danger") return colors.error[600];
+      if (variant === "primary") return '#2563eb';
+      if (variant === "secondary") return 'rgba(255, 255, 255, 0.12)';
+      if (variant === "success") return '#059669';
+      if (variant === "danger") return '#dc2626';
     }
-    return colors.neutral[600];
+    return '#64748b';
   };
 
   const buttonColor = getButtonColor();
