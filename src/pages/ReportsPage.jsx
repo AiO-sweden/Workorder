@@ -281,6 +281,7 @@ export default function ReportsPage() {
   const [pdfFilterOrder, setPdfFilterOrder] = useState("");
   const [pdfFilterUser, setPdfFilterUser] = useState("");
   const [pdfShowComments, setPdfShowComments] = useState(true);
+  const [pdfShowPrices, setPdfShowPrices] = useState(true);
 
   const formatDate = (dateString) => {
     if (!dateString) return "";
@@ -1027,7 +1028,7 @@ export default function ReportsPage() {
   };
 
   // Export to PDF - Fortnox style time report
-  const exportToPDF = () => {
+  const exportToPDF = async () => {
     // Filter reports based on PDF filters
     let pdfReports = filteredReports;
 
@@ -1106,12 +1107,37 @@ export default function ReportsPage() {
 
     // ===== HEADER =====
     // Logo or Company name (top left)
+    let logoHeight = 0;
     if (organization?.logo_url) {
-      // TODO: Add logo image here if available
-      // For now, just show company name
-      doc.setFontSize(16);
-      doc.setFont(undefined, 'bold');
-      doc.text(organization?.company_name || 'Företaget AB', margin, 22);
+      try {
+        // Load logo image
+        const img = new Image();
+        img.crossOrigin = 'Anonymous';
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+          img.src = organization.logo_url;
+        });
+
+        // Add logo (max height 15mm, proportional width)
+        const maxLogoHeight = 15;
+        const imgRatio = img.width / img.height;
+        logoHeight = maxLogoHeight;
+        const logoWidth = logoHeight * imgRatio;
+
+        doc.addImage(img, 'PNG', margin, 15, logoWidth, logoHeight);
+
+        // Company name below logo (smaller)
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'normal');
+        doc.text(organization?.company_name || 'Företaget AB', margin, 15 + logoHeight + 5);
+      } catch (error) {
+        console.error('Error loading logo:', error);
+        // Fallback to company name if logo fails
+        doc.setFontSize(16);
+        doc.setFont(undefined, 'bold');
+        doc.text(organization?.company_name || 'Företaget AB', margin, 22);
+      }
     } else {
       doc.setFontSize(16);
       doc.setFont(undefined, 'bold');
@@ -1187,12 +1213,20 @@ export default function ReportsPage() {
       const commentPart = pdfShowComments && report.kommentar ? ` - ${report.kommentar}` : '';
       const nonBillablePart = report.fakturerbar === false ? ' (ej fakturerbar)' : '';
 
-      return [
-        `${customerPrefix}${timeCode?.name || report.timeCodeName || 'Normal tid'}${nonBillablePart}${commentPart}`,
-        formatSwedish(hours),
-        formatSwedish(rate),
-        formatSwedish(amount)
-      ];
+      // Return row with or without price columns
+      if (pdfShowPrices) {
+        return [
+          `${customerPrefix}${timeCode?.name || report.timeCodeName || 'Normal tid'}${nonBillablePart}${commentPart}`,
+          formatSwedish(hours),
+          formatSwedish(rate),
+          formatSwedish(amount)
+        ];
+      } else {
+        return [
+          `${customerPrefix}${timeCode?.name || report.timeCodeName || 'Normal tid'}${nonBillablePart}${commentPart}`,
+          formatSwedish(hours)
+        ];
+      }
     });
 
     // Draw gray line above table header
@@ -1200,8 +1234,25 @@ export default function ReportsPage() {
     doc.setLineWidth(0.5);
     doc.line(margin, yPos - 2, pageWidth - margin, yPos - 2);
 
+    // Configure table headers and columns based on pdfShowPrices
+    const tableHeaders = pdfShowPrices
+      ? [['Benämning', 'Timmar', 'Å-pris', 'Summa']]
+      : [['Benämning', 'Timmar']];
+
+    const columnStyles = pdfShowPrices
+      ? {
+          0: { cellWidth: 90 },
+          1: { cellWidth: 25, halign: 'right' },
+          2: { cellWidth: 35, halign: 'right' },
+          3: { cellWidth: 35, halign: 'right' }
+        }
+      : {
+          0: { cellWidth: 140 },
+          1: { cellWidth: 45, halign: 'right' }
+        };
+
     autoTable(doc, {
-      head: [['Benämning', 'Lev ant', 'Å-pris', 'Summa']],
+      head: tableHeaders,
       body: tableData,
       startY: yPos,
       theme: 'plain',
@@ -1217,12 +1268,7 @@ export default function ReportsPage() {
         textColor: [0, 0, 0],
         fillColor: [255, 255, 255]
       },
-      columnStyles: {
-        0: { cellWidth: 90 },
-        1: { cellWidth: 25, halign: 'right' },
-        2: { cellWidth: 35, halign: 'right' },
-        3: { cellWidth: 35, halign: 'right' }
-      },
+      columnStyles: columnStyles,
       styles: {
         lineWidth: 0,
         cellPadding: 2
@@ -1247,24 +1293,33 @@ export default function ReportsPage() {
     doc.setFontSize(10);
     doc.setFont(undefined, 'normal');
 
-    // Left: Moms
-    doc.text('Moms', margin, totalsY);
-    doc.setFont(undefined, 'bold');
-    doc.text(`${formatSwedishNumber(vat)} kr`, margin, totalsY + 6);
+    if (pdfShowPrices) {
+      // Show all price-related totals
+      // Left: Moms
+      doc.text('Moms', margin, totalsY);
+      doc.setFont(undefined, 'bold');
+      doc.text(`${formatSwedishNumber(vat)} kr`, margin, totalsY + 6);
 
-    // Center: Total belopp
-    doc.setFont(undefined, 'normal');
-    doc.text('Total belopp', pageWidth / 2, totalsY, { align: 'center' });
-    doc.setFont(undefined, 'bold');
-    doc.setFontSize(12);
-    doc.text(`SEK ${formatSwedishNumber(total)}`, pageWidth / 2, totalsY + 6, { align: 'center' });
+      // Center: Total belopp
+      doc.setFont(undefined, 'normal');
+      doc.text('Total belopp', pageWidth / 2, totalsY, { align: 'center' });
+      doc.setFont(undefined, 'bold');
+      doc.setFontSize(12);
+      doc.text(`SEK ${formatSwedishNumber(total)}`, pageWidth / 2, totalsY + 6, { align: 'center' });
 
-    // Right: Totalt rapporterade timmar
-    doc.setFont(undefined, 'normal');
-    doc.setFontSize(10);
-    doc.text('Totalt rapporterade timmar', pageWidth - margin, totalsY, { align: 'right' });
-    doc.setFont(undefined, 'bold');
-    doc.text(`${formatSwedishNumber(totalHours)} h`, pageWidth - margin, totalsY + 6, { align: 'right' });
+      // Right: Totalt rapporterade timmar
+      doc.setFont(undefined, 'normal');
+      doc.setFontSize(10);
+      doc.text('Totalt rapporterade timmar', pageWidth - margin, totalsY, { align: 'right' });
+      doc.setFont(undefined, 'bold');
+      doc.text(`${formatSwedishNumber(totalHours)} h`, pageWidth - margin, totalsY + 6, { align: 'right' });
+    } else {
+      // Only show total hours (centered)
+      doc.text('Totalt rapporterade timmar', pageWidth / 2, totalsY, { align: 'center' });
+      doc.setFont(undefined, 'bold');
+      doc.setFontSize(12);
+      doc.text(`${formatSwedishNumber(totalHours)} h`, pageWidth / 2, totalsY + 6, { align: 'center' });
+    }
 
     // ===== GRAY LINE BEFORE FOOTER =====
     doc.setDrawColor(180, 180, 180);
@@ -1940,7 +1995,8 @@ export default function ReportsPage() {
                   alignItems: 'center',
                   gap: spacing[2],
                   cursor: 'pointer',
-                  color: '#fff'
+                  color: '#fff',
+                  marginBottom: spacing[3]
                 }}>
                   <input
                     type="checkbox"
@@ -1954,6 +2010,27 @@ export default function ReportsPage() {
                     }}
                   />
                   <span style={{ fontSize: typography.fontSize.sm }}>Visa kommentarer</span>
+                </label>
+
+                <label style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: spacing[2],
+                  cursor: 'pointer',
+                  color: '#fff'
+                }}>
+                  <input
+                    type="checkbox"
+                    checked={pdfShowPrices}
+                    onChange={(e) => setPdfShowPrices(e.target.checked)}
+                    style={{
+                      width: '18px',
+                      height: '18px',
+                      cursor: 'pointer',
+                      accentColor: colors.primary[500]
+                    }}
+                  />
+                  <span style={{ fontSize: typography.fontSize.sm }}>Visa priser</span>
                 </label>
               </div>
             </div>
