@@ -220,46 +220,45 @@ export function AuthProvider({ children }) {
     try {
       console.log('🔍 fetchUserDetails: Querying schedulable_users table...');
 
-      // Query without artificial timeout - let Supabase handle it
-      const { data, error } = await supabase
-        .from('schedulable_users')
-        .select('*')
-        .eq('id', userId)
-        .single();
+      // Add timeout to prevent hanging queries
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 200);
 
-      console.log('🔍 fetchUserDetails: Query completed. Error:', error, 'Data:', data);
+      try {
+        const { data, error } = await supabase
+          .from('schedulable_users')
+          .select('*')
+          .eq('id', userId)
+          .abortSignal(controller.signal)
+          .single();
 
-      if (error && error.code !== 'PGRST116') {
-        // PGRST116 = no rows returned, which is okay
-        console.error('❌ fetchUserDetails: Error is NOT PGRST116, throwing...', error);
-        throw error;
-      }
+        clearTimeout(timeoutId);
+        console.log('🔍 fetchUserDetails: Query completed. Error:', error, 'Data:', data);
 
-      if (data) {
-        console.log('✅ fetchUserDetails: Data found, setting userDetails with organizationId:', data.organization_id);
-        // Convert snake_case to camelCase for backwards compatibility
-        setUserDetails({
-          ...data,
-          organizationId: data.organization_id || null,
-          createdAt: data.created_at,
-          updatedAt: data.updated_at,
-        });
-      } else {
-        // No schedulable_users record found
-        // Retry up to 3 times with delay (for race conditions during signup)
-        if (retryCount < 3) {
-          console.warn(`⚠️ fetchUserDetails: No record found, retrying in ${(retryCount + 1) * 500}ms... (${retryCount + 1}/3)`);
-          await new Promise(resolve => setTimeout(resolve, (retryCount + 1) * 500));
-          return fetchUserDetails(userId, retryCount + 1);
+        if (error && error.code !== 'PGRST116') {
+          // PGRST116 = no rows returned, which is okay
+          console.error('❌ fetchUserDetails: Error is NOT PGRST116, throwing...', error);
+          throw error;
         }
 
-        // After retries, fall back to minimal user details
-        console.warn('⚠️ fetchUserDetails: No schedulable_users record found after retries, using minimal user details');
-        setUserDetails({
-          id: userId,
-          organizationId: null,
-          role: 'user'
-        });
+        if (data) {
+          console.log('✅ fetchUserDetails: Data found, setting userDetails with organizationId:', data.organization_id);
+          // Convert snake_case to camelCase for backwards compatibility
+          setUserDetails({
+            ...data,
+            organizationId: data.organization_id || null,
+            createdAt: data.created_at,
+            updatedAt: data.updated_at,
+          });
+          return; // Success - exit early
+        }
+      } catch (abortError) {
+        clearTimeout(timeoutId);
+        if (abortError.name === 'AbortError') {
+          console.warn('⚠️ fetchUserDetails: Query timeout after 0.2s, using fallback');
+          throw new Error('Query timeout');
+        }
+        throw abortError;
       }
     } catch (error) {
       console.warn('⚠️ fetchUserDetails: Could not fetch user details, using fallback', error.message);
