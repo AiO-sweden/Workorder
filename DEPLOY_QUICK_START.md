@@ -16,15 +16,27 @@
 3. Klicka "Import"
 ```
 
-### 3. Lägg till Environment Variables
+### 3. Lägg till Environment Variables ⚠️ VIKTIGT!
 ```
-Settings → Environment Variables
+Settings → Environment Variables → Add New
 
-REACT_APP_SUPABASE_URL=https://hncwatpqwvxzdlxhhgjm.supabase.co
-REACT_APP_SUPABASE_ANON_KEY=din-supabase-anon-key
+Variabel 1:
+Name: REACT_APP_SUPABASE_URL
+Value: https://hncwatpqwvxzdlxhhgjm.supabase.co
+Environments: ✅ Production ✅ Preview ✅ Development
+
+Variabel 2:
+Name: REACT_APP_SUPABASE_ANON_KEY
+Value: [DIN ANON KEY - hämta från Supabase]
+Environments: ✅ Production ✅ Preview ✅ Development
 ```
 
-💡 **Hitta din key:** Supabase Dashboard → Settings → API → "anon public"
+💡 **Hitta din key:**
+1. Gå till supabase.com/dashboard
+2. Välj projekt: hncwatpqwvxzdlxhhgjm
+3. Settings → API → Kopiera "anon public" key
+
+⚠️ **OBS:** Utan dessa variabler får du fel! Se VERCEL_ENV_FIX.md om problem.
 
 ### 4. Deploy
 ```
