@@ -2,33 +2,148 @@ import React, { useState, useEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
-import interactionPlugin, { Draggable } from '@fullcalendar/interaction'; // for selectable AND draggable
+import interactionPlugin, { Draggable } from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
-import resourceTimelinePlugin from '@fullcalendar/resource-timeline'; // Import the new plugin
+import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import { supabase } from '../supabase';
+import { useAuth } from '../contexts/AuthContext';
+import {
+  Calendar, Briefcase, X, Wrench, Users, Coffee, BookOpen, MapPin,
+  Hammer, Zap, Shield, Cpu, Home, Building, MoreHorizontal, Settings, DollarSign, Clock,
+  Paintbrush, Scissors, Truck, Car, Package, TreePine, Leaf, Droplet,
+  Phone, MessageSquare, Bell, FileCheck, ClipboardCheck, Star, CheckSquare, Target,
+  Flame, Lightbulb, Archive, Box, Waves, Plug, Radio, Warehouse, Factory, Construction,
+  HardHat, Building2, FileText, Mail, Cog, Pipette, Wind, Sparkles, Sun, Moon, Cloud,
+  CloudRain, Battery, BatteryCharging, Wifi, Bluetooth
+} from 'lucide-react';
+import { spacing, borderRadius, typography, transitions } from '../components/shared/theme';
 
-// Base styles are often handled by the plugin imports themselves in newer versions,
-// or a single core CSS file might be available if needed.
-// We'll remove these specific imports for now and see if styles are applied.
+// Import custom dark theme styling
+import './Schema.css';
+
+// Available icons for work types and event types
+const AVAILABLE_ICONS = {
+  // Verktyg & Hantverk
+  Hammer, Wrench, Paintbrush, Scissors,
+  // Elektricitet & Teknik
+  Zap, Cpu, Plug, Radio, Battery, BatteryCharging, Wifi, Bluetooth,
+  // Byggnader & Konstruktion
+  Building, Building2, Home, Construction, Factory, Warehouse, HardHat,
+  // Transport & Logistik
+  Truck, Car, Package,
+  // Natur & Miljö & Väder
+  TreePine, Leaf, Droplet, Waves, Flame, Wind, Sun, Moon, Cloud, CloudRain,
+  // Kommunikation
+  Phone, MessageSquare, Bell, Mail,
+  // Dokument & Organisation
+  FileText, FileCheck, ClipboardCheck, Briefcase, Archive, Box,
+  // Personer & Team
+  Users, Shield,
+  // Övrigt
+  Coffee, BookOpen, MapPin, Cog, Pipette, Sparkles,
+  // Generellt
+  Calendar, Clock, Settings, DollarSign, Star, CheckSquare, Target, Lightbulb, MoreHorizontal, X
+};
+
+// Default work types fallback
+const DEFAULT_WORK_TYPES = [
+  { id: "bygg", name: "Bygg", icon: "Hammer", color: "#f59e0b" },
+  { id: "el", name: "El", icon: "Zap", color: "#eab308" },
+  { id: "garanti", name: "Garanti", icon: "Shield", color: "#10b981" },
+  { id: "it", name: "IT", icon: "Cpu", color: "#3b82f6" },
+  { id: "rivning", name: "Rivning", icon: "Home", color: "#ef4444" },
+  { id: "vvs", name: "VVS", icon: "Wrench", color: "#06b6d4" },
+  { id: "anlaggning", name: "Anläggning", icon: "Building", color: "#8b5cf6" },
+  { id: "ovrigt", name: "Övrigt", icon: "MoreHorizontal", color: "#64748b" }
+];
+
+const DEFAULT_EVENT_TYPES = [
+  { id: "work_order", name: "Arbetsorder", icon: "Wrench", color: "#3b82f6" },
+  { id: "meeting", name: "Möte", icon: "Users", color: "#8b5cf6" },
+  { id: "break", name: "Rast/Paus", icon: "Clock", color: "#6b7280" },
+  { id: "training", name: "Utbildning", icon: "Shield", color: "#f59e0b" },
+  { id: "other", name: "Övrigt", icon: "MoreHorizontal", color: "#ec4899" }
+];
 
 export default function Schema() {
+  const { userDetails } = useAuth();
   const [events, setEvents] = useState([]);
+  const [workTypes, setWorkTypes] = useState(DEFAULT_WORK_TYPES);
+  const [eventTypes, setEventTypes] = useState(DEFAULT_EVENT_TYPES);
+
+  // Helper function to convert datetime-local string to ISO string without timezone shift
+  const toISOStringLocal = (dateTimeLocalString) => {
+    if (!dateTimeLocalString) return null;
+    // If it's already in ISO format, return as is
+    if (dateTimeLocalString.includes('T') && dateTimeLocalString.length === 16) {
+      // Format: "YYYY-MM-DDTHH:mm" - add seconds
+      return dateTimeLocalString + ':00';
+    }
+    // If it's a full ISO string, extract just the datetime part
+    if (dateTimeLocalString.includes('T')) {
+      return dateTimeLocalString.substring(0, 19); // "YYYY-MM-DDTHH:mm:ss"
+    }
+    return dateTimeLocalString;
+  };
+
+  // Helper function to convert ISO string to datetime-local format without timezone shift
+  const toDateTimeLocal = (isoString) => {
+    if (!isoString) return '';
+    // If it's already in datetime-local format (YYYY-MM-DDTHH:mm), return as is
+    if (isoString.length === 16 && isoString.includes('T')) {
+      return isoString;
+    }
+    // Extract just the datetime part (first 16 characters: YYYY-MM-DDTHH:mm)
+    return isoString.substring(0, 16);
+  };
   const [schedulableUsers, setSchedulableUsers] = useState([]);
-  const [orders, setOrders] = useState([]); // To select an order
-  const [customers, setCustomers] = useState([]); // To display customer names
+  const [orders, setOrders] = useState([]);
+  const [customers, setCustomers] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentEventData, setCurrentEventData] = useState(null); // For creating/editing event in modal
-  const [selectionInfo, setSelectionInfo] = useState(null); // To store calendar selection info
+  const [currentEventData, setCurrentEventData] = useState(null);
   const [unassignedOrders, setUnassignedOrders] = useState([]);
   const externalEventsRef = React.useRef(null);
 
   useEffect(() => {
+    // Fetch work types and event types from settings
+    const fetchTypes = async () => {
+      if (!userDetails?.organizationId) {
+        console.log('⚠️ Schema: No organizationId, using default types');
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('settings')
+          .select('work_types, event_types')
+          .eq('organization_id', userDetails.organizationId)
+          .single();
+
+        if (error) throw error;
+
+        if (data) {
+          if (data.work_types) {
+            setWorkTypes(data.work_types);
+            console.log('✅ Schema: Fetched', data.work_types.length, 'work types');
+          }
+          if (data.event_types) {
+            setEventTypes(data.event_types);
+            console.log('✅ Schema: Fetched', data.event_types.length, 'event types');
+          }
+        }
+      } catch (error) {
+        console.error("❌ Schema: Error fetching types:", error);
+        // Keep using defaults on error
+      }
+    };
+
     // Fetch schedulable users
     const fetchUsers = async () => {
       try {
         const { data, error } = await supabase
           .from('schedulable_users')
-          .select('*');
+          .select('*')
+          .eq('organization_id', userDetails?.organizationId);
 
         if (error) throw error;
 
@@ -66,18 +181,23 @@ export default function Schema() {
             colorIndex++;
           }
 
+          // Default color (will be updated by useEffect based on event type)
+          const eventType = job.event_type || 'work_order';
+          let eventColor = userColor;
+
           return {
             id: job.id,
             title: job.title || 'Okänt jobb',
             start: new Date(job.start),
             end: new Date(job.end),
             allDay: job.all_day || false,
-            backgroundColor: userColor,
-            borderColor: userColor,
+            backgroundColor: eventColor,
+            borderColor: eventColor,
             extendedProps: {
               orderId: job.order_id,
               userId: job.user_id,
               description: job.description,
+              eventType: eventType,
               userColor: userColor,
               resourceId: job.user_id ? [job.user_id] : [] // Ensure resourceId is an array
             }
@@ -89,9 +209,12 @@ export default function Schema() {
       }
     };
 
-    fetchUsers();
-    fetchEvents();
-  }, []); // Initial fetch for users and events
+    if (userDetails?.organizationId) {
+      fetchTypes();
+      fetchUsers();
+      fetchEvents();
+    }
+  }, [userDetails]);
 
   // Separate useEffect for fetching orders and customers,
   // as they might not be needed immediately or could be fetched on demand.
@@ -101,7 +224,8 @@ export default function Schema() {
       try {
         const { data: ordersData, error: ordersError } = await supabase
           .from('orders')
-          .select('*');
+          .select('*')
+          .neq('status', 'Full fakturerad');
 
         if (ordersError) throw ordersError;
 
@@ -152,6 +276,67 @@ export default function Schema() {
   }, []);
 
 
+  // Effect to update event colors based on work types
+  useEffect(() => {
+    if (orders.length > 0 && workTypes.length > 0 && events.length > 0) {
+      const updatedEvents = events.map(event => {
+        if (event.extendedProps.eventType === 'work_order' && event.extendedProps.orderId) {
+          const order = orders.find(o => o.id === event.extendedProps.orderId);
+          if (order && order.workType) {
+            const workType = workTypes.find(wt => wt.name === order.workType);
+            if (workType && workType.color) {
+              return {
+                ...event,
+                backgroundColor: workType.color,
+                borderColor: workType.color
+              };
+            }
+          }
+        }
+        return event;
+      });
+
+      // Only update if colors actually changed
+      const colorsChanged = updatedEvents.some((evt, idx) =>
+        evt.backgroundColor !== events[idx].backgroundColor
+      );
+
+      if (colorsChanged) {
+        setEvents(updatedEvents);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orders, workTypes]); // Note: Don't include events in deps to avoid infinite loop
+
+  // Effect to update event colors based on event types
+  useEffect(() => {
+    if (eventTypes.length > 0 && events.length > 0) {
+      const updatedEvents = events.map(event => {
+        const eventType = event.extendedProps.eventType;
+        const eventTypeConfig = eventTypes.find(et => et.id === eventType);
+
+        if (eventTypeConfig && eventTypeConfig.color) {
+          return {
+            ...event,
+            backgroundColor: eventTypeConfig.color,
+            borderColor: eventTypeConfig.color
+          };
+        }
+        return event;
+      });
+
+      // Only update if colors actually changed
+      const colorsChanged = updatedEvents.some((evt, idx) =>
+        evt.backgroundColor !== events[idx].backgroundColor
+      );
+
+      if (colorsChanged) {
+        setEvents(updatedEvents);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [eventTypes]); // Note: Don't include events in deps to avoid infinite loop
+
   // Effect to filter unassigned orders
   useEffect(() => {
     if (orders.length > 0 && events.length >= 0) { // events can be empty initially
@@ -199,7 +384,6 @@ export default function Schema() {
     calendarApi.unselect(); // clear date selection
 
     // Open the modal directly
-    setSelectionInfo(selectInfo); // Save selection info to use in modal
     setCurrentEventData({ // Pre-fill modal for new event
         title: '',
         start: selectInfo.startStr,
@@ -207,6 +391,7 @@ export default function Schema() {
         allDay: selectInfo.allDay,
         orderId: '',
         userId: '',
+        eventType: 'work_order', // Default to work_order
         description: ''
     });
     setIsModalOpen(true);
@@ -225,21 +410,25 @@ export default function Schema() {
       allDay: clickInfo.event.allDay,
       orderId: clickInfo.event.extendedProps.orderId || '',
       userId: clickInfo.event.extendedProps.userId || '',
+      eventType: clickInfo.event.extendedProps.eventType || 'work_order',
       description: clickInfo.event.extendedProps.description || ''
     });
     setIsModalOpen(true);
   };
 
   const handleModalClose = () => {
+    // If there's a temporary event (from dragging), remove it from calendar
+    if (currentEventData?.tempEventRef) {
+      currentEventData.tempEventRef.remove();
+    }
     setIsModalOpen(false);
     setCurrentEventData(null);
-    setSelectionInfo(null);
   };
 
   const handleModalSave = async () => {
     if (!currentEventData) return;
 
-    const { id, title, start, end, allDay, orderId, userId, description } = currentEventData;
+    const { id, title, start, end, allDay, orderId, userId, eventType, description } = currentEventData;
 
     if (!title || !start || !userId) { // Basic validation
         alert("Titel, starttid och användare måste anges.");
@@ -248,12 +437,14 @@ export default function Schema() {
 
     const eventToSave = {
         title,
-        start: new Date(start).toISOString(),
-        end: end ? new Date(end).toISOString() : new Date(start).toISOString(),
+        start: toISOStringLocal(start),
+        end: end ? toISOStringLocal(end) : toISOStringLocal(start),
         all_day: allDay || false,
         order_id: orderId || null,
         user_id: userId,
-        description: description || ""
+        event_type: eventType || 'work_order',
+        description: description || '',
+        organization_id: userDetails?.organizationId
     };
 
     try {
@@ -265,9 +456,22 @@ export default function Schema() {
 
             if (error) throw error;
 
-            // Update event in local state
+            // Update event in local state with proper structure
             setEvents(prevEvents => prevEvents.map(ev =>
-                ev.id === id ? { ...ev, ...currentEventData, start: new Date(start), end: new Date(end) } : ev
+                ev.id === id ? {
+                  ...ev,
+                  title: title,
+                  start: new Date(start),
+                  end: new Date(end),
+                  allDay: allDay || false,
+                  extendedProps: {
+                    ...ev.extendedProps,
+                    orderId: orderId || null,
+                    userId: userId,
+                    eventType: eventType || 'work_order',
+                    description: description || ''
+                  }
+                } : ev
             ));
             console.log("Event updated:", id);
         } else { // Creating new event
@@ -279,10 +483,28 @@ export default function Schema() {
 
             if (error) throw error;
 
-            // Add new event to local state with the new ID
-            setEvents(prevEvents => [...prevEvents, {
-                id: data.id, ...currentEventData, start: new Date(start), end: new Date(end)
-            }]);
+            // Add new event to local state with the new ID and proper structure
+            const newEvent = {
+                id: data.id,
+                title: title,
+                start: new Date(start),
+                end: new Date(end),
+                allDay: allDay || false,
+                backgroundColor: '#3b82f6',
+                borderColor: '#3b82f6',
+                extendedProps: {
+                  orderId: orderId || null,
+                  userId: userId,
+                  eventType: eventType || 'work_order',
+                  description: description || ''
+                }
+            };
+            // If there's a temporary event from dragging, remove it before adding the saved one
+            if (currentEventData.tempEventRef) {
+              currentEventData.tempEventRef.remove();
+            }
+
+            setEvents(prevEvents => [...prevEvents, newEvent]);
             console.log("Event created:", data.id);
             // If a new event was created from a dragged order, remove it from unassigned list
             if (currentEventData.draggedOrderId) {
@@ -309,7 +531,7 @@ export default function Schema() {
       allDay: info.event.allDay,
       orderId: orderId,
       userId: resourceId,
-      description: info.event.extendedProps.description || '',
+      eventType: 'work_order', // Dragged orders are always work_order type
       draggedOrderId: orderId, // Keep track of the dragged order to remove it from the list later
       tempEventRef: info.event // Store the temporary event reference
     });
@@ -365,58 +587,53 @@ export default function Schema() {
     }
   };
 
-  // Style definitions for the modal
+  // Modern glassmorphism style definitions
   const modalLabelStyle = {
     display: 'block',
-    marginBottom: '0.25rem', // Slightly less margin for a tighter look
-    color: '#4b5563',    // Tailwind gray-600, a bit softer
-    fontWeight: '500',
-    fontSize: '0.8rem'  // Smaller font size for labels
+    marginBottom: spacing['2'],
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontWeight: typography.fontWeight.medium,
+    fontSize: typography.fontSize.sm
   };
 
   const modalInputStyle = {
     width: '100%',
-    padding: '0.5rem 0.75rem', // Adjusted padding
-    // marginBottom: '1rem', // This will be handled by the div wrappers for each form group
-    border: '1px solid #d1d5db', // Thin gray border (Tailwind gray-300)
-    borderRadius: '4px',       // Slightly rounded corners
-    fontSize: '0.9rem',
+    padding: `${spacing['3']} ${spacing['4']}`,
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    borderRadius: borderRadius.lg,
+    fontSize: typography.fontSize.base,
     boxSizing: 'border-box',
-    backgroundColor: '#fff' // Ensure white background
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    color: '#fff',
+    transition: transitions.all
   };
 
   const modalButtonBaseStyle = {
-    padding: '0.6rem 1.2rem',
+    padding: `${spacing['3']} ${spacing['6']}`,
     border: 'none',
-    borderRadius: '8px',
-    fontWeight: '500',
+    borderRadius: borderRadius.lg,
+    fontWeight: typography.fontWeight.medium,
     cursor: 'pointer',
-    transition: 'background-color 0.2s ease',
-    fontSize: '0.9rem'
+    transition: transitions.all,
+    fontSize: typography.fontSize.base
   };
 
   const modalButtonPrimaryStyle = {
     ...modalButtonBaseStyle,
-    backgroundColor: '#28a745', // Green
+    background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
     color: 'white',
   };
 
   const modalButtonSecondaryStyle = {
-    backgroundColor: 'transparent',
-    color: '#4b5563', // Tailwind gray-600, for a subtle link appearance
-    padding: '0.6rem 1.2rem', // Match other buttons for alignment if preferred, or less for pure link
-    border: 'none',
-    borderRadius: '8px',
-    fontWeight: '500',
-    cursor: 'pointer',
-    fontSize: '0.9rem',
-    textDecoration: 'none',
-    // Hover effect will be added inline in JSX
+    ...modalButtonBaseStyle,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    color: 'rgba(255, 255, 255, 0.9)',
+    border: '1px solid rgba(255, 255, 255, 0.2)'
   };
 
   const modalButtonDangerStyle = {
     ...modalButtonBaseStyle,
-    backgroundColor: '#e74c3c', // Red
+    background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
     color: 'white',
   };
 
@@ -424,64 +641,243 @@ export default function Schema() {
   // The combined fetch for orders and customers is in the useEffect at line 67.
 
   const renderEventContent = (eventInfo) => {
-    const { orderId, userId, description } = eventInfo.event.extendedProps;
-    const user = schedulableUsers.find(u => u.id === userId || u.uid === userId);
+    const { orderId, eventType, description } = eventInfo.event.extendedProps;
     const order = orders.find(o => o.id === orderId);
 
+    // Get icon based on work type or event type
+    const getEventIcon = () => {
+      const iconProps = { size: 14, strokeWidth: 2 };
+
+      // If it's a work order with an order, use the work type icon
+      if (eventType === 'work_order' && order && order.workType) {
+        const workType = workTypes.find(wt => wt.name === order.workType);
+        if (workType && workType.icon) {
+          const IconComponent = AVAILABLE_ICONS[workType.icon] || Wrench;
+          return <IconComponent {...iconProps} color={workType.color} />;
+        }
+      }
+
+      // Otherwise use event type icon from settings
+      const eventTypeConfig = eventTypes.find(et => et.id === eventType);
+      if (eventTypeConfig && eventTypeConfig.icon) {
+        const IconComponent = AVAILABLE_ICONS[eventTypeConfig.icon] || Wrench;
+        return <IconComponent {...iconProps} color={eventTypeConfig.color} />;
+      }
+
+      // Fallback
+      return <Wrench {...iconProps} />;
+    };
+
+    const icon = getEventIcon();
+
     return (
-      <div style={{ padding: '2px 4px', lineHeight: '1.3', fontSize: '0.8em' }}>
-        <b style={{ display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{eventInfo.timeText} - {eventInfo.event.title}</b>
-        {order && <i style={{ display: 'block', fontSize: '0.9em' }}>AO: {order.orderNumber}</i>}
-        {user && <span style={{ display: 'block', fontSize: '0.9em' }}>Anv: {user.name}</span>}
+      <div style={{
+        padding: '0.25rem 0.5rem',
+        lineHeight: '1.4',
+        fontSize: '0.8125rem',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '0.125rem'
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.25rem',
+          fontWeight: '600',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis'
+        }}>
+          <span style={{ display: 'flex', alignItems: 'center' }}>{icon}</span>
+          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {eventInfo.event.title}
+          </span>
+          {description && (
+            <span style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto', opacity: 0.7 }}>
+              <FileText size={12} />
+            </span>
+          )}
+        </div>
+        {eventInfo.timeText && (
+          <div style={{
+            fontSize: '0.75rem',
+            opacity: 0.9,
+            fontWeight: '500'
+          }}>
+            {eventInfo.timeText}
+          </div>
+        )}
+        {order && (
+          <div style={{
+            fontSize: '0.7rem',
+            opacity: 0.8,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap'
+          }}>
+            #{order.orderNumber}
+          </div>
+        )}
       </div>
     );
   };
 
   return (
-    <div style={{ display: 'flex', gap: '1rem', maxWidth: '100%', margin: '1rem auto', padding: '1rem', backgroundColor: '#F8F9FA' /* Match SidebarLayout bg */ }}>
-      {/* Unassigned Orders List */}
-      <div ref={externalEventsRef} style={{
-        width: '280px',
-        padding: '1rem',
-        backgroundColor: '#FFFFFF',
-        borderRadius: '8px',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
-        height: 'calc(100vh - 100px)', // Adjust based on your header/footer
-        overflowY: 'auto'
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+      padding: spacing['8']
+    }}>
+      {/* Header */}
+      <div style={{
+        marginBottom: spacing['8'],
+        textAlign: 'center'
       }}>
-        <h3 style={{ marginTop: 0, color: '#1f2937', fontSize: '1.2rem', marginBottom: '1rem', borderBottom: '1px solid #e5e7eb', paddingBottom: '0.5rem' }}>Ej Tilldelade Jobb</h3>
-        {unassignedOrders.length === 0 && <p style={{color: '#6b7280', fontSize: '0.9rem'}}>Inga ej tilldelade jobb.</p>}
-        {unassignedOrders.map(order => (
-          <div
-            key={order.id}
-            className="fc-event-draggable" // Class for Draggable to identify items
-            data-order-id={order.id}
-            data-order-title={order.title || 'Okänd Titel'}
-            data-order-number={order.orderNumber || 'N/A'}
-            style={{
-              padding: '0.75rem',
-              marginBottom: '0.75rem',
-              backgroundColor: '#eef2ff', // Light indigo background
-              color: '#4338ca', // Indigo text
-              border: '1px solid #c7d2fe', // Indigo border
-              borderRadius: '6px',
-              cursor: 'grab',
-              fontSize: '0.85rem',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.03)'
-            }}
-          >
-            <div style={{ fontWeight: '600', marginBottom: '0.25rem' }}>AO: {order.orderNumber || 'Saknas Nr'}</div>
-            <div>{order.title || 'Okänd Titel'}</div>
-            <div style={{fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem'}}>
-              Kund: {order.customerDetails?.name || customers.find(c => c.id === order.customerId)?.name || 'Okänd kund'}
-            </div>
-          </div>
-        ))}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: spacing['3'],
+          marginBottom: spacing['2']
+        }}>
+          <Calendar size={40} color="#3b82f6" />
+          <h1 style={{
+            fontSize: typography.fontSize['4xl'],
+            fontWeight: typography.fontWeight.bold,
+            color: '#fff',
+            margin: 0
+          }}>Schema & Planering</h1>
+        </div>
+        <p style={{
+          fontSize: typography.fontSize.lg,
+          color: 'rgba(255, 255, 255, 0.7)',
+          margin: 0
+        }}>Hantera arbetsordrar, möten och andra händelser i kalendern</p>
       </div>
 
-      {/* Calendar Area */}
-      <div style={{ flex: 1, backgroundColor: '#FFFFFF', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', padding: '1rem' }}>
-        <h2 style={{ textAlign: 'center', color: '#1f2937', marginBottom: '2rem', fontWeight: 600 }}>📅 Schema & Planering</h2>
+      {/* Main Content */}
+      <div style={{ display: 'flex', gap: spacing['6'] }}>
+        {/* Unassigned Orders Sidebar */}
+        <div ref={externalEventsRef} style={{
+          width: '220px',
+          flexShrink: 0,
+          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+          backdropFilter: 'blur(20px)',
+          borderRadius: borderRadius.xl,
+          padding: spacing['6'],
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          boxShadow: '0 25px 50px rgba(0, 0, 0, 0.3)',
+          height: 'fit-content',
+          maxHeight: 'calc(100vh - 400px)',
+          overflowY: 'auto'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: spacing['2'],
+            marginBottom: spacing['4'],
+            paddingBottom: spacing['4'],
+            borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
+          }}>
+            <Briefcase size={20} color="#3b82f6" />
+            <h3 style={{
+              margin: 0,
+              color: '#fff',
+              fontSize: typography.fontSize.lg,
+              fontWeight: typography.fontWeight.semibold
+            }}>Ej Tilldelade Jobb</h3>
+          </div>
+          {unassignedOrders.length === 0 && (
+            <p style={{
+              color: 'rgba(255, 255, 255, 0.5)',
+              fontSize: typography.fontSize.sm,
+              textAlign: 'center',
+              padding: spacing['4']
+            }}>Inga ej tilldelade jobb.</p>
+          )}
+          {unassignedOrders.map(order => {
+            // Find work type for this order
+            const workType = workTypes.find(wt => wt.name === order.workType);
+            const workTypeColor = workType?.color || '#3b82f6';
+            const WorkTypeIcon = workType?.icon ? AVAILABLE_ICONS[workType.icon] : Briefcase;
+
+            return (
+              <div
+                key={order.id}
+                className="fc-event-draggable"
+                data-order-id={order.id}
+                data-order-title={order.title || 'Okänd Titel'}
+                data-order-number={order.orderNumber || 'N/A'}
+                style={{
+                  padding: spacing['4'],
+                  marginBottom: spacing['3'],
+                  backgroundColor: `${workTypeColor}15`,
+                  color: '#fff',
+                  border: `1px solid ${workTypeColor}40`,
+                  borderRadius: borderRadius.lg,
+                  cursor: 'grab',
+                  fontSize: typography.fontSize.sm,
+                  transition: transitions.all,
+                  boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.backgroundColor = `${workTypeColor}25`;
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 8px 12px rgba(0, 0, 0, 0.2)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.backgroundColor = `${workTypeColor}15`;
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+                }}
+              >
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: spacing['2'],
+                  fontWeight: typography.fontWeight.semibold,
+                  marginBottom: spacing['2'],
+                  color: workTypeColor
+                }}>
+                  <WorkTypeIcon size={16} color={workTypeColor} />
+                  <span>AO: {order.orderNumber || 'Saknas Nr'}</span>
+                  {workType && (
+                    <span style={{
+                      fontSize: typography.fontSize.xs,
+                      backgroundColor: `${workTypeColor}30`,
+                      padding: `${spacing['1']} ${spacing['2']}`,
+                      borderRadius: borderRadius.base,
+                      marginLeft: 'auto'
+                    }}>
+                      {workType.name}
+                    </span>
+                  )}
+                </div>
+                <div style={{ marginBottom: spacing['1'] }}>{order.title || 'Okänd Titel'}</div>
+                <div style={{
+                  fontSize: typography.fontSize.xs,
+                  color: 'rgba(255, 255, 255, 0.6)',
+                  marginTop: spacing['2']
+                }}>
+                  Kund: {order.customerDetails?.name || customers.find(c => c.id === order.customerId)?.name || 'Okänd kund'}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Calendar Area */}
+        <div style={{
+          flex: 1,
+          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+          backdropFilter: 'blur(20px)',
+          borderRadius: borderRadius.xl,
+          padding: spacing['6'],
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          boxShadow: '0 25px 50px rgba(0, 0, 0, 0.3)'
+        }}>
+
         <FullCalendar
           schedulerLicenseKey="GPL-My-Project-Is-Open-Source"
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin, resourceTimelinePlugin]}
@@ -514,57 +910,144 @@ export default function Schema() {
             week:     'Vecka'
         }}
         height="auto"
+        // Prevent overlapping with all-day events
+        selectOverlap={(event) => {
+          // If the existing event is an all-day event, don't allow selection to overlap
+          return !event.allDay;
+        }}
+        eventOverlap={(stillEvent, movingEvent) => {
+          // If either event is an all-day event, don't allow overlap
+          return !stillEvent.allDay && !movingEvent.allDay;
+        }}
       />
+        </div>
 
-      {isModalOpen && currentEventData && (
-        <div style={{ // Modal Backdrop
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex',
-          alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem'
+        {/* Modal */}
+        {isModalOpen && currentEventData && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          backdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: spacing['4']
         }}>
-          <div style={{ // Modal Content
-            background: '#ffffff',
-            padding: '2rem',
-            borderRadius: '12px', // Softer radius
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(22, 33, 62, 0.95) 100%)',
+            backdropFilter: 'blur(20px)',
+            padding: spacing['8'],
+            borderRadius: borderRadius['2xl'],
             width: '100%',
-            maxWidth: '550px', // Max width for the modal
-            boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+            maxWidth: '600px',
+            boxShadow: '0 25px 50px rgba(0, 0, 0, 0.5)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
             maxHeight: '90vh',
             overflowY: 'auto'
           }}>
-            <h3 style={{marginTop: 0, color: '#1f2937', fontSize: '1.5rem', marginBottom: '1.5rem'}}>
-              {currentEventData.id ? "Redigera schemapost" : "Skapa ny schemapost"}
-            </h3>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: spacing['6']
+            }}>
+              <h3 style={{
+                margin: 0,
+                color: '#fff',
+                fontSize: typography.fontSize['2xl'],
+                fontWeight: typography.fontWeight.bold
+              }}>
+                {currentEventData.id ? "Redigera schemapost" : "Skapa ny schemapost"}
+              </h3>
+              <button
+                onClick={handleModalClose}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'rgba(255, 255, 255, 0.6)',
+                  cursor: 'pointer',
+                  padding: spacing['2'],
+                  borderRadius: borderRadius.md,
+                  transition: transitions.all,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                  e.currentTarget.style.color = '#fff';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = 'rgba(255, 255, 255, 0.6)';
+                }}
+              >
+                <X size={24} />
+              </button>
+            </div>
             
-            {/* Form elements with improved styling */}
-            <div style={{marginBottom: '1rem'}}>
+            {/* Form elements */}
+            <div style={{marginBottom: spacing['4']}}>
+              <label htmlFor="eventType" style={modalLabelStyle}>Händelsetyp:</label>
+              <select
+                id="eventType"
+                value={currentEventData.eventType || 'work_order'}
+                onChange={e => setCurrentEventData({...currentEventData, eventType: e.target.value})}
+                style={modalInputStyle}
+              >
+                {eventTypes.map(eventType => (
+                  <option key={eventType.id} value={eventType.id} style={{background: '#1a1a2e', color: '#fff'}}>
+                    {eventType.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{marginBottom: spacing['4']}}>
               <label htmlFor="eventTitle" style={modalLabelStyle}>Titel:</label>
               <input
-                type="text" id="eventTitle"
+                type="text"
+                id="eventTitle"
                 value={currentEventData.title}
                 onChange={e => setCurrentEventData({...currentEventData, title: e.target.value})}
                 style={modalInputStyle}
               />
             </div>
 
-            <div style={{marginBottom: '1rem'}}>
-              <label htmlFor="eventOrder" style={modalLabelStyle}>Arbetsorder:</label>
+            <div style={{marginBottom: spacing['4'], opacity: currentEventData.eventType === 'work_order' ? 1 : 0.5}}>
+              <label htmlFor="eventOrder" style={modalLabelStyle}>
+                Arbetsorder {currentEventData.eventType !== 'work_order' ? '(endast för arbetsorder)' : ''}:
+              </label>
               <select
                 id="eventOrder"
                 value={currentEventData.orderId}
-                onChange={e => setCurrentEventData({...currentEventData, orderId: e.target.value})}
+                onChange={e => {
+                  const selectedOrderId = e.target.value;
+                  const selectedOrder = orders.find(order => order.id === selectedOrderId);
+                  setCurrentEventData({
+                    ...currentEventData,
+                    orderId: selectedOrderId,
+                    title: selectedOrder ? selectedOrder.title : currentEventData.title
+                  });
+                }}
                 style={modalInputStyle}
+                disabled={currentEventData.eventType !== 'work_order'}
               >
-                <option value="">Ingen specifik order</option>
+                <option value="" style={{background: '#1a1a2e', color: '#fff'}}>Ingen specifik order</option>
                 {orders.map(order => (
-                  <option key={order.id} value={order.id}>
+                  <option key={order.id} value={order.id} style={{background: '#1a1a2e', color: '#fff'}}>
                     #{order.orderNumber} - {order.title} ({order.customerDetails?.name || customers.find(c => c.id === order.customerId)?.name || 'Okänd kund'})
                   </option>
                 ))}
               </select>
             </div>
 
-            <div style={{marginBottom: '1rem'}}>
+            <div style={{marginBottom: spacing['4']}}>
               <label htmlFor="eventUser" style={modalLabelStyle}>Tilldela användare:</label>
               <select
                 id="eventUser"
@@ -573,19 +1056,22 @@ export default function Schema() {
                 required
                 style={modalInputStyle}
               >
-                <option value="">Välj användare</option>
+                <option value="" style={{background: '#1a1a2e', color: '#fff'}}>Välj användare</option>
                 {schedulableUsers.map(user => (
-                  <option key={user.id} value={user.id}>{user.name} (ID: {user.uid ? user.uid.substring(0,6) : user.id.substring(0,6)})</option>
+                  <option key={user.id} value={user.id} style={{background: '#1a1a2e', color: '#fff'}}>
+                    {user.name} (ID: {user.uid ? user.uid.substring(0,6) : user.id.substring(0,6)})
+                  </option>
                 ))}
               </select>
             </div>
 
-            <div style={{display: 'flex', gap: '1rem', marginBottom: '1rem'}}>
+            <div style={{display: 'flex', gap: spacing['4'], marginBottom: spacing['4']}}>
               <div style={{flex: 1}}>
                 <label htmlFor="eventStart" style={modalLabelStyle}>Starttid:</label>
                 <input
-                  id="eventStart" type="datetime-local"
-                  value={currentEventData.start ? new Date(currentEventData.start).toISOString().substring(0,16) : ''}
+                  id="eventStart"
+                  type="datetime-local"
+                  value={toDateTimeLocal(currentEventData.start)}
                   onChange={e => setCurrentEventData({...currentEventData, start: e.target.value})}
                   style={modalInputStyle}
                 />
@@ -593,67 +1079,116 @@ export default function Schema() {
               <div style={{flex: 1}}>
                 <label htmlFor="eventEnd" style={modalLabelStyle}>Sluttid:</label>
                 <input
-                  id="eventEnd" type="datetime-local"
-                  value={currentEventData.end ? new Date(currentEventData.end).toISOString().substring(0,16) : ''}
+                  id="eventEnd"
+                  type="datetime-local"
+                  value={toDateTimeLocal(currentEventData.end)}
                   onChange={e => setCurrentEventData({...currentEventData, end: e.target.value})}
                   style={modalInputStyle}
                 />
               </div>
             </div>
-            
-            <div style={{marginBottom: '1.5rem'}}>
-              <label style={{display: 'flex', alignItems: 'center', cursor: 'pointer', color: '#374151'}}>
-                  <input
-                      type="checkbox"
-                      checked={currentEventData.allDay || false}
-                      onChange={e => setCurrentEventData({ ...currentEventData, allDay: e.target.checked })}
-                      style={{marginRight: '0.75rem', height: '1rem', width: '1rem'}}
-                  />
-                  Heldagshändelse
+
+            <div style={{marginBottom: spacing['4']}}>
+              <label style={{
+                display: 'flex',
+                alignItems: 'center',
+                cursor: 'pointer',
+                color: 'rgba(255, 255, 255, 0.9)'
+              }}>
+                <input
+                  type="checkbox"
+                  checked={currentEventData.allDay || false}
+                  onChange={e => setCurrentEventData({ ...currentEventData, allDay: e.target.checked })}
+                  style={{
+                    marginRight: spacing['3'],
+                    height: '1.125rem',
+                    width: '1.125rem',
+                    cursor: 'pointer'
+                  }}
+                />
+                Heldagshändelse
               </label>
             </div>
 
-            <div style={{marginBottom: '1.5rem'}}>
-              <label htmlFor="eventDescription" style={{...modalLabelStyle, display: 'block'}}>Beskrivning:</label>
+            {/* Noteringar/Beskrivning */}
+            <div style={{marginBottom: spacing['4']}}>
+              <label htmlFor="eventDescription" style={modalLabelStyle}>Noteringar:</label>
               <textarea
                 id="eventDescription"
-                value={currentEventData.description}
+                value={currentEventData.description || ''}
                 onChange={e => setCurrentEventData({...currentEventData, description: e.target.value})}
-                rows={4} // Increased rows
-                style={{...modalInputStyle, height: 'auto'}} // auto height for textarea
+                placeholder="Lägg till noteringar för denna händelse..."
+                rows={4}
+                style={{
+                  ...modalInputStyle,
+                  resize: 'vertical',
+                  fontFamily: 'inherit',
+                  lineHeight: '1.5'
+                }}
               />
             </div>
-            
+
             {/* Divider before buttons */}
-            <div style={{ borderTop: '1px solid #e5e7eb', margin: '2rem 0 1.5rem 0' }}></div>
+            <div style={{
+              borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+              margin: `${spacing['6']} 0`
+            }}></div>
 
             {/* Buttons */}
             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                <div>
-                    {(currentEventData.id || currentEventData.tempEventRef) && (
-                        <button onClick={handleDeleteEvent} style={modalButtonDangerStyle}>
-                            Ta bort
-                        </button>
-                    )}
-                </div>
-                <div style={{display: 'flex', gap: '0.75rem'}}>
-                    <button
-                        onClick={handleModalClose}
-                        style={modalButtonSecondaryStyle}
-                        onMouseEnter={e => e.currentTarget.style.textDecoration = 'underline'}
-                        onMouseLeave={e => e.currentTarget.style.textDecoration = 'none'}
-                    >
-                        Avbryt
-                    </button>
-                    <button onClick={handleModalSave} style={modalButtonPrimaryStyle}>
-                        {currentEventData.id ? "Spara ändringar" : "Skapa händelse"}
-                    </button>
-                </div>
+              <div>
+                {(currentEventData.id || currentEventData.tempEventRef) && (
+                  <button
+                    onClick={handleDeleteEvent}
+                    style={modalButtonDangerStyle}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.boxShadow = '0 8px 16px rgba(239, 68, 68, 0.4)';
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
+                  >
+                    Ta bort
+                  </button>
+                )}
+              </div>
+              <div style={{display: 'flex', gap: spacing['3']}}>
+                <button
+                  onClick={handleModalClose}
+                  style={modalButtonSecondaryStyle}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                  }}
+                >
+                  Avbryt
+                </button>
+                <button
+                  onClick={handleModalSave}
+                  style={modalButtonPrimaryStyle}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 8px 16px rgba(59, 130, 246, 0.4)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
+                >
+                  {currentEventData.id ? "Spara ändringar" : "Skapa händelse"}
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
+      </div>
     </div>
-    </div> // Closing tag for the main flex container
   );
 }

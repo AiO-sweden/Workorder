@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import ReactDOM from "react-dom";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "../supabase";
@@ -16,7 +16,14 @@ import {
   Clock,
   Plus,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  ShoppingCart,
+  Check,
+  Upload,
+  Camera,
+  Download,
+  Image as ImageIcon,
+  File
 } from "lucide-react";
 
 // Import shared components
@@ -88,6 +95,30 @@ export default function OrderDetails() {
   // Toast state for alerts
   const [toast, setToast] = useState(null);
 
+  // Tab state
+  const [activeTab, setActiveTab] = useState('details'); // 'details', 'time', 'shopping', 'documents'
+
+  // Purchase list state
+  const [purchaseLists, setPurchaseLists] = useState([]);
+  const [selectedList, setSelectedList] = useState(null);
+  const [listItems, setListItems] = useState([]);
+  const [newItemText, setNewItemText] = useState('');
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [commentText, setCommentText] = useState('');
+
+  // Documents state
+  const [documents, setDocuments] = useState([]);
+  const [uploading, setUploading] = useState(false);
+  const [showCamera, setShowCamera] = useState(false);
+  const fileInputRef = useRef(null);
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+
+  // Notes state
+  const [notes, setNotes] = useState('');
+  const [editingNotes, setEditingNotes] = useState(false);
+  const [savingNotes, setSavingNotes] = useState(false);
+
   // Fetch order and customers on mount
   useEffect(() => {
     let isMounted = true;
@@ -120,6 +151,7 @@ export default function OrderDetails() {
             organizationId: data.organization_id,
             title: data.title,
             description: data.description,
+            notes: data.notes || '',
             address: data.address,
             workType: data.work_type,
             status: data.status,
@@ -130,11 +162,10 @@ export default function OrderDetails() {
             assignedTo: data.assigned_to,
             billable: data.billable,
             fixedPrice: data.fixed_price,
-            closed: data.closed,
-            closedAt: data.closed_at,
             createdAt: data.created_at,
             updatedAt: data.updated_at
           });
+          setNotes(data.notes || '');
           console.log('✅ OrderDetails: Order fetched:', data.title);
         } else {
           setToast({ message: "Arbetsorder hittades inte.", type: "error" });
@@ -360,6 +391,412 @@ export default function OrderDetails() {
     }
   }, [timeCodes, timeForm.timeCode]);
 
+  // Fetch purchase lists for this order
+  const fetchPurchaseLists = useCallback(async () => {
+    const { data, error } = await supabase
+      .from('purchase_lists')
+      .select('*')
+      .eq('order_id', id)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching purchase lists:', error);
+    } else {
+      setPurchaseLists(data || []);
+      // Select first active list, or first completed list if no active ones
+      if (data && data.length > 0 && !selectedList) {
+        const activeList = data.find(l => l.status === 'active') || data[0];
+        setSelectedList(activeList);
+      }
+    }
+  }, [id, selectedList]);
+
+  useEffect(() => {
+    if (!id) return;
+    fetchPurchaseLists();
+    fetchDocuments();
+  }, [id, fetchPurchaseLists]);
+
+  // Fetch items when a list is selected
+  useEffect(() => {
+    if (selectedList) {
+      fetchListItems(selectedList.id);
+    }
+  }, [selectedList]);
+
+  // Fetch documents for this order
+  const fetchDocuments = async () => {
+    if (!id) return;
+
+    const { data, error } = await supabase
+      .from('order_documents')
+      .select('*')
+      .eq('order_id', id)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching documents:', error);
+    } else {
+      setDocuments(data || []);
+    }
+  };
+
+  const fetchListItems = async (listId) => {
+    const { data, error } = await supabase
+      .from('purchase_list_items')
+      .select('*')
+      .eq('purchase_list_id', listId)
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching list items:', error);
+    } else {
+      setListItems(data || []);
+    }
+  };
+
+  const createNewItem = async (e) => {
+    e.preventDefault();
+    if (!newItemText.trim() || !selectedList) return;
+
+    const { data, error } = await supabase
+      .from('purchase_list_items')
+      .insert({
+        purchase_list_id: selectedList.id,
+        item_name: newItemText,
+        checked: false
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating item:', error);
+    } else {
+      setListItems([...listItems, data]);
+      setNewItemText('');
+    }
+  };
+
+  const toggleItemChecked = async (item) => {
+    const { error } = await supabase
+      .from('purchase_list_items')
+      .update({ checked: !item.checked })
+      .eq('id', item.id);
+
+    if (error) {
+      console.error('Error updating item:', error);
+    } else {
+      setListItems(listItems.map(i => i.id === item.id ? { ...i, checked: !i.checked } : i));
+    }
+  };
+
+  const deleteItem = async (itemId) => {
+    const { error } = await supabase
+      .from('purchase_list_items')
+      .delete()
+      .eq('id', itemId);
+
+    if (error) {
+      console.error('Error deleting item:', error);
+    } else {
+      setListItems(listItems.filter(i => i.id !== itemId));
+    }
+  };
+
+  const updateItemComment = async (itemId, comment) => {
+    const { error } = await supabase
+      .from('purchase_list_items')
+      .update({ comment: comment })
+      .eq('id', itemId);
+
+    if (error) {
+      console.error('Error updating comment:', error);
+    } else {
+      setListItems(listItems.map(i => i.id === itemId ? { ...i, comment: comment } : i));
+    }
+  };
+
+  const handleCommentClick = (item) => {
+    setEditingCommentId(item.id);
+    setCommentText(item.comment || '');
+  };
+
+  const handleCommentBlur = (itemId) => {
+    if (commentText.trim() !== '') {
+      updateItemComment(itemId, commentText.trim());
+    } else if (commentText === '') {
+      updateItemComment(itemId, null);
+    }
+    setEditingCommentId(null);
+    setCommentText('');
+  };
+
+  const handleCommentKeyDown = (e, itemId) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleCommentBlur(itemId);
+    } else if (e.key === 'Escape') {
+      setEditingCommentId(null);
+      setCommentText('');
+    }
+  };
+
+  const createNewList = async (title) => {
+    if (!title.trim()) return;
+
+    const { data, error } = await supabase
+      .from('purchase_lists')
+      .insert({
+        title: title,
+        order_id: id,
+        organization_id: userDetails.organizationId,
+        status: 'active'
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating list:', error);
+    } else {
+      setPurchaseLists([data, ...purchaseLists]);
+      setSelectedList(data);
+    }
+  };
+
+  const markListAsCompleted = async (listId) => {
+    const { error } = await supabase
+      .from('purchase_lists')
+      .update({ status: 'completed' })
+      .eq('id', listId);
+
+    if (error) {
+      console.error('Error marking list as completed:', error);
+    } else {
+      setPurchaseLists(purchaseLists.map(l => l.id === listId ? { ...l, status: 'completed' } : l));
+      if (selectedList?.id === listId) {
+        setSelectedList({ ...selectedList, status: 'completed' });
+      }
+      setToast({ message: "Checklista markerad som klar!", type: "success" });
+    }
+  };
+
+  const deleteList = async (listId) => {
+    if (!window.confirm('Är du säker på att du vill ta bort hela checklistan? Detta går inte att ångra.')) return;
+
+    const { error } = await supabase
+      .from('purchase_lists')
+      .delete()
+      .eq('id', listId);
+
+    if (error) {
+      console.error('Error deleting list:', error);
+      setToast({ message: "Kunde inte ta bort listan.", type: "error" });
+    } else {
+      const remainingLists = purchaseLists.filter(l => l.id !== listId);
+      setPurchaseLists(remainingLists);
+      if (selectedList?.id === listId) {
+        // Select first list after deletion, or null if none exist
+        setSelectedList(remainingLists[0] || null);
+        setListItems([]);
+      }
+      setToast({ message: "Checklista raderad.", type: "success" });
+    }
+  };
+
+  // Document handlers
+  const handleFileUpload = async (event) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploading(true);
+
+    for (const file of files) {
+      try {
+        // Upload file to Supabase Storage
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${id}/${Date.now()}.${fileExt}`;
+        const filePath = `order-documents/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('order-documents')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        // Get public URL
+        const { data: urlData } = supabase.storage
+          .from('order-documents')
+          .getPublicUrl(filePath);
+
+        // Determine file type
+        const fileType = file.type.startsWith('image/') ? 'image' : 'document';
+
+        // Save metadata to database
+        const { error: dbError } = await supabase
+          .from('order_documents')
+          .insert({
+            order_id: id,
+            organization_id: userDetails.organizationId,
+            file_name: file.name,
+            file_type: fileType,
+            file_url: urlData.publicUrl,
+            file_size: file.size,
+            mime_type: file.type,
+            uploaded_by: userDetails.id
+          });
+
+        if (dbError) throw dbError;
+
+        setToast({ message: `${file.name} uppladdad!`, type: "success" });
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        setToast({ message: `Kunde inte ladda upp ${file.name}`, type: "error" });
+      }
+    }
+
+    setUploading(false);
+    fetchDocuments();
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' },
+        audio: false
+      });
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play();
+      }
+      setShowCamera(true);
+    } catch (error) {
+      console.error('Error accessing camera:', error);
+      setToast({ message: "Kunde inte komma åt kameran", type: "error" });
+    }
+  };
+
+  const stopCamera = () => {
+    if (videoRef.current && videoRef.current.srcObject) {
+      const tracks = videoRef.current.srcObject.getTracks();
+      tracks.forEach(track => track.stop());
+      videoRef.current.srcObject = null;
+    }
+    setShowCamera(false);
+  };
+
+  const capturePhoto = async () => {
+    if (!videoRef.current || !canvasRef.current) return;
+
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    const context = canvas.getContext('2d');
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    canvas.toBlob(async (blob) => {
+      if (!blob) return;
+
+      setUploading(true);
+      stopCamera();
+
+      try {
+        const fileName = `${id}/${Date.now()}.jpg`;
+        const filePath = `order-documents/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('order-documents')
+          .upload(filePath, blob);
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage
+          .from('order-documents')
+          .getPublicUrl(filePath);
+
+        const { error: dbError } = await supabase
+          .from('order_documents')
+          .insert({
+            order_id: id,
+            organization_id: userDetails.organizationId,
+            file_name: `Foto ${new Date().toLocaleString('sv-SE')}`,
+            file_type: 'image',
+            file_url: urlData.publicUrl,
+            file_size: blob.size,
+            mime_type: 'image/jpeg',
+            uploaded_by: userDetails.id
+          });
+
+        if (dbError) throw dbError;
+
+        setToast({ message: "Foto sparat!", type: "success" });
+        fetchDocuments();
+      } catch (error) {
+        console.error('Error saving photo:', error);
+        setToast({ message: "Kunde inte spara foto", type: "error" });
+      } finally {
+        setUploading(false);
+      }
+    }, 'image/jpeg', 0.9);
+  };
+
+  const deleteDocument = async (docId, fileUrl) => {
+    if (!window.confirm('Är du säker på att du vill ta bort detta dokument?')) return;
+
+    try {
+      // Extract file path from URL
+      const url = new URL(fileUrl);
+      const pathParts = url.pathname.split('/');
+      const filePath = pathParts.slice(-3).join('/'); // Get last 3 parts: bucket/folder/file
+
+      // Delete from storage
+      const { error: storageError } = await supabase.storage
+        .from('order-documents')
+        .remove([filePath]);
+
+      if (storageError) console.error('Storage delete error:', storageError);
+
+      // Delete from database
+      const { error: dbError } = await supabase
+        .from('order_documents')
+        .delete()
+        .eq('id', docId);
+
+      if (dbError) throw dbError;
+
+      setToast({ message: "Dokument borttaget", type: "success" });
+      fetchDocuments();
+    } catch (error) {
+      console.error('Error deleting document:', error);
+      setToast({ message: "Kunde inte ta bort dokument", type: "error" });
+    }
+  };
+
+  const saveNotes = async () => {
+    if (!id) return;
+
+    setSavingNotes(true);
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({ notes: notes })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setOrder(prev => ({ ...prev, notes: notes }));
+      setEditingNotes(false);
+      setToast({ message: "Noteringar sparade", type: "success" });
+    } catch (error) {
+      console.error('Error saving notes:', error);
+      setToast({ message: "Kunde inte spara noteringar", type: "error" });
+    } finally {
+      setSavingNotes(false);
+    }
+  };
+
   const handleDelete = async () => {
     if (window.confirm("Är du säker på att du vill radera denna arbetsorder?")) {
       try {
@@ -428,15 +865,6 @@ export default function OrderDetails() {
         updated_at: new Date().toISOString()
       };
 
-      // If status is "Full fakturerad", automatically mark as closed
-      if (newStatus === "Full fakturerad" || newStatus === "Avslutad") {
-        updateData.closed = true;
-        updateData.closed_at = new Date().toISOString();
-      } else {
-        updateData.closed = false;
-        updateData.closed_at = null;
-      }
-
       const { error } = await supabase
         .from('orders')
         .update(updateData)
@@ -447,9 +875,7 @@ export default function OrderDetails() {
       // Update local state with camelCase
       setOrder(prev => ({
         ...prev,
-        status: newStatus,
-        closed: updateData.closed,
-        closedAt: updateData.closed_at
+        status: newStatus
       }));
       setToast({ message: `Status uppdaterad till: ${newStatus}`, type: "success" });
     } catch (error) {
@@ -782,15 +1208,147 @@ export default function OrderDetails() {
               <option value="Planerad" style={{ backgroundColor: '#1a1a2e' }}>Planerad</option>
               <option value="Pågående" style={{ backgroundColor: '#1a1a2e' }}>Pågående</option>
               <option value="Klar för fakturering" style={{ backgroundColor: '#1a1a2e' }}>Klar för fakturering</option>
-              <option value="Full fakturerad" style={{ backgroundColor: '#1a1a2e' }}>Full fakturerad (Avslutas)</option>
-              <option value="Avslutad" style={{ backgroundColor: '#1a1a2e' }}>Avslutad</option>
+              <option value="Full fakturerad" style={{ backgroundColor: '#1a1a2e' }}>Full fakturerad</option>
             </select>
           </div>
         </div>
       </div>
 
-      {/* Order Details */}
-      {isEditing ? (
+      {/* Tab Navigation */}
+      <div style={{
+        display: 'flex',
+        gap: spacing[2],
+        marginBottom: spacing[6],
+        borderBottom: '2px solid rgba(255, 255, 255, 0.1)'
+      }}>
+        <button
+          onClick={() => setActiveTab('details')}
+          style={{
+            padding: `${spacing[3]} ${spacing[6]}`,
+            background: activeTab === 'details' ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
+            border: 'none',
+            borderBottom: activeTab === 'details' ? '2px solid #3b82f6' : '2px solid transparent',
+            color: activeTab === 'details' ? '#fff' : 'rgba(255, 255, 255, 0.6)',
+            fontSize: typography.fontSize.base,
+            fontWeight: typography.fontWeight.semibold,
+            cursor: 'pointer',
+            transition: transitions.all,
+            display: 'flex',
+            alignItems: 'center',
+            gap: spacing[2],
+            marginBottom: '-2px'
+          }}
+          onMouseEnter={(e) => {
+            if (activeTab !== 'details') {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (activeTab !== 'details') {
+              e.currentTarget.style.background = 'transparent';
+            }
+          }}
+        >
+          <FileText size={18} />
+          Orderdetaljer
+        </button>
+        <button
+          onClick={() => setActiveTab('time')}
+          style={{
+            padding: `${spacing[3]} ${spacing[6]}`,
+            background: activeTab === 'time' ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
+            border: 'none',
+            borderBottom: activeTab === 'time' ? '2px solid #3b82f6' : '2px solid transparent',
+            color: activeTab === 'time' ? '#fff' : 'rgba(255, 255, 255, 0.6)',
+            fontSize: typography.fontSize.base,
+            fontWeight: typography.fontWeight.semibold,
+            cursor: 'pointer',
+            transition: transitions.all,
+            display: 'flex',
+            alignItems: 'center',
+            gap: spacing[2],
+            marginBottom: '-2px'
+          }}
+          onMouseEnter={(e) => {
+            if (activeTab !== 'time') {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (activeTab !== 'time') {
+              e.currentTarget.style.background = 'transparent';
+            }
+          }}
+        >
+          <Clock size={18} />
+          Tidrapportering
+        </button>
+        <button
+          onClick={() => setActiveTab('shopping')}
+          style={{
+            padding: `${spacing[3]} ${spacing[6]}`,
+            background: activeTab === 'shopping' ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
+            border: 'none',
+            borderBottom: activeTab === 'shopping' ? '2px solid #3b82f6' : '2px solid transparent',
+            color: activeTab === 'shopping' ? '#fff' : 'rgba(255, 255, 255, 0.6)',
+            fontSize: typography.fontSize.base,
+            fontWeight: typography.fontWeight.semibold,
+            cursor: 'pointer',
+            transition: transitions.all,
+            display: 'flex',
+            alignItems: 'center',
+            gap: spacing[2],
+            marginBottom: '-2px'
+          }}
+          onMouseEnter={(e) => {
+            if (activeTab !== 'shopping') {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (activeTab !== 'shopping') {
+              e.currentTarget.style.background = 'transparent';
+            }
+          }}
+        >
+          <ShoppingCart size={18} />
+          Checklista
+        </button>
+        <button
+          onClick={() => setActiveTab('documents')}
+          style={{
+            padding: `${spacing[3]} ${spacing[6]}`,
+            background: activeTab === 'documents' ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
+            border: 'none',
+            borderBottom: activeTab === 'documents' ? '2px solid #3b82f6' : '2px solid transparent',
+            color: activeTab === 'documents' ? '#fff' : 'rgba(255, 255, 255, 0.6)',
+            fontSize: typography.fontSize.base,
+            fontWeight: typography.fontWeight.semibold,
+            cursor: 'pointer',
+            transition: transitions.all,
+            display: 'flex',
+            alignItems: 'center',
+            gap: spacing[2],
+            marginBottom: '-2px'
+          }}
+          onMouseEnter={(e) => {
+            if (activeTab !== 'documents') {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (activeTab !== 'documents') {
+              e.currentTarget.style.background = 'transparent';
+            }
+          }}
+        >
+          <File size={18} />
+          Dokument
+        </button>
+      </div>
+
+      {/* Order Details Tab */}
+      {activeTab === 'details' && (isEditing ? (
         // EDITING MODE FOR ORDER DETAILS
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[6] }}>
           <div className="card-enter hover-lift" style={{
@@ -1141,6 +1699,171 @@ export default function OrderDetails() {
               {order.description || "Ingen beskrivning tillgänglig."}
             </p>
 
+            {/* Noteringar Section */}
+            <div style={{
+              marginTop: spacing[8],
+              paddingTop: spacing[6],
+              borderTop: '1px solid rgba(255, 255, 255, 0.1)'
+            }}>
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: spacing[4]
+              }}>
+                <div style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: spacing[3]
+                }}>
+                  <FileText size={18} color="#10b981" />
+                  <span style={{
+                    fontSize: typography.fontSize.base,
+                    fontWeight: typography.fontWeight.semibold,
+                    color: '#fff'
+                  }}>Noteringar</span>
+                </div>
+                {!editingNotes && (
+                  <button
+                    onClick={() => setEditingNotes(true)}
+                    style={{
+                      padding: `${spacing[2]} ${spacing[3]}`,
+                      backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                      border: '1px solid #3b82f6',
+                      borderRadius: borderRadius.md,
+                      color: '#60a5fa',
+                      fontSize: typography.fontSize.sm,
+                      fontWeight: typography.fontWeight.medium,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: spacing[2],
+                      transition: transitions.base
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.3)'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.2)'}
+                  >
+                    <Edit3 size={14} />
+                    Redigera
+                  </button>
+                )}
+              </div>
+
+              {editingNotes ? (
+                <div>
+                  <textarea
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    placeholder="Skriv noteringar för denna arbetsorder..."
+                    rows={6}
+                    style={{
+                      width: '100%',
+                      padding: spacing[3],
+                      backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                      border: '1px solid rgba(59, 130, 246, 0.5)',
+                      borderRadius: borderRadius.lg,
+                      color: '#fff',
+                      fontSize: typography.fontSize.base,
+                      lineHeight: typography.lineHeight.relaxed,
+                      resize: 'vertical',
+                      outline: 'none',
+                      fontFamily: 'inherit',
+                      marginBottom: spacing[3]
+                    }}
+                  />
+                  <div style={{ display: 'flex', gap: spacing[2] }}>
+                    <button
+                      onClick={saveNotes}
+                      disabled={savingNotes}
+                      style={{
+                        padding: `${spacing[2]} ${spacing[4]}`,
+                        backgroundColor: colors.success[500],
+                        border: 'none',
+                        borderRadius: borderRadius.md,
+                        color: '#fff',
+                        fontSize: typography.fontSize.sm,
+                        fontWeight: typography.fontWeight.semibold,
+                        cursor: savingNotes ? 'not-allowed' : 'pointer',
+                        opacity: savingNotes ? 0.6 : 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: spacing[2],
+                        transition: transitions.base
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!savingNotes) e.currentTarget.style.backgroundColor = colors.success[600];
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!savingNotes) e.currentTarget.style.backgroundColor = colors.success[500];
+                      }}
+                    >
+                      <Save size={14} />
+                      {savingNotes ? 'Sparar...' : 'Spara'}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setNotes(order.notes || '');
+                        setEditingNotes(false);
+                      }}
+                      disabled={savingNotes}
+                      style={{
+                        padding: `${spacing[2]} ${spacing[4]}`,
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        borderRadius: borderRadius.md,
+                        color: '#fff',
+                        fontSize: typography.fontSize.sm,
+                        fontWeight: typography.fontWeight.semibold,
+                        cursor: savingNotes ? 'not-allowed' : 'pointer',
+                        opacity: savingNotes ? 0.6 : 1,
+                        transition: transitions.base
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!savingNotes) e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)';
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!savingNotes) e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                      }}
+                    >
+                      Avbryt
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div
+                  onClick={() => setEditingNotes(true)}
+                  style={{
+                    padding: spacing[4],
+                    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+                    borderRadius: borderRadius.lg,
+                    minHeight: '80px',
+                    cursor: 'pointer',
+                    transition: transitions.base,
+                    border: '1px solid rgba(255, 255, 255, 0.05)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
+                    e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.3)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.05)';
+                  }}
+                >
+                  <p style={{
+                    whiteSpace: "pre-wrap",
+                    color: notes ? '#cbd5e1' : 'rgba(255, 255, 255, 0.4)',
+                    lineHeight: typography.lineHeight.relaxed,
+                    fontSize: typography.fontSize.base,
+                    margin: 0,
+                    fontStyle: notes ? 'normal' : 'italic'
+                  }}>
+                    {notes || "Klicka för att lägga till noteringar..."}
+                  </p>
+                </div>
+              )}
+            </div>
+
             <div style={{
               marginTop: spacing[8],
               paddingTop: spacing[6],
@@ -1168,10 +1891,10 @@ export default function OrderDetails() {
             </div>
           </div>
         </div>
-      )}
+      ))}
 
-      {/* Time Reporting Section */}
-      {!isEditing && (
+      {/* Time Reporting Tab */}
+      {activeTab === 'time' && (
         <div style={{ marginTop: spacing[8] }}>
           <div className="card-enter" style={{
             backgroundColor: 'rgba(255, 255, 255, 0.05)',
@@ -1768,6 +2491,561 @@ export default function OrderDetails() {
               )}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Shopping List Tab */}
+      {activeTab === 'shopping' && (
+        <div className="card-enter" style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+          backdropFilter: 'blur(20px)',
+          borderRadius: borderRadius.xl,
+          boxShadow: '0 25px 50px rgba(0, 0, 0, 0.3)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          padding: spacing[6]
+        }}>
+          <div style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: spacing[6]
+          }}>
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              gap: spacing[3]
+            }}>
+              <ShoppingCart size={20} color="#10b981" />
+              <span style={{
+                fontSize: typography.fontSize.lg,
+                fontWeight: typography.fontWeight.bold,
+                color: '#fff'
+              }}>Checklista</span>
+            </div>
+            <div style={{ display: 'flex', gap: spacing[2] }}>
+              <ActionButton
+                onClick={() => {
+                  const title = window.prompt('Namn på checklista:');
+                  if (title) createNewList(title);
+                }}
+                icon={<Plus size={18} />}
+                color={colors.success[500]}
+                hoverColor={colors.success[600]}
+              >
+                Ny Lista
+              </ActionButton>
+              {selectedList && selectedList.status === 'active' && (
+                <ActionButton
+                  onClick={() => markListAsCompleted(selectedList.id)}
+                  icon={<CheckCircle size={18} />}
+                  color={colors.primary[500]}
+                  hoverColor={colors.primary[600]}
+                >
+                  Markera som klar
+                </ActionButton>
+              )}
+              {selectedList && (
+                <ActionButton
+                  onClick={() => deleteList(selectedList.id)}
+                  icon={<Trash2 size={18} />}
+                  color={colors.error[500]}
+                  hoverColor={colors.error[600]}
+                >
+                  Radera lista
+                </ActionButton>
+              )}
+            </div>
+          </div>
+
+          {purchaseLists.length === 0 ? (
+            <div style={{
+              textAlign: 'center',
+              padding: spacing[12],
+              color: 'rgba(255, 255, 255, 0.6)'
+            }}>
+              <ShoppingCart size={64} style={{ margin: '0 auto', marginBottom: spacing[4], opacity: 0.3 }} />
+              <p style={{ fontSize: typography.fontSize.lg, color: 'rgba(255, 255, 255, 0.6)' }}>
+                Ingen checklista ännu. Klicka på "Ny Lista" för att komma igång.
+              </p>
+            </div>
+          ) : (
+            <div>
+              {/* List selector - always show to display status */}
+              <div style={{ marginBottom: spacing[6] }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: spacing[3],
+                  marginBottom: spacing[3]
+                }}>
+                  <select
+                    value={selectedList?.id || ''}
+                    onChange={(e) => {
+                      const list = purchaseLists.find(l => l.id === e.target.value);
+                      setSelectedList(list);
+                    }}
+                    style={{
+                      flex: 1,
+                      padding: `${spacing[3]} ${spacing[4]}`,
+                      borderRadius: borderRadius.lg,
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                      color: '#fff',
+                      fontSize: typography.fontSize.base,
+                      fontWeight: typography.fontWeight.semibold,
+                      cursor: 'pointer',
+                      outline: 'none'
+                    }}
+                  >
+                    {purchaseLists.map(list => (
+                      <option key={list.id} value={list.id} style={{ backgroundColor: '#1a1a2e' }}>
+                        {list.title} {list.status === 'completed' ? '✓ Klar' : ''}
+                      </option>
+                    ))}
+                  </select>
+                  {selectedList && (
+                    <Badge
+                      variant={selectedList.status === 'completed' ? 'success' : 'info'}
+                      style={{ flexShrink: 0 }}
+                    >
+                      {selectedList.status === 'completed' ? 'Klar' : 'Aktiv'}
+                    </Badge>
+                  )}
+                </div>
+                {selectedList?.status === 'completed' && (
+                  <div style={{
+                    padding: spacing[3],
+                    background: 'rgba(16, 185, 129, 0.1)',
+                    border: '1px solid rgba(16, 185, 129, 0.3)',
+                    borderRadius: borderRadius.md,
+                    fontSize: typography.fontSize.sm,
+                    color: '#10b981'
+                  }}>
+                    <CheckCircle size={14} style={{ display: 'inline', marginRight: spacing[2] }} />
+                    Denna checklista är markerad som klar
+                  </div>
+                )}
+              </div>
+
+              {/* Checklist Items */}
+              <div style={{ marginBottom: spacing[6] }}>
+                {listItems.map(item => (
+                  <div
+                    key={item.id}
+                    style={{
+                      padding: `${spacing[3]} 0`,
+                      borderBottom: '1px solid rgba(255, 255, 255, 0.05)'
+                    }}
+                    onMouseEnter={(e) => {
+                      const deleteBtn = e.currentTarget.querySelector('.delete-btn');
+                      if (deleteBtn) deleteBtn.style.opacity = '1';
+                    }}
+                    onMouseLeave={(e) => {
+                      const deleteBtn = e.currentTarget.querySelector('.delete-btn');
+                      if (deleteBtn) deleteBtn.style.opacity = '0';
+                    }}
+                  >
+                    {/* Main item row */}
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: spacing[3]
+                    }}>
+                      {/* Checkbox Circle */}
+                      <button
+                        onClick={() => toggleItemChecked(item)}
+                        style={{
+                          width: '24px',
+                          height: '24px',
+                          borderRadius: '50%',
+                          border: `2px solid ${item.checked ? '#10b981' : 'rgba(255, 255, 255, 0.3)'}`,
+                          background: item.checked ? '#10b981' : 'transparent',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0,
+                          transition: transitions.all,
+                          padding: 0
+                        }}
+                      >
+                        {item.checked && <Check size={16} color="#fff" strokeWidth={3} />}
+                      </button>
+
+                      {/* Item Text */}
+                      <div
+                        style={{
+                          flex: 1,
+                          fontSize: typography.fontSize.base,
+                          color: '#fff',
+                          textDecoration: item.checked ? 'line-through' : 'none',
+                          opacity: item.checked ? 0.5 : 1,
+                          transition: transitions.all
+                        }}
+                      >
+                        {item.item_name}
+                      </div>
+
+                      {/* Delete Button */}
+                      <button
+                        className="delete-btn"
+                        onClick={() => deleteItem(item.id)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          padding: spacing[1],
+                          color: 'rgba(255, 255, 255, 0.5)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          opacity: 0,
+                          transition: transitions.all
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.color = '#ef4444'}
+                        onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255, 255, 255, 0.5)'}
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+
+                    {/* Comment section */}
+                    <div style={{ marginLeft: `calc(24px + ${spacing[3]})`, marginTop: spacing[1] }}>
+                      {editingCommentId === item.id ? (
+                        <input
+                          type="text"
+                          value={commentText}
+                          onChange={(e) => setCommentText(e.target.value)}
+                          onBlur={() => handleCommentBlur(item.id)}
+                          onKeyDown={(e) => handleCommentKeyDown(e, item.id)}
+                          placeholder="Lägg till kommentar (t.ex. slut hos grossist, beställa...)"
+                          autoFocus
+                          style={{
+                            width: '100%',
+                            padding: spacing[1],
+                            background: 'rgba(0, 0, 0, 0.3)',
+                            border: '1px solid rgba(59, 130, 246, 0.5)',
+                            borderRadius: borderRadius.md,
+                            color: '#fff',
+                            fontSize: typography.fontSize.sm,
+                            outline: 'none'
+                          }}
+                        />
+                      ) : (
+                        <div
+                          onClick={() => handleCommentClick(item)}
+                          style={{
+                            fontSize: typography.fontSize.sm,
+                            color: item.comment ? 'rgba(255, 255, 255, 0.6)' : 'rgba(255, 255, 255, 0.3)',
+                            fontStyle: item.comment ? 'normal' : 'italic',
+                            cursor: 'pointer',
+                            padding: spacing[1],
+                            borderRadius: borderRadius.md,
+                            transition: transitions.all
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'}
+                          onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                        >
+                          {item.comment || 'Lägg till kommentar...'}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Add New Item Input */}
+              <form onSubmit={createNewItem} style={{ display: 'flex', alignItems: 'center', gap: spacing[3] }}>
+                <div
+                  style={{
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '50%',
+                    border: '2px solid rgba(255, 255, 255, 0.2)',
+                    flexShrink: 0
+                  }}
+                />
+                <input
+                  type="text"
+                  value={newItemText}
+                  onChange={(e) => setNewItemText(e.target.value)}
+                  placeholder="Lägg till artikel..."
+                  style={{
+                    flex: 1,
+                    background: 'transparent',
+                    border: 'none',
+                    outline: 'none',
+                    color: '#fff',
+                    fontSize: typography.fontSize.base,
+                    padding: `${spacing[2]} 0`
+                  }}
+                />
+              </form>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Documents Tab */}
+      {activeTab === 'documents' && (
+        <div className="card-enter" style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+          backdropFilter: 'blur(20px)',
+          borderRadius: borderRadius.xl,
+          boxShadow: '0 25px 50px rgba(0, 0, 0, 0.3)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          padding: spacing[6]
+        }}>
+          {/* Header */}
+          <div style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: spacing[6]
+          }}>
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              gap: spacing[3]
+            }}>
+              <File size={20} color="#10b981" />
+              <span style={{
+                fontSize: typography.fontSize.lg,
+                fontWeight: typography.fontWeight.bold,
+                color: '#fff'
+              }}>Dokument & Bilder</span>
+            </div>
+            <div style={{ display: 'flex', gap: spacing[2] }}>
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                accept="image/*,.pdf,.doc,.docx,.txt"
+                onChange={handleFileUpload}
+                style={{ display: 'none' }}
+              />
+              <ActionButton
+                onClick={() => fileInputRef.current?.click()}
+                icon={<Upload size={18} />}
+                color={colors.primary[500]}
+                hoverColor={colors.primary[600]}
+                disabled={uploading}
+              >
+                {uploading ? 'Laddar upp...' : 'Ladda upp'}
+              </ActionButton>
+              <ActionButton
+                onClick={startCamera}
+                icon={<Camera size={18} />}
+                color={colors.success[500]}
+                hoverColor={colors.success[600]}
+              >
+                Ta foto
+              </ActionButton>
+            </div>
+          </div>
+
+          {/* Camera View */}
+          {showCamera && (
+            <div style={{
+              marginBottom: spacing[6],
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              borderRadius: borderRadius.lg,
+              padding: spacing[4],
+              position: 'relative'
+            }}>
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: spacing[4]
+              }}>
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  style={{
+                    width: '100%',
+                    maxWidth: '600px',
+                    borderRadius: borderRadius.lg,
+                    backgroundColor: '#000'
+                  }}
+                />
+                <canvas ref={canvasRef} style={{ display: 'none' }} />
+                <div style={{ display: 'flex', gap: spacing[3] }}>
+                  <ActionButton
+                    onClick={capturePhoto}
+                    icon={<Camera size={18} />}
+                    color={colors.success[500]}
+                    hoverColor={colors.success[600]}
+                    disabled={uploading}
+                  >
+                    {uploading ? 'Sparar...' : 'Ta bild'}
+                  </ActionButton>
+                  <ActionButton
+                    onClick={stopCamera}
+                    icon={<X size={18} />}
+                    color={colors.error[500]}
+                    hoverColor={colors.error[600]}
+                  >
+                    Avbryt
+                  </ActionButton>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Documents Grid */}
+          {documents.length === 0 ? (
+            <div style={{
+              textAlign: 'center',
+              padding: spacing[12],
+              color: 'rgba(255, 255, 255, 0.6)'
+            }}>
+              <File size={64} style={{ margin: '0 auto', marginBottom: spacing[4], opacity: 0.3 }} />
+              <p style={{ fontSize: typography.fontSize.lg, marginBottom: spacing[2] }}>
+                Inga dokument uppladdade ännu
+              </p>
+              <p style={{ fontSize: typography.fontSize.sm, color: 'rgba(255, 255, 255, 0.4)' }}>
+                Ladda upp filer eller ta bilder för att komma igång
+              </p>
+            </div>
+          ) : (
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+              gap: spacing[4]
+            }}>
+              {documents.map(doc => (
+                <div
+                  key={doc.id}
+                  style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                    borderRadius: borderRadius.lg,
+                    padding: spacing[4],
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    transition: transitions.base,
+                    cursor: 'pointer'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                  }}
+                >
+                  {/* File Preview */}
+                  <div style={{
+                    width: '100%',
+                    height: '150px',
+                    borderRadius: borderRadius.md,
+                    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                    marginBottom: spacing[3],
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    overflow: 'hidden'
+                  }}>
+                    {doc.file_type === 'image' ? (
+                      <img
+                        src={doc.file_url}
+                        alt={doc.file_name}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover'
+                        }}
+                        onClick={() => window.open(doc.file_url, '_blank')}
+                      />
+                    ) : (
+                      <File size={48} color="rgba(255, 255, 255, 0.4)" />
+                    )}
+                  </div>
+
+                  {/* File Info */}
+                  <div style={{
+                    marginBottom: spacing[3]
+                  }}>
+                    <div style={{
+                      fontSize: typography.fontSize.sm,
+                      fontWeight: typography.fontWeight.semibold,
+                      color: '#fff',
+                      marginBottom: spacing[1],
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }}>
+                      {doc.file_name}
+                    </div>
+                    <div style={{
+                      fontSize: typography.fontSize.xs,
+                      color: 'rgba(255, 255, 255, 0.5)'
+                    }}>
+                      {new Date(doc.created_at).toLocaleDateString('sv-SE')}
+                      {doc.file_size && ` • ${(doc.file_size / 1024).toFixed(0)} KB`}
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div style={{
+                    display: 'flex',
+                    gap: spacing[2]
+                  }}>
+                    <button
+                      onClick={() => window.open(doc.file_url, '_blank')}
+                      style={{
+                        flex: 1,
+                        padding: spacing[2],
+                        backgroundColor: colors.primary[500],
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: borderRadius.md,
+                        fontSize: typography.fontSize.xs,
+                        fontWeight: typography.fontWeight.semibold,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: spacing[1],
+                        transition: transitions.base
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colors.primary[600]}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colors.primary[500]}
+                    >
+                      <Download size={14} />
+                      Öppna
+                    </button>
+                    <button
+                      onClick={() => deleteDocument(doc.id, doc.file_url)}
+                      style={{
+                        padding: spacing[2],
+                        backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                        color: colors.error[400],
+                        border: `1px solid ${colors.error[500]}`,
+                        borderRadius: borderRadius.md,
+                        fontSize: typography.fontSize.xs,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: transitions.base
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = colors.error[500];
+                        e.currentTarget.style.color = '#fff';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.2)';
+                        e.currentTarget.style.color = colors.error[400];
+                      }}
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>

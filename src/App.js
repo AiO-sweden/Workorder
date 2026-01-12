@@ -17,6 +17,7 @@ import SidebarLayout from "./layouts/SidebarLayout";
 import ReportsPage from "./pages/ReportsPage";
 import SettingsPage from "./pages/SettingsPage";
 import MigrationPage from "./pages/MigrationPage";
+import Schema from "./pages/Schema";
 
 export default function App() {
   return (
@@ -35,6 +36,7 @@ export default function App() {
             <Route path="/dashboard" element={<ErrorBoundary><Dashboard /></ErrorBoundary>} />
             <Route path="/orders/new" element={<ErrorBoundary><NewOrder /></ErrorBoundary>} />
             <Route path="/orders/:id" element={<ErrorBoundary><OrderDetails /></ErrorBoundary>} />
+            <Route path="/schema" element={<ErrorBoundary><Schema /></ErrorBoundary>} />
             <Route path="/customers" element={<ErrorBoundary><CustomerList /></ErrorBoundary>} />
             <Route path="/customers/new" element={<ErrorBoundary><NewCustomer /></ErrorBoundary>} />
             <Route path="/customers/:id" element={<ErrorBoundary><CustomerDetails /></ErrorBoundary>} />

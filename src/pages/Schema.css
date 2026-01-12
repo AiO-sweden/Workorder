@@ -1,0 +1,385 @@
+/* Modern Dark Theme for FullCalendar */
+
+/* Main Calendar Container */
+.fc {
+  background: transparent !important;
+  color: #fff !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+}
+
+/* Force all calendar backgrounds to dark */
+.fc-view-harness,
+.fc-view-harness-active,
+.fc-daygrid,
+.fc-timegrid,
+.fc-scrollgrid-sync-table,
+.fc table {
+  background: transparent !important;
+}
+
+.fc-theme-standard td,
+.fc-theme-standard th {
+  background: transparent !important;
+}
+
+/* Toolbar styling */
+.fc .fc-toolbar {
+  margin-bottom: 1.5rem !important;
+  padding: 0 !important;
+}
+
+.fc .fc-toolbar-title {
+  font-size: 1.5rem !important;
+  font-weight: 600 !important;
+  color: #fff !important;
+  text-transform: capitalize !important;
+}
+
+/* Buttons - Modern glassmorphism style */
+.fc .fc-button {
+  background: rgba(59, 130, 246, 0.1) !important;
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+  color: #fff !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 0.5rem !important;
+  font-weight: 500 !important;
+  font-size: 0.875rem !important;
+  text-transform: capitalize !important;
+  transition: all 0.2s ease !important;
+  box-shadow: none !important;
+}
+
+.fc .fc-button:hover {
+  background: rgba(59, 130, 246, 0.2) !important;
+  border-color: rgba(59, 130, 246, 0.5) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2) !important;
+}
+
+.fc .fc-button:active,
+.fc .fc-button:focus {
+  background: rgba(59, 130, 246, 0.3) !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+  outline: none !important;
+}
+
+.fc .fc-button-primary:disabled {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: rgba(255, 255, 255, 0.3) !important;
+  opacity: 0.6 !important;
+}
+
+/* Active button state */
+.fc .fc-button-active {
+  background: rgba(59, 130, 246, 0.3) !important;
+  border-color: rgba(59, 130, 246, 0.6) !important;
+  color: #fff !important;
+}
+
+/* Table Headers (Day names) */
+.fc .fc-col-header {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: none !important;
+}
+
+.fc .fc-col-header-cell {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  padding: 0.75rem 0.5rem !important;
+  font-weight: 600 !important;
+  font-size: 0.75rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.fc .fc-col-header-cell-cushion {
+  color: rgba(255, 255, 255, 0.9) !important;
+  padding: 0.5rem !important;
+}
+
+/* Day cells */
+.fc .fc-daygrid-day,
+.fc .fc-timegrid-slot,
+.fc .fc-timegrid-col {
+  background: rgba(0, 0, 0, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.fc .fc-daygrid-day:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Scrollbar areas and background cells */
+.fc .fc-scrollgrid,
+.fc .fc-scrollgrid-section,
+.fc .fc-scrollgrid-section-body,
+.fc .fc-scrollgrid-section-sticky {
+  background: transparent !important;
+}
+
+.fc .fc-daygrid-body,
+.fc .fc-timegrid-body {
+  background: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Day numbers */
+.fc .fc-daygrid-day-number,
+.fc .fc-timegrid-slot-label {
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-weight: 500 !important;
+  padding: 0.5rem !important;
+}
+
+/* Today's date highlight */
+.fc .fc-day-today {
+  background: rgba(59, 130, 246, 0.08) !important;
+}
+
+.fc .fc-day-today .fc-daygrid-day-number {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+  color: #fff !important;
+  border-radius: 50% !important;
+  width: 2rem !important;
+  height: 2rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-weight: 600 !important;
+}
+
+/* Weekend days */
+.fc .fc-day-sat,
+.fc .fc-day-sun {
+  background: rgba(255, 255, 255, 0.01) !important;
+}
+
+/* Other month days */
+.fc .fc-day-other {
+  opacity: 0.3 !important;
+}
+
+/* Events */
+.fc-event {
+  border: none !important;
+  padding: 0.25rem 0.5rem !important;
+  margin: 0.125rem !important;
+  border-radius: 0.375rem !important;
+  font-weight: 500 !important;
+  font-size: 0.8125rem !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+.fc-event:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+  filter: brightness(1.1) !important;
+}
+
+.fc-event .fc-event-main {
+  color: #fff !important;
+}
+
+/* All-day events - make them fill the entire day cell */
+.fc-daygrid-event {
+  padding: 0.5rem !important;
+  margin: 0.25rem !important;
+  border-radius: 0.5rem !important;
+  font-weight: 600 !important;
+}
+
+.fc-daygrid-event.fc-event-start,
+.fc-daygrid-event.fc-event-end {
+  margin-left: 0.25rem !important;
+  margin-right: 0.25rem !important;
+}
+
+/* Make all-day events more prominent */
+.fc-daygrid-event .fc-event-title {
+  font-weight: 600 !important;
+  white-space: normal !important;
+  overflow: visible !important;
+}
+
+/* Time grid specific */
+.fc .fc-timegrid-axis {
+  background: rgba(255, 255, 255, 0.02) !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.fc .fc-timegrid-slot-label-cushion {
+  color: rgba(255, 255, 255, 0.6) !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+}
+
+.fc .fc-timegrid-slot {
+  height: 3rem !important;
+}
+
+/* Current time indicator */
+.fc .fc-timegrid-now-indicator-line {
+  border-color: #3b82f6 !important;
+  border-width: 2px !important;
+}
+
+.fc .fc-timegrid-now-indicator-arrow {
+  border-color: #3b82f6 !important;
+}
+
+/* List view */
+.fc .fc-list {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.fc .fc-list-day-cushion {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: #fff !important;
+  font-weight: 600 !important;
+}
+
+.fc .fc-list-event {
+  background: rgba(255, 255, 255, 0.02) !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.fc .fc-list-event:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.fc .fc-list-event-time,
+.fc .fc-list-event-title {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Scrollbars */
+.fc-scroller::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.fc-scroller::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.fc-scroller::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.3);
+  border-radius: 4px;
+}
+
+.fc-scroller::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.5);
+}
+
+/* More link (when too many events) */
+.fc .fc-more-link {
+  color: #3b82f6 !important;
+  font-weight: 600 !important;
+}
+
+.fc .fc-more-link:hover {
+  color: #60a5fa !important;
+}
+
+/* Popover */
+.fc .fc-popover {
+  background: linear-gradient(135deg, rgba(26, 26, 46, 0.98) 0%, rgba(22, 33, 62, 0.98) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 0.75rem !important;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(20px) !important;
+}
+
+.fc .fc-popover-header {
+  background: rgba(59, 130, 246, 0.1) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #fff !important;
+  padding: 0.75rem 1rem !important;
+  border-radius: 0.75rem 0.75rem 0 0 !important;
+}
+
+.fc .fc-popover-body {
+  padding: 0.5rem !important;
+}
+
+.fc .fc-popover-close {
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-size: 1.25rem !important;
+  opacity: 0.8 !important;
+}
+
+.fc .fc-popover-close:hover {
+  opacity: 1 !important;
+  color: #fff !important;
+}
+
+/* Remove default borders that look old */
+.fc table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+.fc th,
+.fc td {
+  border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Improve spacing and readability */
+.fc .fc-daygrid-day-top {
+  padding: 0.5rem !important;
+  background: transparent !important;
+}
+
+.fc .fc-daygrid-day-frame {
+  background: transparent !important;
+}
+
+/* Force header sections to dark theme */
+.fc .fc-scrollgrid-section-header {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.fc .fc-scrollgrid-section-header > * {
+  background: transparent !important;
+}
+
+.fc .fc-daygrid-day-events {
+  margin: 0.25rem !important;
+}
+
+/* Week view specific improvements */
+.fc .fc-timegrid-event {
+  border-radius: 0.375rem !important;
+  border: none !important;
+  padding: 0.25rem 0.5rem !important;
+}
+
+.fc .fc-timegrid-event-harness {
+  margin: 0 0.125rem !important;
+}
+
+/* Highlight selection */
+.fc-highlight {
+  background: rgba(59, 130, 246, 0.15) !important;
+}
+
+/* Event resizing and dragging */
+.fc-event-dragging,
+.fc-event-resizing {
+  opacity: 0.8 !important;
+  cursor: move !important;
+}
+
+/* All-day events section */
+.fc .fc-timegrid-divider {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.fc .fc-timegrid-axis-cushion {
+  color: rgba(255, 255, 255, 0.6) !important;
+}

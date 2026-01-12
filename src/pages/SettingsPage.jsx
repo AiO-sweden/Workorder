@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabase";
 import { useAuth } from "../contexts/AuthContext";
+import Papa from 'papaparse';
 import {
   Settings,
   DollarSign,
@@ -27,7 +28,51 @@ import {
   Upload,
   Image,
   FileText,
-  CreditCard
+  CreditCard,
+  FileUp,
+  Calendar,
+  Paintbrush,
+  Scissors,
+  Truck,
+  Car,
+  Package,
+  TreePine,
+  Leaf,
+  Droplet,
+  Phone,
+  MessageSquare,
+  Bell,
+  FileCheck,
+  ClipboardCheck,
+  Star,
+  CheckSquare,
+  Target,
+  Flame,
+  Lightbulb,
+  Archive,
+  Box,
+  Waves,
+  Plug,
+  Radio,
+  Warehouse,
+  Factory,
+  Construction,
+  HardHat,
+  Coffee,
+  BookOpen,
+  MapPin,
+  Cog,
+  Pipette,
+  Wind,
+  Sparkles,
+  Sun,
+  Moon,
+  Cloud,
+  CloudRain,
+  Battery,
+  BatteryCharging,
+  Wifi,
+  Bluetooth
 } from "lucide-react";
 import { spacing, typography, shadows, borderRadius, transitions } from "../components/shared/styles";
 import ActionButton from "../components/shared/ActionButton";
@@ -95,10 +140,36 @@ const DEFAULT_WORK_TYPES = [
   { id: "ovrigt", name: "Övrigt", icon: "MoreHorizontal", color: "#64748b" }
 ];
 
-// Available icons for work types
+const DEFAULT_EVENT_TYPES = [
+  { id: "work_order", name: "Arbetsorder", icon: "Wrench", color: "#3b82f6" },
+  { id: "meeting", name: "Möte", icon: "Users", color: "#8b5cf6" },
+  { id: "break", name: "Rast/Paus", icon: "Clock", color: "#6b7280" },
+  { id: "training", name: "Utbildning", icon: "Shield", color: "#f59e0b" },
+  { id: "other", name: "Övrigt", icon: "MoreHorizontal", color: "#ec4899" }
+];
+
+// Available icons for work types and event types
 const AVAILABLE_ICONS = {
-  Hammer, Zap, Shield, Cpu, Home, Wrench, Building, MoreHorizontal,
-  Briefcase, Users, Settings, DollarSign, Clock
+  // Verktyg & Hantverk
+  Hammer, Wrench, Paintbrush, Scissors,
+  // Elektricitet & Teknik
+  Zap, Cpu, Plug, Radio, Battery, BatteryCharging, Wifi, Bluetooth,
+  // Byggnader & Konstruktion
+  Building, Building2, Home, Construction, Factory, Warehouse, HardHat,
+  // Transport & Logistik
+  Truck, Car, Package,
+  // Natur & Miljö & Väder
+  TreePine, Leaf, Droplet, Waves, Flame, Wind, Sun, Moon, Cloud, CloudRain,
+  // Kommunikation
+  Phone, MessageSquare, Bell, Mail,
+  // Dokument & Organisation
+  FileText, FileCheck, ClipboardCheck, Briefcase, Archive, Box,
+  // Personer & Team
+  Users, Shield,
+  // Övrigt
+  Coffee, BookOpen, MapPin, Cog, Pipette, Sparkles,
+  // Generellt
+  Calendar, Clock, Settings, DollarSign, Star, CheckSquare, Target, Lightbulb, MoreHorizontal
 };
 
 const IconComponent = ({ iconName, size = 20, color }) => {
@@ -109,10 +180,11 @@ const IconComponent = ({ iconName, size = 20, color }) => {
 export default function SettingsPage() {
   const { userDetails } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("users"); // timeCodes, users, workTypes
+  const [activeTab, setActiveTab] = useState("users"); // timeCodes, users, workTypes, eventTypes
   const [timeCodes, setTimeCodes] = useState([]);
   const [users, setUsers] = useState([]);
   const [workTypes, setWorkTypes] = useState([]);
+  const [eventTypes, setEventTypes] = useState(DEFAULT_EVENT_TYPES);
   const [organization, setOrganization] = useState(null);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
@@ -123,6 +195,8 @@ export default function SettingsPage() {
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [fetchingCompanyData, setFetchingCompanyData] = useState(false);
   const [companyDataFetched, setCompanyDataFetched] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [importResults, setImportResults] = useState(null);
 
   // Redirect non-admin users to dashboard
   useEffect(() => {
@@ -146,6 +220,13 @@ export default function SettingsPage() {
   });
 
   const [newWorkType, setNewWorkType] = useState({
+    id: "",
+    name: "",
+    icon: "Briefcase",
+    color: "#3b82f6"
+  });
+
+  const [newEventType, setNewEventType] = useState({
     id: "",
     name: "",
     icon: "Briefcase",
@@ -227,6 +308,7 @@ export default function SettingsPage() {
     if (!userDetails.organizationId) {
       console.log('⚠️ SettingsPage: No organizationId, using default settings');
       setWorkTypes(DEFAULT_WORK_TYPES);
+      setEventTypes(DEFAULT_EVENT_TYPES);
       setLoading(false);
       return;
     }
@@ -247,15 +329,18 @@ export default function SettingsPage() {
 
       if (settingsData) {
         setWorkTypes(settingsData.work_types || DEFAULT_WORK_TYPES);
+        setEventTypes(settingsData.event_types || DEFAULT_EVENT_TYPES);
         console.log('✅ SettingsPage: Settings fetched successfully');
       } else {
         // Initialize with defaults
         setWorkTypes(DEFAULT_WORK_TYPES);
+        setEventTypes(DEFAULT_EVENT_TYPES);
         console.log('⚠️ SettingsPage: No settings found, creating defaults...');
         const { error: insertError } = await supabase
           .from('settings')
           .insert({
             work_types: DEFAULT_WORK_TYPES,
+            event_types: DEFAULT_EVENT_TYPES,
             organization_id: userDetails.organizationId
           });
 
@@ -579,7 +664,7 @@ export default function SettingsPage() {
     }
   };
 
-  const saveSettings = async (updatedWorkTypes) => {
+  const saveSettings = async (updatedWorkTypes, updatedEventTypes) => {
     if (!userDetails?.organizationId) return;
 
     try {
@@ -587,6 +672,7 @@ export default function SettingsPage() {
         .from('settings')
         .upsert({
           work_types: updatedWorkTypes || workTypes,
+          event_types: updatedEventTypes || eventTypes,
           organization_id: userDetails.organizationId
         }, {
           onConflict: 'organization_id'
@@ -595,6 +681,7 @@ export default function SettingsPage() {
       if (error) throw error;
 
       if (updatedWorkTypes) setWorkTypes(updatedWorkTypes);
+      if (updatedEventTypes) setEventTypes(updatedEventTypes);
       setToast({ message: "Inställningar sparade!", type: "success" });
     } catch (err) {
       console.error("Error saving settings:", err);
@@ -761,6 +848,48 @@ export default function SettingsPage() {
     await saveSettings(updated);
   };
 
+  // Event Type handlers
+  const handleUpdateEventType = (id, field, value) => {
+    const updated = eventTypes.map(et =>
+      et.id === id ? { ...et, [field]: value } : et
+    );
+    setEventTypes(updated);
+  };
+
+  const handleSaveEventType = async () => {
+    await saveSettings(null, eventTypes);
+    setEditingId(null);
+  };
+
+  const handleAddEventType = async () => {
+    if (!newEventType.name || !newEventType.id) {
+      setToast({ message: "Namn och ID är obligatoriska", type: "error" });
+      return;
+    }
+
+    if (eventTypes.find(et => et.id === newEventType.id)) {
+      setToast({ message: "En händelsetyp med detta ID finns redan", type: "error" });
+      return;
+    }
+
+    const updated = [...eventTypes, { ...newEventType }];
+    await saveSettings(null, updated);
+
+    setNewEventType({
+      id: "",
+      name: "",
+      icon: "Briefcase",
+      color: "#3b82f6"
+    });
+    setShowAddForm(false);
+  };
+
+  const handleDeleteEventType = async (id) => {
+    if (!window.confirm("Är du säker på att du vill ta bort denna händelsetyp?")) return;
+    const updated = eventTypes.filter(et => et.id !== id);
+    await saveSettings(null, updated);
+  };
+
   // User handlers
   const handleInviteUser = async () => {
     if (!newUser.email) {
@@ -865,6 +994,158 @@ Välkommen!`;
     } catch (err) {
       console.error("Error deleting user:", err);
       setToast({ message: "Kunde inte ta bort användare", type: "error" });
+    }
+  };
+
+  // CSV Import handler
+  const handleCSVImport = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    setImporting(true);
+    setImportResults(null);
+
+    try {
+      Papa.parse(file, {
+        header: true,
+        delimiter: ";",
+        skipEmptyLines: true,
+        complete: async (results) => {
+          try {
+            const importStats = {
+              total: results.data.length,
+              success: 0,
+              failed: 0,
+              errors: [],
+              createdCustomers: []
+            };
+
+            // Get all existing customers for this organization
+            const { data: existingCustomers } = await supabase
+              .from('customers')
+              .select('*')
+              .eq('organization_id', userDetails.organizationId);
+
+            const customerMap = new Map();
+            existingCustomers?.forEach(c => {
+              if (c.customer_number) customerMap.set(c.customer_number, c);
+              customerMap.set(c.name.toLowerCase(), c);
+            });
+
+            // Process each order
+            for (const row of results.data) {
+              try {
+                // Find or create customer
+                let customer = null;
+                const customerNumber = row['Kundnummer']?.trim();
+                const customerName = row['Kund']?.trim();
+
+                if (customerNumber && customerMap.has(customerNumber)) {
+                  customer = customerMap.get(customerNumber);
+                } else if (customerName && customerMap.has(customerName.toLowerCase())) {
+                  customer = customerMap.get(customerName.toLowerCase());
+                } else if (customerName) {
+                  // Create new customer
+                  const { data: newCustomer, error: customerError } = await supabase
+                    .from('customers')
+                    .insert([{
+                      organization_id: userDetails.organizationId,
+                      name: customerName,
+                      customer_number: customerNumber || `KND-${Date.now()}`,
+                      address: row['Objekt']?.trim() || '',
+                      contact_person: row['Kontaktperson']?.trim() || '',
+                      created_at: new Date().toISOString()
+                    }])
+                    .select()
+                    .single();
+
+                  if (customerError) throw customerError;
+
+                  customer = newCustomer;
+                  customerMap.set(customerNumber || customerName.toLowerCase(), newCustomer);
+                  importStats.createdCustomers.push(customerName);
+                }
+
+                if (!customer) {
+                  importStats.failed++;
+                  importStats.errors.push(`Rad ${importStats.success + importStats.failed + 1}: Ingen kund hittades eller skapad`);
+                  continue;
+                }
+
+                // Map work type
+                const workTypeMap = {
+                  'VVS': 'vvs',
+                  'El': 'el',
+                  'Bygg': 'bygg',
+                  'IT': 'it',
+                  'Rivning': 'rivning',
+                  'Anläggning': 'anlaggning',
+                  'Garanti': 'garanti'
+                };
+                const workType = workTypeMap[row['Arbetsordertyp']?.trim()] || 'ovrigt';
+
+                // Map status
+                const statusMap = {
+                  'Avslutad': 'Full fakturerad',
+                  'Pågående': 'Pågående',
+                  'Planerad': 'Planerad'
+                };
+                const status = statusMap[row['Status']?.trim()] || 'Ej påbörjad';
+
+                // Create order
+                const { error: orderError } = await supabase
+                  .from('orders')
+                  .insert([{
+                    organization_id: userDetails.organizationId,
+                    order_number: row['Nummer']?.trim() || `ORD-${Date.now()}`,
+                    title: row['Benämning']?.trim() || 'Importerad arbetsorder',
+                    description: row['Beskrivning']?.trim() || '',
+                    customer_id: customer.id,
+                    work_type: workType,
+                    status: status,
+                    address: row['Objekt']?.trim() || customer.address || '',
+                    deadline: row['Slut'] ? new Date(row['Slut']).toISOString() : null,
+                    billing_type: 'Löpande pris',
+                    billable: true,
+                    priority: 'Mellan',
+                    estimated_time: null,
+                    assigned_to: [],
+                    fixed_price: null
+                  }]);
+
+                if (orderError) throw orderError;
+                importStats.success++;
+
+              } catch (rowError) {
+                importStats.failed++;
+                importStats.errors.push(`Rad ${importStats.success + importStats.failed + 1}: ${rowError.message}`);
+                console.error('Row import error:', rowError);
+              }
+            }
+
+            setImportResults(importStats);
+            setToast({
+              message: `Import klar! ${importStats.success} ordrar importerade, ${importStats.failed} misslyckades.`,
+              type: importStats.failed > 0 ? "warning" : "success"
+            });
+
+          } catch (error) {
+            console.error('Import processing error:', error);
+            setToast({ message: `Import misslyckades: ${error.message}`, type: "error" });
+          } finally {
+            setImporting(false);
+          }
+        },
+        error: (error) => {
+          console.error('CSV parsing error:', error);
+          setToast({ message: `Kunde inte läsa CSV-fil: ${error.message}`, type: "error" });
+          setImporting(false);
+        }
+      });
+    } catch (error) {
+      console.error('CSV import error:', error);
+      setToast({ message: `Import misslyckades: ${error.message}`, type: "error" });
+      setImporting(false);
     }
   };
 
@@ -996,6 +1277,57 @@ Välkommen!`;
         >
           <Briefcase size={18} />
           Arbetstyper
+        </button>
+
+        <button
+          onClick={() => {
+            setActiveTab("eventTypes");
+            setShowAddForm(false);
+            setEditingId(null);
+          }}
+          style={{
+            padding: `${spacing[3]} ${spacing[6]}`,
+            border: "none",
+            backgroundColor: "transparent",
+            borderBottom: `3px solid ${activeTab === "eventTypes" ? "#60a5fa" : "transparent"}`,
+            color: activeTab === "eventTypes" ? "#60a5fa" : "#94a3b8",
+            fontWeight: typography.fontWeight.semibold,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: spacing[2],
+            marginBottom: "-2px",
+            transition: `all ${transitions.base}`
+          }}
+        >
+          <Calendar size={18} />
+          Händelsetyper
+        </button>
+
+        <button
+          onClick={() => {
+            setActiveTab("import");
+            setShowAddForm(false);
+            setEditingId(null);
+            setImportResults(null);
+          }}
+          style={{
+            padding: `${spacing[3]} ${spacing[6]}`,
+            border: "none",
+            backgroundColor: "transparent",
+            borderBottom: `3px solid ${activeTab === "import" ? "#60a5fa" : "transparent"}`,
+            color: activeTab === "import" ? "#60a5fa" : "#94a3b8",
+            fontWeight: typography.fontWeight.semibold,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: spacing[2],
+            marginBottom: "-2px",
+            transition: `all ${transitions.base}`
+          }}
+        >
+          <FileUp size={18} />
+          Importera
         </button>
       </div>
 
@@ -2368,6 +2700,533 @@ Välkommen!`;
                 </div>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {/* Event Types Tab */}
+      {activeTab === "eventTypes" && (
+        <div style={{
+          ...darkCardStyle,
+          animation: 'fadeIn 0.3s ease-out'
+        }}>
+          <div style={darkSectionHeaderStyle}>
+            <Calendar size={20} color="#60a5fa" />
+            <span>Händelsetyper</span>
+          </div>
+
+          <p style={{
+            color: '#94a3b8',
+            marginBottom: spacing[6]
+          }}>
+            Hantera dina händelsetyper som används i schemat. Anpassa ikoner och färger för varje typ av händelse.
+          </p>
+
+          {/* Add New Button */}
+          <div style={{ marginBottom: spacing[6] }}>
+            <ActionButton
+              onClick={() => setShowAddForm(!showAddForm)}
+              variant={showAddForm ? "secondary" : "primary"}
+              icon={showAddForm ? <X size={18} /> : <Plus size={18} />}
+            >
+              {showAddForm ? "Avbryt" : "Lägg till händelsetyp"}
+            </ActionButton>
+          </div>
+
+          {/* Add New Form */}
+          {showAddForm && (
+            <div style={{
+              padding: spacing[6],
+              backgroundColor: 'rgba(255, 255, 255, 0.03)',
+              borderRadius: borderRadius.lg,
+              marginBottom: spacing[6],
+              border: '2px solid rgba(96, 165, 250, 0.3)',
+              animation: 'slideDown 0.3s ease-out'
+            }}>
+              <h3 style={{
+                margin: `0 0 ${spacing[4]} 0`,
+                fontSize: typography.fontSize.lg,
+                fontWeight: typography.fontWeight.semibold,
+                color: '#fff'
+              }}>
+                Ny händelsetyp
+              </h3>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[4] }}>
+                <FormField label="ID" required helper="Unikt ID för händelsetypen (t.ex. 'installation')">
+                  <input
+                    type="text"
+                    value={newEventType.id}
+                    onChange={(e) => setNewEventType({ ...newEventType, id: e.target.value })}
+                    placeholder="installation"
+                    style={darkInputStyle}
+                  />
+                </FormField>
+
+                <FormField label="Namn" required>
+                  <input
+                    type="text"
+                    value={newEventType.name}
+                    onChange={(e) => setNewEventType({ ...newEventType, name: e.target.value })}
+                    placeholder="Installation"
+                    style={darkInputStyle}
+                  />
+                </FormField>
+
+                <div style={{ gridColumn: "1 / -1" }}>
+                  <FormField label="Ikon">
+                    <div style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(auto-fill, minmax(60px, 1fr))",
+                      gap: spacing[2],
+                      padding: spacing[3],
+                      backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                      borderRadius: borderRadius.base,
+                      border: '1px solid rgba(255, 255, 255, 0.1)'
+                    }}>
+                      {Object.keys(AVAILABLE_ICONS).map(iconName => {
+                        const isSelected = newEventType.icon === iconName;
+                        const Icon = AVAILABLE_ICONS[iconName];
+                        return (
+                          <button
+                            key={iconName}
+                            type="button"
+                            onClick={() => setNewEventType({ ...newEventType, icon: iconName })}
+                            style={{
+                              padding: spacing[3],
+                              border: `2px solid ${isSelected ? newEventType.color : 'rgba(255, 255, 255, 0.1)'}`,
+                              borderRadius: borderRadius.base,
+                              backgroundColor: isSelected ? `${newEventType.color}15` : 'rgba(255, 255, 255, 0.03)',
+                              cursor: "pointer",
+                              display: "flex",
+                              flexDirection: "column",
+                              alignItems: "center",
+                              gap: spacing[1],
+                              transition: `all ${transitions.base}`,
+                              boxShadow: isSelected ? shadows.md : "none"
+                            }}
+                            onMouseEnter={(e) => {
+                              if (!isSelected) {
+                                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
+                                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (!isSelected) {
+                                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)';
+                                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                              }
+                            }}
+                          >
+                            <Icon size={24} color={isSelected ? newEventType.color : '#94a3b8'} />
+                            <span style={{
+                              fontSize: typography.fontSize.xs,
+                              color: isSelected ? newEventType.color : '#94a3b8',
+                              fontWeight: isSelected ? typography.fontWeight.semibold : typography.fontWeight.normal,
+                              textAlign: "center"
+                            }}>
+                              {iconName}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </FormField>
+                </div>
+
+                <FormField label="Färg">
+                  <input
+                    type="color"
+                    value={newEventType.color}
+                    onChange={(e) => setNewEventType({ ...newEventType, color: e.target.value })}
+                    style={{ ...darkInputStyle, height: "45px" }}
+                  />
+                </FormField>
+              </div>
+
+              <div style={{ marginTop: spacing[4], display: "flex", gap: spacing[3] }}>
+                <ActionButton
+                  onClick={handleAddEventType}
+                  variant="success"
+                  icon={<Save size={18} />}
+                >
+                  Spara händelsetyp
+                </ActionButton>
+              </div>
+            </div>
+          )}
+
+          {/* Event Types Grid */}
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+            gap: spacing[4]
+          }}>
+            {eventTypes.map((eventType, index) => {
+              const isEditing = editingId === eventType.id;
+
+              return (
+                <div
+                  key={eventType.id}
+                  style={{
+                    padding: spacing[6],
+                    border: `2px solid ${isEditing ? eventType.color : 'rgba(255, 255, 255, 0.1)'}`,
+                    borderRadius: borderRadius.lg,
+                    backgroundColor: isEditing ? `${eventType.color}10` : 'rgba(255, 255, 255, 0.03)',
+                    transition: `all ${transitions.base}`,
+                    boxShadow: isEditing ? shadows.lg : shadows.sm,
+                    animation: `slideIn 0.3s ease-out ${index * 0.05}s both`
+                  }}
+                >
+                  {isEditing ? (
+                    <div>
+                      <FormField label="Namn" required>
+                        <input
+                          type="text"
+                          value={eventType.name}
+                          onChange={(e) => handleUpdateEventType(eventType.id, 'name', e.target.value)}
+                          style={darkInputStyle}
+                        />
+                      </FormField>
+
+                      <FormField label="Ikon">
+                        <div style={{
+                          display: "grid",
+                          gridTemplateColumns: "repeat(auto-fill, minmax(60px, 1fr))",
+                          gap: spacing[2],
+                          padding: spacing[3],
+                          backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                          borderRadius: borderRadius.base,
+                          border: '1px solid rgba(255, 255, 255, 0.1)'
+                        }}>
+                          {Object.keys(AVAILABLE_ICONS).map(iconName => {
+                            const isSelected = eventType.icon === iconName;
+                            const Icon = AVAILABLE_ICONS[iconName];
+                            return (
+                              <button
+                                key={iconName}
+                                type="button"
+                                onClick={() => handleUpdateEventType(eventType.id, 'icon', iconName)}
+                                style={{
+                                  padding: spacing[3],
+                                  border: `2px solid ${isSelected ? eventType.color : 'rgba(255, 255, 255, 0.1)'}`,
+                                  borderRadius: borderRadius.base,
+                                  backgroundColor: isSelected ? `${eventType.color}15` : 'rgba(255, 255, 255, 0.03)',
+                                  cursor: "pointer",
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  alignItems: "center",
+                                  gap: spacing[1],
+                                  transition: `all ${transitions.base}`,
+                                  boxShadow: isSelected ? shadows.md : "none"
+                                }}
+                                onMouseEnter={(e) => {
+                                  if (!isSelected) {
+                                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
+                                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                                  }
+                                }}
+                                onMouseLeave={(e) => {
+                                  if (!isSelected) {
+                                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)';
+                                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                                  }
+                                }}
+                              >
+                                <Icon size={24} color={isSelected ? eventType.color : '#94a3b8'} />
+                                <span style={{
+                                  fontSize: typography.fontSize.xs,
+                                  color: isSelected ? eventType.color : '#94a3b8',
+                                  fontWeight: isSelected ? typography.fontWeight.semibold : typography.fontWeight.normal,
+                                  textAlign: "center"
+                                }}>
+                                  {iconName}
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </FormField>
+
+                      <FormField label="Färg">
+                        <input
+                          type="color"
+                          value={eventType.color}
+                          onChange={(e) => handleUpdateEventType(eventType.id, 'color', e.target.value)}
+                          style={{ ...darkInputStyle, height: "45px" }}
+                        />
+                      </FormField>
+
+                      <div style={{ display: "flex", gap: spacing[2], marginTop: spacing[4] }}>
+                        <ActionButton
+                          onClick={handleSaveEventType}
+                          variant="success"
+                          icon={<Save size={16} />}
+                        >
+                          Spara
+                        </ActionButton>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: spacing[3],
+                        marginBottom: spacing[4]
+                      }}>
+                        <div style={{
+                          width: "48px",
+                          height: "48px",
+                          borderRadius: borderRadius.lg,
+                          backgroundColor: `${eventType.color}20`,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center"
+                        }}>
+                          <IconComponent iconName={eventType.icon} size={24} color={eventType.color} />
+                        </div>
+                        <div style={{
+                          fontSize: typography.fontSize.lg,
+                          fontWeight: typography.fontWeight.semibold,
+                          color: '#fff'
+                        }}>
+                          {eventType.name}
+                        </div>
+                      </div>
+
+                      <div style={{ display: "flex", gap: spacing[2] }}>
+                        <ActionButton
+                          onClick={() => setEditingId(eventType.id)}
+                          variant="secondary"
+                          icon={<Edit3 size={16} />}
+                        >
+                          Redigera
+                        </ActionButton>
+                        <ActionButton
+                          onClick={() => handleDeleteEventType(eventType.id)}
+                          variant="danger"
+                          icon={<Trash2 size={16} />}
+                        >
+                          Ta bort
+                        </ActionButton>
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Import Tab */}
+      {activeTab === "import" && (
+        <div style={{
+          ...darkCardStyle,
+          animation: 'fadeIn 0.3s ease-out'
+        }}>
+          <div style={darkSectionHeaderStyle}>
+            <FileUp size={20} color="#60a5fa" />
+            <span>Importera Arbetsordrar</span>
+          </div>
+
+          <p style={{
+            color: '#94a3b8',
+            marginBottom: spacing[6]
+          }}>
+            Importera arbetsordrar från en CSV-fil. Filen ska ha kolumnerna: Nummer, Benämning, Beskrivning, Start, Slut, Kundnummer, Kund, Kontaktperson, Objekt, Arbetsordertyp, Status.
+          </p>
+
+          {/* File Upload Area */}
+          <div style={{
+            padding: spacing[8],
+            backgroundColor: 'rgba(255, 255, 255, 0.03)',
+            borderRadius: borderRadius.lg,
+            border: '2px dashed rgba(96, 165, 250, 0.3)',
+            textAlign: 'center',
+            marginBottom: spacing[6],
+            cursor: 'pointer',
+            transition: `all ${transitions.base}`,
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = 'rgba(96, 165, 250, 0.5)';
+            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = 'rgba(96, 165, 250, 0.3)';
+            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)';
+          }}>
+            <input
+              type="file"
+              accept=".csv"
+              onChange={handleCSVImport}
+              disabled={importing}
+              style={{ display: 'none' }}
+              id="csv-upload"
+            />
+            <label htmlFor="csv-upload" style={{ cursor: 'pointer', display: 'block' }}>
+              <Upload size={48} color="#60a5fa" style={{ margin: '0 auto', marginBottom: spacing[4] }} />
+              <p style={{
+                fontSize: typography.fontSize.lg,
+                fontWeight: typography.fontWeight.semibold,
+                color: '#fff',
+                marginBottom: spacing[2]
+              }}>
+                {importing ? 'Importerar...' : 'Klicka för att välja CSV-fil'}
+              </p>
+              <p style={{
+                fontSize: typography.fontSize.sm,
+                color: '#94a3b8'
+              }}>
+                Välj en CSV-fil med semikolon (;) som avgränsare
+              </p>
+            </label>
+          </div>
+
+          {/* Import Results */}
+          {importResults && (
+            <div style={{
+              padding: spacing[6],
+              backgroundColor: importResults.failed > 0
+                ? 'rgba(245, 158, 11, 0.1)'
+                : 'rgba(16, 185, 129, 0.1)',
+              borderRadius: borderRadius.lg,
+              border: `1px solid ${importResults.failed > 0 ? 'rgba(245, 158, 11, 0.3)' : 'rgba(16, 185, 129, 0.3)'}`,
+              animation: 'slideDown 0.3s ease-out'
+            }}>
+              <h3 style={{
+                margin: `0 0 ${spacing[4]} 0`,
+                fontSize: typography.fontSize.lg,
+                fontWeight: typography.fontWeight.semibold,
+                color: '#fff',
+                display: 'flex',
+                alignItems: 'center',
+                gap: spacing[2]
+              }}>
+                {importResults.failed > 0 ? '⚠️' : '✅'} Import-resultat
+              </h3>
+
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: spacing[4],
+                marginBottom: spacing[4]
+              }}>
+                <div>
+                  <p style={{ color: '#94a3b8', fontSize: typography.fontSize.sm, marginBottom: spacing[1] }}>
+                    Totalt rader
+                  </p>
+                  <p style={{ color: '#fff', fontSize: typography.fontSize.xl, fontWeight: typography.fontWeight.bold }}>
+                    {importResults.total}
+                  </p>
+                </div>
+                <div>
+                  <p style={{ color: '#94a3b8', fontSize: typography.fontSize.sm, marginBottom: spacing[1] }}>
+                    Lyckade
+                  </p>
+                  <p style={{ color: '#10b981', fontSize: typography.fontSize.xl, fontWeight: typography.fontWeight.bold }}>
+                    {importResults.success}
+                  </p>
+                </div>
+                <div>
+                  <p style={{ color: '#94a3b8', fontSize: typography.fontSize.sm, marginBottom: spacing[1] }}>
+                    Misslyckade
+                  </p>
+                  <p style={{ color: '#ef4444', fontSize: typography.fontSize.xl, fontWeight: typography.fontWeight.bold }}>
+                    {importResults.failed}
+                  </p>
+                </div>
+                {importResults.createdCustomers.length > 0 && (
+                  <div>
+                    <p style={{ color: '#94a3b8', fontSize: typography.fontSize.sm, marginBottom: spacing[1] }}>
+                      Nya kunder
+                    </p>
+                    <p style={{ color: '#60a5fa', fontSize: typography.fontSize.xl, fontWeight: typography.fontWeight.bold }}>
+                      {importResults.createdCustomers.length}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {importResults.createdCustomers.length > 0 && (
+                <div style={{ marginBottom: spacing[4] }}>
+                  <p style={{ color: '#94a3b8', fontSize: typography.fontSize.sm, marginBottom: spacing[2] }}>
+                    Skapade kunder:
+                  </p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: spacing[2] }}>
+                    {importResults.createdCustomers.map((name, idx) => (
+                      <Badge key={idx} color="#60a5fa">
+                        {name}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {importResults.errors.length > 0 && (
+                <div>
+                  <p style={{
+                    color: '#ef4444',
+                    fontSize: typography.fontSize.sm,
+                    fontWeight: typography.fontWeight.semibold,
+                    marginBottom: spacing[2]
+                  }}>
+                    Fel ({importResults.errors.length}):
+                  </p>
+                  <div style={{
+                    maxHeight: '200px',
+                    overflowY: 'auto',
+                    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+                    borderRadius: borderRadius.md,
+                    padding: spacing[3]
+                  }}>
+                    {importResults.errors.map((error, idx) => (
+                      <p key={idx} style={{
+                        color: '#fca5a5',
+                        fontSize: typography.fontSize.sm,
+                        marginBottom: spacing[1],
+                        fontFamily: 'monospace'
+                      }}>
+                        {error}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Instructions */}
+          <div style={{
+            marginTop: spacing[6],
+            padding: spacing[4],
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            borderRadius: borderRadius.md,
+            border: '1px solid rgba(59, 130, 246, 0.2)'
+          }}>
+            <h4 style={{
+              margin: `0 0 ${spacing[3]} 0`,
+              fontSize: typography.fontSize.base,
+              fontWeight: typography.fontWeight.semibold,
+              color: '#60a5fa'
+            }}>
+              📋 Instruktioner
+            </h4>
+            <ul style={{
+              margin: 0,
+              paddingLeft: spacing[5],
+              color: '#94a3b8',
+              fontSize: typography.fontSize.sm,
+              lineHeight: '1.6'
+            }}>
+              <li>CSV-filen måste använda semikolon (;) som avgränsare</li>
+              <li>Om kunden finns (matchar kundnummer eller namn) används den befintliga kunden</li>
+              <li>Om kunden inte finns skapas en ny kund automatiskt</li>
+              <li>Arbetsordertyp mappas automatiskt (VVS, El, Bygg, IT, Rivning, Anläggning, Garanti)</li>
+              <li>Status mappas automatiskt (Avslutad → Full fakturerad, Pågående, Planerad)</li>
+              <li>Start- och slutdatum ska vara i format: ÅÅÅÅ-MM-DD HH:MM</li>
+            </ul>
           </div>
         </div>
       )}

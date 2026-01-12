@@ -36,15 +36,6 @@ export default function Dashboard() {
     try {
       const updateData = { status: newStatus, updated_at: new Date().toISOString() };
 
-      // If status is "Full fakturerad" or "Avslutad", mark as closed
-      if (newStatus === "Full fakturerad" || newStatus === "Avslutad") {
-        updateData.closed = true;
-        updateData.closed_at = new Date().toISOString();
-      } else {
-        updateData.closed = false;
-        updateData.closed_at = null;
-      }
-
       const { error } = await supabase
         .from('orders')
         .update(updateData)
@@ -138,8 +129,7 @@ export default function Dashboard() {
             assignedTo: order.assigned_to,
             createdBy: order.created_by,
             createdAt: order.created_at,
-            updatedAt: order.updated_at,
-            closedAt: order.closed_at
+            updatedAt: order.updated_at
           };
         });
 
@@ -160,7 +150,7 @@ export default function Dashboard() {
 
   const filteredOrders = orders.filter(order => {
     // Filter out closed orders unless showClosed is true
-    const isClosed = order.closed === true || order.status === "Full fakturerad" || order.status === "Avslutad";
+    const isClosed = order.status === "Full fakturerad";
     if (!showClosed && isClosed) {
       return false;
     }
@@ -231,8 +221,8 @@ export default function Dashboard() {
   };
 
   // Calculate stats (excluding closed orders)
-  const activeOrders = orders.filter(o => o.closed !== true && o.status !== "Full fakturerad" && o.status !== "Avslutad");
-  const closedOrdersCount = orders.filter(o => o.closed === true || o.status === "Full fakturerad" || o.status === "Avslutad").length;
+  const activeOrders = orders.filter(o => o.status !== "Full fakturerad");
+  const closedOrdersCount = orders.filter(o => o.status === "Full fakturerad").length;
   const ongoingOrdersCount = activeOrders.filter(o => o.status === "Pågående").length;
   const plannedOrdersCount = activeOrders.filter(o => o.status === "Planerad" || o.status === "Ej påbörjad").length;
   const totalCustomersCount = customers.length;
@@ -668,8 +658,7 @@ function StatusBadge({ status, orderId, onChange }) {
     "Planerad",
     "Pågående",
     "Klar för fakturering",
-    "Full fakturerad",
-    "Avslutad"
+    "Full fakturerad"
   ];
 
   const handleToggle = (e) => {

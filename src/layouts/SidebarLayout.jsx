@@ -10,7 +10,8 @@ import {
   Settings,
   LogOut,
   Menu,
-  X
+  X,
+  Calendar
 } from "lucide-react";
 
 export default function SidebarLayout() {
@@ -126,6 +127,7 @@ export default function SidebarLayout() {
         <nav style={{ flex: 1, padding: isExpanded ? "0 1rem" : "0", display: "flex", flexDirection: "column", gap: "0.25rem" }}>
           <SidebarNavItem to="/dashboard" icon={LayoutDashboard} label="Dashboard" isExpanded={isExpanded} />
           <SidebarNavItem to="/orders/new" icon={FileText} label="Ny arbetsorder" isExpanded={isExpanded} />
+          <SidebarNavItem to="/schema" icon={Calendar} label="Schema" isExpanded={isExpanded} />
           <SidebarNavItem to="/customers" icon={Users} label="Kunder" isExpanded={isExpanded} />
           <SidebarNavItem to="/reports" icon={BarChart3} label="Rapporter" isExpanded={isExpanded} />
           {/* Only show settings for admin users */}
