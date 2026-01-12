@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "../supabase";
 import { useAuth } from "../contexts/AuthContext";
+import { useResponsive } from "../hooks/useResponsive";
 import {
   FileText,
   User,
@@ -70,6 +71,7 @@ export default function OrderDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { userDetails, currentUser } = useAuth();
+  const { isMobile, isTablet } = useResponsive();
   const [order, setOrder] = useState(null);
   const [customers, setCustomers] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
@@ -1133,7 +1135,7 @@ export default function OrderDetails() {
       maxWidth: "1200px",
       margin: "0 auto",
       fontFamily: typography.fontFamily.sans,
-      padding: '2rem 0'
+      padding: isMobile ? '1rem 0' : '2rem 0'
     }}>
       {/* Toast notifications */}
       {toast && (
@@ -1145,8 +1147,15 @@ export default function OrderDetails() {
       )}
       {/* Header */}
       <div style={{ marginBottom: spacing[8] }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: spacing[4] }}>
-          <div style={{ display: "flex", alignItems: "center", gap: spacing[4] }}>
+        <div style={{
+          display: "flex",
+          alignItems: isMobile ? "flex-start" : "center",
+          justifyContent: "space-between",
+          marginBottom: spacing[4],
+          flexDirection: isMobile ? "column" : "row",
+          gap: isMobile ? spacing[4] : 0
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: isMobile ? spacing[2] : spacing[4], width: isMobile ? "100%" : "auto" }}>
             <ActionButton
               onClick={() => navigate("/dashboard")}
               icon={<ArrowLeft size={18} />}
@@ -1157,7 +1166,7 @@ export default function OrderDetails() {
             </ActionButton>
             <div>
               <h1 style={{
-                fontSize: typography.fontSize['4xl'],
+                fontSize: isMobile ? typography.fontSize['2xl'] : typography.fontSize['4xl'],
                 fontWeight: typography.fontWeight.bold,
                 color: '#fff',
                 margin: 0,
@@ -1165,7 +1174,7 @@ export default function OrderDetails() {
                 alignItems: "center",
                 gap: spacing[3]
               }}>
-                <FileText size={32} color="#60a5fa" />
+                <FileText size={isMobile ? 24 : 32} color="#60a5fa" />
                 Arbetsorder #{order.orderNumber}
               </h1>
               <p style={{

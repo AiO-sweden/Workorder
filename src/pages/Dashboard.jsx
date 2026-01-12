@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import { supabase } from "../supabase";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { useResponsive } from "../hooks/useResponsive";
 import {
   FileText,
   Users,
@@ -23,6 +24,7 @@ import { spacing, borderRadius, typography, transitions } from "../components/sh
 export default function Dashboard() {
   const navigate = useNavigate();
   const { userDetails } = useAuth();
+  const { isMobile, isTablet } = useResponsive();
   const [orders, setOrders] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [filter, setFilter] = useState({ priority: "", status: "" });
@@ -239,12 +241,12 @@ export default function Dashboard() {
       fontFamily: typography.fontFamily.sans,
       minHeight: '100vh',
       background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
-      padding: '2rem'
+      padding: isMobile ? '1rem' : '2rem'
     }}>
       {/* Header */}
       <div style={{ marginBottom: spacing[8] }}>
         <h1 style={{
-          fontSize: typography.fontSize['4xl'],
+          fontSize: isMobile ? typography.fontSize['2xl'] : typography.fontSize['4xl'],
           fontWeight: typography.fontWeight.bold,
           color: '#fff',
           marginBottom: spacing[2],
@@ -252,7 +254,10 @@ export default function Dashboard() {
         }}>
           Dashboard
         </h1>
-        <p style={{ color: '#cbd5e1', fontSize: typography.fontSize.lg }}>
+        <p style={{
+          color: '#cbd5e1',
+          fontSize: isMobile ? typography.fontSize.base : typography.fontSize.lg
+        }}>
           Välkommen tillbaka! Här är en översikt över dina arbetsordrar.
         </p>
       </div>
@@ -260,8 +265,12 @@ export default function Dashboard() {
       {/* Stats Grid */}
       <div style={{
         display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-        gap: spacing[6],
+        gridTemplateColumns: isMobile
+          ? "1fr"
+          : isTablet
+            ? "repeat(2, 1fr)"
+            : "repeat(auto-fit, minmax(280px, 1fr))",
+        gap: isMobile ? spacing[4] : spacing[6],
         marginBottom: spacing[10]
       }}>
         <StatsCard

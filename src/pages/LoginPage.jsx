@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { LogIn, ArrowLeft, Mail, Lock, AlertCircle } from 'lucide-react';
+import { useResponsive } from "../hooks/useResponsive";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -10,6 +11,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login, currentUser } = useAuth();
+  const { isMobile } = useResponsive();
 
   // Redirect if already logged in
   useEffect(() => {
@@ -46,7 +48,7 @@ export default function LoginPage() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '2rem',
+      padding: isMobile ? '1rem' : '2rem',
       fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
       position: 'relative'
     }}>
@@ -97,8 +99,8 @@ export default function LoginPage() {
       <div style={{
         backgroundColor: 'rgba(255, 255, 255, 0.05)',
         backdropFilter: 'blur(20px)',
-        borderRadius: '24px',
-        padding: '3rem',
+        borderRadius: isMobile ? '16px' : '24px',
+        padding: isMobile ? '1.5rem' : '3rem',
         width: '100%',
         maxWidth: '480px',
         border: '1px solid rgba(255, 255, 255, 0.1)',

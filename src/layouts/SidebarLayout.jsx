@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import PrivateRoute from "../components/PrivateRoute";
+import { useResponsive } from "../hooks/useResponsive";
 import {
   LayoutDashboard,
   FileText,
@@ -17,7 +18,9 @@ import {
 export default function SidebarLayout() {
   const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { logout, userDetails } = useAuth();
+  const { isMobile, isTablet } = useResponsive();
 
   // Check if user needs migration - TEMPORARILY DISABLED
   // React.useEffect(() => {
@@ -60,36 +63,79 @@ export default function SidebarLayout() {
   return (
     <PrivateRoute>
       <div style={{ display: "flex", minHeight: "100vh", position: "relative", fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
+        {/* Mobile Menu Button */}
+        {isMobile && (
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            style={{
+              position: "fixed",
+              top: "1rem",
+              left: "1rem",
+              zIndex: 1002,
+              width: "44px",
+              height: "44px",
+              borderRadius: "10px",
+              background: "#ffffff",
+              border: "1px solid #e5e7eb",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)"
+            }}
+          >
+            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        )}
+
+        {/* Overlay for mobile menu */}
+        {isMobile && isMobileMenuOpen && (
+          <div
+            onClick={() => setIsMobileMenuOpen(false)}
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "rgba(0, 0, 0, 0.5)",
+              zIndex: 1000,
+            }}
+          />
+        )}
+
         {/* Sidebar */}
         <aside
         style={{
-          width: isExpanded ? "240px" : "80px",
+          width: isMobile ? "280px" : (isExpanded ? "240px" : "80px"),
           height: "100vh",
           background: '#ffffff',
           padding: "1.5rem 0",
           display: "flex",
           flexDirection: "column",
-          alignItems: isExpanded ? "stretch" : "center",
+          alignItems: isMobile || isExpanded ? "stretch" : "center",
           position: "fixed",
           top: 0,
-          left: 0,
+          left: isMobile ? (isMobileMenuOpen ? 0 : "-280px") : 0,
           zIndex: 1001,
-          transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+          transition: isMobile ? "left 0.3s cubic-bezier(0.4, 0, 0.2, 1)" : "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
           boxShadow: "2px 0 10px rgba(0, 0, 0, 0.1)",
           borderRight: '1px solid #e5e7eb',
+          overflowY: "auto"
         }}
-        onMouseEnter={() => setIsExpanded(true)}
-        onMouseLeave={() => setIsExpanded(false)}
+        onMouseEnter={() => !isMobile && setIsExpanded(true)}
+        onMouseLeave={() => !isMobile && setIsExpanded(false)}
       >
         {/* Logo Section */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            justifyContent: isExpanded ? "flex-start" : "center",
-            padding: isExpanded ? "0 1.5rem" : "0",
+            justifyContent: (isMobile || isExpanded) ? "flex-start" : "center",
+            padding: (isMobile || isExpanded) ? "0 1.5rem" : "0",
             marginBottom: "2rem",
             gap: "0.75rem",
+            marginTop: isMobile ? "3rem" : "0"
           }}
         >
           <Link to="/dashboard" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
@@ -107,7 +153,7 @@ export default function SidebarLayout() {
             >
               <FileText size={24} color="white" strokeWidth={2.5} />
             </div>
-            {isExpanded && (
+            {(isMobile || isExpanded) && (
               <span
                 style={{
                   color: "#1e293b",
@@ -124,20 +170,56 @@ export default function SidebarLayout() {
         </div>
 
         {/* Navigation Items */}
-        <nav style={{ flex: 1, padding: isExpanded ? "0 1rem" : "0", display: "flex", flexDirection: "column", gap: "0.25rem" }}>
-          <SidebarNavItem to="/dashboard" icon={LayoutDashboard} label="Dashboard" isExpanded={isExpanded} />
-          <SidebarNavItem to="/orders/new" icon={FileText} label="Ny arbetsorder" isExpanded={isExpanded} />
-          <SidebarNavItem to="/schema" icon={Calendar} label="Schema" isExpanded={isExpanded} />
-          <SidebarNavItem to="/customers" icon={Users} label="Kunder" isExpanded={isExpanded} />
-          <SidebarNavItem to="/reports" icon={BarChart3} label="Rapporter" isExpanded={isExpanded} />
+        <nav style={{ flex: 1, padding: (isMobile || isExpanded) ? "0 1rem" : "0", display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+          <SidebarNavItem
+            to="/dashboard"
+            icon={LayoutDashboard}
+            label="Dashboard"
+            isExpanded={isMobile || isExpanded}
+            onClick={() => isMobile && setIsMobileMenuOpen(false)}
+          />
+          <SidebarNavItem
+            to="/orders/new"
+            icon={FileText}
+            label="Ny arbetsorder"
+            isExpanded={isMobile || isExpanded}
+            onClick={() => isMobile && setIsMobileMenuOpen(false)}
+          />
+          <SidebarNavItem
+            to="/schema"
+            icon={Calendar}
+            label="Schema"
+            isExpanded={isMobile || isExpanded}
+            onClick={() => isMobile && setIsMobileMenuOpen(false)}
+          />
+          <SidebarNavItem
+            to="/customers"
+            icon={Users}
+            label="Kunder"
+            isExpanded={isMobile || isExpanded}
+            onClick={() => isMobile && setIsMobileMenuOpen(false)}
+          />
+          <SidebarNavItem
+            to="/reports"
+            icon={BarChart3}
+            label="Rapporter"
+            isExpanded={isMobile || isExpanded}
+            onClick={() => isMobile && setIsMobileMenuOpen(false)}
+          />
           {/* Only show settings for admin users */}
           {userDetails?.role === 'admin' && (
-            <SidebarNavItem to="/settings" icon={Settings} label="Inställningar" isExpanded={isExpanded} />
+            <SidebarNavItem
+              to="/settings"
+              icon={Settings}
+              label="Inställningar"
+              isExpanded={isMobile || isExpanded}
+              onClick={() => isMobile && setIsMobileMenuOpen(false)}
+            />
           )}
         </nav>
 
         {/* Logout Button */}
-        <div style={{ padding: isExpanded ? "0 1rem 2rem 1rem" : "0 0 2rem 0", marginTop: "auto" }}>
+        <div style={{ padding: (isMobile || isExpanded) ? "0 1rem 2rem 1rem" : "0 0 2rem 0", marginTop: "auto" }}>
           <button
             onClick={handleLogout}
             style={{
@@ -145,11 +227,11 @@ export default function SidebarLayout() {
               backgroundColor: "transparent",
               color: "#1e293b",
               border: "1px solid #e5e7eb",
-              padding: isExpanded ? "0.75rem 1rem" : "0.75rem",
+              padding: (isMobile || isExpanded) ? "0.75rem 1rem" : "0.75rem",
               borderRadius: "10px",
               display: "flex",
               alignItems: "center",
-              justifyContent: isExpanded ? "flex-start" : "center",
+              justifyContent: (isMobile || isExpanded) ? "flex-start" : "center",
               gap: "0.75rem",
               cursor: "pointer",
               transition: "all 0.2s ease",
@@ -167,7 +249,7 @@ export default function SidebarLayout() {
             title="Logga ut"
           >
             <LogOut size={20} strokeWidth={2} />
-            {isExpanded && <span>Logga ut</span>}
+            {(isMobile || isExpanded) && <span>Logga ut</span>}
           </button>
         </div>
       </aside>
@@ -176,13 +258,17 @@ export default function SidebarLayout() {
       <main
         style={{
           flex: 1,
-          marginLeft: "80px",
+          marginLeft: isMobile ? "0" : "80px",
           minHeight: "100vh",
           background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
           transition: "margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         }}
       >
-        <div style={{ padding: "2rem", maxWidth: "1600px", margin: "0 auto" }}>
+        <div style={{
+          padding: isMobile ? "5rem 1rem 1rem 1rem" : "2rem",
+          maxWidth: "1600px",
+          margin: "0 auto"
+        }}>
           <Outlet />
         </div>
       </main>
@@ -191,11 +277,12 @@ export default function SidebarLayout() {
   );
 }
 
-function SidebarNavItem({ to, icon: Icon, label, isExpanded }) {
+function SidebarNavItem({ to, icon: Icon, label, isExpanded, onClick }) {
   return (
     <NavLink
       to={to}
       title={label}
+      onClick={onClick}
       style={({ isActive }) => ({
         color: isActive ? "#3b82f6" : "#1e293b",
         backgroundColor: isActive ? "rgba(59, 130, 246, 0.15)" : "transparent",
