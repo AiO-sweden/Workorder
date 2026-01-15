@@ -1134,7 +1134,7 @@ export default function OrderDetails() {
       maxWidth: "1200px",
       margin: "0 auto",
       fontFamily: typography.fontFamily.sans,
-      padding: isMobile ? '1rem 0' : '2rem 0'
+      padding: isMobile ? '1rem' : '2rem 0'
     }}>
       {/* Toast notifications */}
       {toast && (
