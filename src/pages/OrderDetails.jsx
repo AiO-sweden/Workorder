@@ -1131,7 +1131,7 @@ export default function OrderDetails() {
 
   return (
     <div className="page-enter" style={{
-      maxWidth: "1200px",
+      maxWidth: isMobile ? "none" : "1200px",
       margin: "0 auto",
       fontFamily: typography.fontFamily.sans,
       padding: isMobile ? '1rem' : '2rem 0'
