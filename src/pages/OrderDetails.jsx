@@ -1134,7 +1134,10 @@ export default function OrderDetails() {
       maxWidth: isMobile ? "none" : "1200px",
       margin: "0 auto",
       fontFamily: typography.fontFamily.sans,
-      padding: isMobile ? '1rem' : '2rem 0'
+      padding: isMobile ? '1rem' : '2rem 0',
+      boxSizing: "border-box",
+      overflowX: "hidden",
+      width: "100%"
     }}>
       {/* Toast notifications */}
       {toast && (
@@ -1171,16 +1174,18 @@ export default function OrderDetails() {
                 margin: 0,
                 display: "flex",
                 alignItems: "center",
-                gap: spacing[3]
+                gap: spacing[3],
+                flexWrap: isMobile ? "wrap" : "nowrap"
               }}>
                 <FileText size={isMobile ? 24 : 32} color="#60a5fa" />
-                Arbetsorder #{order.orderNumber}
+                <span style={{ wordBreak: "break-word" }}>Arbetsorder #{order.orderNumber}</span>
               </h1>
               <p style={{
                 color: '#cbd5e1',
                 fontSize: typography.fontSize.base,
                 margin: `${spacing[1]} 0 0 0`,
-                paddingLeft: "2.75rem"
+                paddingLeft: isMobile ? 0 : "2.75rem",
+                wordBreak: "break-word"
               }}>
                 {order.title || "Ingen titel"}
               </p>
@@ -2323,16 +2328,17 @@ export default function OrderDetails() {
                           backgroundColor: 'rgba(255, 255, 255, 0.03)',
                           borderRadius: borderRadius.lg,
                           border: '1px solid rgba(255, 255, 255, 0.1)',
-                          display: "grid",
-                          gridTemplateColumns: "auto 1fr auto",
+                          display: isMobile ? "flex" : "grid",
+                          flexDirection: isMobile ? "column" : undefined,
+                          gridTemplateColumns: isMobile ? undefined : "auto 1fr auto",
                           gap: spacing[4],
-                          alignItems: "center",
+                          alignItems: isMobile ? "stretch" : "center",
                           transition: `all ${transitions.base}`
                         }}
                       >
                         <div style={{
-                          width: "4px",
-                          height: "60px",
+                          width: isMobile ? "100%" : "4px",
+                          height: isMobile ? "4px" : "60px",
                           backgroundColor: timeCode?.color || '#3b82f6',
                           borderRadius: borderRadius.sm
                         }} />
@@ -2342,7 +2348,8 @@ export default function OrderDetails() {
                             display: "flex",
                             alignItems: "center",
                             gap: spacing[3],
-                            marginBottom: spacing[2]
+                            marginBottom: spacing[2],
+                            flexWrap: "wrap"
                           }}>
                             <Badge variant="info">
                               {timeCode?.name || report.timeCodeName || "Normal tid"}
@@ -2361,7 +2368,7 @@ export default function OrderDetails() {
                             </span>
                           </div>
 
-                          <div style={{ display: "flex", alignItems: "center", gap: spacing[4] }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: spacing[4], flexWrap: "wrap" }}>
                             <span style={{
                               fontSize: typography.fontSize.sm,
                               color: '#fff',
@@ -2385,7 +2392,8 @@ export default function OrderDetails() {
                               fontSize: typography.fontSize.sm,
                               color: '#94a3b8',
                               margin: `${spacing[2]} 0 0 0`,
-                              fontStyle: "italic"
+                              fontStyle: "italic",
+                              wordBreak: "break-word"
                             }}>
                               "{report.kommentar}"
                             </p>
@@ -2394,9 +2402,11 @@ export default function OrderDetails() {
 
                         <div style={{
                           display: "flex",
-                          flexDirection: "column",
+                          flexDirection: isMobile ? "row" : "column",
                           gap: spacing[2],
-                          alignItems: "flex-end"
+                          alignItems: isMobile ? "center" : "flex-end",
+                          justifyContent: isMobile ? "space-between" : undefined,
+                          flexWrap: "wrap"
                         }}>
                           <ApprovalBadge
                             approved={report.godkand}
@@ -2411,7 +2421,7 @@ export default function OrderDetails() {
                               variant="primary"
                               size="sm"
                             >
-                              Redigera
+                              {isMobile ? "" : "Redigera"}
                             </ActionButton>
                             <ActionButton
                               onClick={() => handleDeleteTimeReport(report.id)}
@@ -2419,7 +2429,7 @@ export default function OrderDetails() {
                               variant="danger"
                               size="sm"
                             >
-                              Radera
+                              {isMobile ? "" : "Radera"}
                             </ActionButton>
                           </div>
                         </div>
@@ -2880,7 +2890,7 @@ export default function OrderDetails() {
                   playsInline
                   style={{
                     width: '100%',
-                    maxWidth: '600px',
+                    maxWidth: isMobile ? '100%' : '600px',
                     borderRadius: borderRadius.lg,
                     backgroundColor: '#000'
                   }}
