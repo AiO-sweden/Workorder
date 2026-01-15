@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { supabase } from "../supabase";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { useResponsive } from "../hooks/useResponsive";
 import ImportCustomers from "../components/ImportCustomers";
 import {
   Users,
@@ -96,6 +97,7 @@ function FilterButton({ active, onClick, children, icon }) {
 
 export default function CustomerList() {
   const { userDetails, currentUser } = useAuth();
+  const { isMobile, isTablet } = useResponsive();
   const [customers, setCustomers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all"); // "all", "rot", "rut", "company", "private"
@@ -269,19 +271,21 @@ export default function CustomerList() {
   };
 
   return (
-    <div style={{ maxWidth: "1400px", margin: "0 auto", padding: spacing[8] }}>
+    <div style={{ maxWidth: "1400px", margin: "0 auto", padding: isMobile ? spacing[4] : spacing[8] }}>
       {/* Header */}
-      <div style={{ marginBottom: spacing[8] }}>
+      <div style={{ marginBottom: isMobile ? spacing[6] : spacing[8] }}>
         <div style={{
           display: "flex",
           justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: spacing[2]
+          alignItems: isMobile ? "flex-start" : "center",
+          marginBottom: spacing[2],
+          flexDirection: isMobile ? "column" : "row",
+          gap: isMobile ? spacing[4] : 0
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: spacing[4] }}>
+          <div style={{ display: "flex", alignItems: "center", gap: isMobile ? spacing[3] : spacing[4] }}>
             <div style={{
-              width: "56px",
-              height: "56px",
+              width: isMobile ? "48px" : "56px",
+              height: isMobile ? "48px" : "56px",
               borderRadius: borderRadius.xl,
               background: 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)',
               display: "flex",
@@ -289,29 +293,31 @@ export default function CustomerList() {
               justifyContent: "center",
               boxShadow: '0 10px 25px rgba(96, 165, 250, 0.3)',
             }}>
-              <Users size={28} color="white" />
+              <Users size={isMobile ? 24 : 28} color="white" />
             </div>
             <div>
-              <h1 style={{ margin: 0, fontSize: "2rem", fontWeight: "700", color: '#fff' }}>
+              <h1 style={{ margin: 0, fontSize: isMobile ? "1.5rem" : "2rem", fontWeight: "700", color: '#fff' }}>
                 Kundregister
               </h1>
-              <p style={{ color: '#94a3b8', fontSize: "0.95rem", margin: `${spacing[1]} 0 0 0` }}>
+              <p style={{ color: '#94a3b8', fontSize: isMobile ? "0.875rem" : "0.95rem", margin: `${spacing[1]} 0 0 0` }}>
                 Hantera alla dina kunder och deras information
               </p>
             </div>
           </div>
-          <div style={{ display: "flex", gap: spacing[3] }}>
+          <div style={{ display: "flex", gap: spacing[3], width: isMobile ? "100%" : "auto" }}>
             <ActionButton
               onClick={() => setIsImportModalOpen(true)}
               variant="secondary"
               icon={<Upload size={20} />}
+              style={isMobile ? { flex: 1 } : {}}
             >
               Importera
             </ActionButton>
-            <Link to="/customers/new" style={{ textDecoration: "none" }}>
+            <Link to="/customers/new" style={{ textDecoration: "none", flex: isMobile ? 1 : "auto" }}>
               <ActionButton
                 variant="primary"
                 icon={<Plus size={20} />}
+                style={isMobile ? { width: "100%" } : {}}
               >
                 Ny Kund
               </ActionButton>
@@ -439,9 +445,117 @@ export default function CustomerList() {
 
       {/* Customer Table */}
       <div className="card-enter" style={darkCardStyle}>
-        <div style={{ overflowX: "auto" }}>
-          {sortedCustomers.length > 0 ? (
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        {isMobile ? (
+          // Mobile: Card view
+          sortedCustomers.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[4] }}>
+              {sortedCustomers.map((customer) => (
+                <Link
+                  key={customer.id}
+                  to={`/customers/${customer.id}`}
+                  style={{ textDecoration: 'none' }}
+                >
+                  <div style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                    borderRadius: borderRadius.lg,
+                    padding: spacing[4],
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    transition: `all ${transitions.base}`,
+                    cursor: 'pointer'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
+                    e.currentTarget.style.borderColor = 'rgba(96, 165, 250, 0.3)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                  }}
+                  >
+                    {/* Customer Number and Type */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing[3] }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: spacing[2] }}>
+                        <span style={{ color: '#60a5fa', fontWeight: 600, fontSize: typography.fontSize.sm }}>
+                          #{customer.customerNumber}
+                        </span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: spacing[2] }}>
+                        {customer.orgNr && customer.orgNr.trim() !== "" ? (
+                          <>
+                            <Building2 size={16} color="#fbbf24" />
+                            <span style={{ fontSize: typography.fontSize.xs, color: '#cbd5e1' }}>Företag</span>
+                          </>
+                        ) : (
+                          <>
+                            <Users size={16} color="#60a5fa" />
+                            <span style={{ fontSize: typography.fontSize.xs, color: '#cbd5e1' }}>Privat</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Customer Name */}
+                    <div style={{ marginBottom: spacing[3] }}>
+                      <div style={{ fontSize: typography.fontSize.lg, fontWeight: 600, color: '#fff' }}>
+                        {customer.name}
+                      </div>
+                    </div>
+
+                    {/* Contact Info */}
+                    <div style={{ marginBottom: spacing[3] }}>
+                      {customer.email && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: spacing[2], fontSize: typography.fontSize.sm, color: '#cbd5e1', marginBottom: spacing[1] }}>
+                          <Mail size={14} color="#94a3b8" />
+                          <span>{customer.email}</span>
+                        </div>
+                      )}
+                      {customer.phone && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: spacing[2], fontSize: typography.fontSize.sm, color: '#cbd5e1' }}>
+                          <Phone size={14} color="#94a3b8" />
+                          <span>{customer.phone}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Address */}
+                    {customer.address && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: spacing[2], fontSize: typography.fontSize.sm, color: '#cbd5e1', marginBottom: spacing[3] }}>
+                        <MapPin size={14} color="#94a3b8" />
+                        <span>{customer.address}</span>
+                      </div>
+                    )}
+
+                    {/* ROT/RUT Badges */}
+                    <div style={{ display: 'flex', gap: spacing[2] }}>
+                      {customer.rotCustomer === "Ja" && (
+                        <Badge variant="success">ROT</Badge>
+                      )}
+                      {customer.rutCustomer === "Ja" && (
+                        <Badge variant="info">RUT</Badge>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div style={{ textAlign: "center", padding: spacing[12], color: '#94a3b8' }}>
+              <Users size={48} color="#475569" style={{ marginBottom: spacing[4] }} />
+              <p style={{ fontSize: "1.1rem", fontWeight: 600, marginBottom: spacing[2], color: '#e2e8f0' }}>
+                Inga kunder hittades
+              </p>
+              <p style={{ fontSize: "0.9rem" }}>
+                {searchTerm || filterType !== "all"
+                  ? "Prova att ändra dina sökkriterier eller filter"
+                  : "Kom igång genom att skapa din första kund"}
+              </p>
+            </div>
+          )
+        ) : (
+          // Desktop: Table view
+          <div style={{ overflowX: "auto" }}>
+            {sortedCustomers.length > 0 ? (
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
                   <th
@@ -655,7 +769,8 @@ export default function CustomerList() {
               </p>
             </div>
           )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Results count */}

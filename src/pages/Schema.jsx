@@ -7,6 +7,7 @@ import listPlugin from '@fullcalendar/list';
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import { supabase } from '../supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { useResponsive } from '../hooks/useResponsive';
 import {
   Calendar, Briefcase, X, Wrench, Users, Coffee, BookOpen, MapPin,
   Hammer, Zap, Shield, Cpu, Home, Building, MoreHorizontal, Settings, DollarSign, Clock,
@@ -67,6 +68,7 @@ const DEFAULT_EVENT_TYPES = [
 
 export default function Schema() {
   const { userDetails } = useAuth();
+  const { isMobile, isTablet } = useResponsive();
   const [events, setEvents] = useState([]);
   const [workTypes, setWorkTypes] = useState(DEFAULT_WORK_TYPES);
   const [eventTypes, setEventTypes] = useState(DEFAULT_EVENT_TYPES);
@@ -727,49 +729,49 @@ export default function Schema() {
     <div style={{
       minHeight: '100vh',
       background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
-      padding: spacing['8']
+      padding: isMobile ? spacing['4'] : spacing['8']
     }}>
       {/* Header */}
       <div style={{
-        marginBottom: spacing['8'],
+        marginBottom: isMobile ? spacing['6'] : spacing['8'],
         textAlign: 'center'
       }}>
         <div style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: spacing['3'],
+          gap: isMobile ? spacing['2'] : spacing['3'],
           marginBottom: spacing['2']
         }}>
-          <Calendar size={40} color="#3b82f6" />
+          <Calendar size={isMobile ? 32 : 40} color="#3b82f6" />
           <h1 style={{
-            fontSize: typography.fontSize['4xl'],
+            fontSize: isMobile ? typography.fontSize['2xl'] : typography.fontSize['4xl'],
             fontWeight: typography.fontWeight.bold,
             color: '#fff',
             margin: 0
           }}>Schema & Planering</h1>
         </div>
         <p style={{
-          fontSize: typography.fontSize.lg,
+          fontSize: isMobile ? typography.fontSize.sm : typography.fontSize.lg,
           color: 'rgba(255, 255, 255, 0.7)',
           margin: 0
         }}>Hantera arbetsordrar, möten och andra händelser i kalendern</p>
       </div>
 
       {/* Main Content */}
-      <div style={{ display: 'flex', gap: spacing['6'] }}>
+      <div style={{ display: 'flex', gap: spacing['6'], flexDirection: isMobile ? 'column' : 'row' }}>
         {/* Unassigned Orders Sidebar */}
         <div ref={externalEventsRef} style={{
-          width: '220px',
+          width: isMobile ? '100%' : '220px',
           flexShrink: 0,
           backgroundColor: 'rgba(255, 255, 255, 0.05)',
           backdropFilter: 'blur(20px)',
           borderRadius: borderRadius.xl,
-          padding: spacing['6'],
+          padding: isMobile ? spacing['4'] : spacing['6'],
           border: '1px solid rgba(255, 255, 255, 0.1)',
           boxShadow: '0 25px 50px rgba(0, 0, 0, 0.3)',
           height: 'fit-content',
-          maxHeight: 'calc(100vh - 400px)',
+          maxHeight: isMobile ? '300px' : 'calc(100vh - 400px)',
           overflowY: 'auto'
         }}>
           <div style={{
@@ -873,7 +875,7 @@ export default function Schema() {
           backgroundColor: 'rgba(255, 255, 255, 0.05)',
           backdropFilter: 'blur(20px)',
           borderRadius: borderRadius.xl,
-          padding: spacing['6'],
+          padding: isMobile ? spacing['4'] : spacing['6'],
           border: '1px solid rgba(255, 255, 255, 0.1)',
           boxShadow: '0 25px 50px rgba(0, 0, 0, 0.3)'
         }}>
@@ -881,12 +883,16 @@ export default function Schema() {
         <FullCalendar
           schedulerLicenseKey="GPL-My-Project-Is-Open-Source"
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin, resourceTimelinePlugin]}
-        headerToolbar={{
+        headerToolbar={isMobile ? {
+          left: 'prev,next',
+          center: 'title',
+          right: 'listWeek,dayGridMonth'
+        } : {
           left: 'prev,next today',
           center: 'title',
           right: 'timeGridWeek,dayGridMonth,listWeek'
         }}
-        initialView="timeGridWeek"
+        initialView={isMobile ? "listWeek" : "timeGridWeek"}
         editable={true}
         selectable={true}
         selectMirror={true}

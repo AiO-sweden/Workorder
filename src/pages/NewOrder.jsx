@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { supabase } from "../supabase";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { useResponsive } from "../hooks/useResponsive";
 import {
   FileText,
   User,
@@ -66,6 +67,7 @@ export default function NewOrder() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { userDetails } = useAuth();
+  const { isMobile, isTablet } = useResponsive();
   const [customers, setCustomers] = useState([]);
   const [workTypes, setWorkTypes] = useState(DEFAULT_WORK_TYPES);
   const [loading, setLoading] = useState(false);
@@ -373,6 +375,7 @@ export default function NewOrder() {
     <div className="page-enter" style={{
       maxWidth: "1000px",
       margin: "0 auto",
+      padding: isMobile ? spacing[4] : 0,
       fontFamily: typography.fontFamily.sans
     }}>
       {/* Toast Notification */}
@@ -385,8 +388,8 @@ export default function NewOrder() {
       )}
 
       {/* Header */}
-      <div style={{ marginBottom: spacing[8] }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: spacing[2] }}>
+      <div style={{ marginBottom: isMobile ? spacing[6] : spacing[8] }}>
+        <div style={{ display: "flex", alignItems: isMobile ? "flex-start" : "center", justifyContent: "space-between", marginBottom: spacing[2], flexDirection: isMobile ? "column" : "row", gap: isMobile ? spacing[4] : 0 }}>
           <h1 style={{
             fontSize: typography.fontSize['3xl'],
             fontWeight: typography.fontWeight.bold,
@@ -787,7 +790,7 @@ export default function NewOrder() {
           {form.billable && !isBillingDisabled && (
             <>
               <FormField label="Faktureringsmetod">
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[3] }}>
+                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: spacing[3] }}>
                   <BillingTypeButton
                     label="Löpande pris"
                     selected={form.billingType === "Löpande pris"}

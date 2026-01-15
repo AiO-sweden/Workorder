@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabase";
 import { useAuth } from "../contexts/AuthContext";
+import { useResponsive } from "../hooks/useResponsive";
 import Papa from 'papaparse';
 import {
   Settings,
@@ -180,6 +181,7 @@ const IconComponent = ({ iconName, size = 20, color }) => {
 export default function SettingsPage() {
   const { userDetails } = useAuth();
   const navigate = useNavigate();
+  const { isMobile, isTablet } = useResponsive();
   const [activeTab, setActiveTab] = useState("users"); // timeCodes, users, workTypes, eventTypes
   const [timeCodes, setTimeCodes] = useState([]);
   const [users, setUsers] = useState([]);
@@ -1456,7 +1458,7 @@ Välkommen!`;
                 {/* Organization Form */}
                 <div style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(2, 1fr)',
+                  gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)',
                   gap: spacing[4]
                 }}>
                   {/* Företagsinformation */}
@@ -1928,7 +1930,7 @@ Välkommen!`;
                 Bjud in ny användare
               </h3>
 
-              <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: spacing[4] }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "2fr 1fr", gap: spacing[4] }}>
                 <FormField label="E-post" required>
                   <div style={{ position: "relative" }}>
                     <Mail size={18} style={{
@@ -2123,7 +2125,7 @@ Välkommen!`;
                 Ny tidkod
               </h3>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[4] }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: spacing[4] }}>
                 <FormField label="ID" required helper="Unikt ID för tidkoden (t.ex. 'overtime')">
                   <input
                     type="text"
@@ -2436,7 +2438,7 @@ Välkommen!`;
                 Ny arbetstyp
               </h3>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[4] }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: spacing[4] }}>
                 <FormField label="ID" required helper="Unikt ID för arbetstypen (t.ex. 'maleri')">
                   <input
                     type="text"
@@ -2752,7 +2754,7 @@ Välkommen!`;
                 Ny händelsetyp
               </h3>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[4] }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: spacing[4] }}>
                 <FormField label="ID" required helper="Unikt ID för händelsetypen (t.ex. 'installation')">
                   <input
                     type="text"

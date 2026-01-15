@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import { supabase } from "../supabase";
 import { useAuth } from "../contexts/AuthContext";
+import { useResponsive } from "../hooks/useResponsive";
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -238,6 +239,7 @@ function PieChartDisplay({ data, total }) {
 
 export default function ReportsPage() {
   const { userDetails, currentUser } = useAuth();
+  const { isMobile, isTablet } = useResponsive();
 
   // Data state
   const [timeReports, setTimeReports] = useState([]);
@@ -1386,6 +1388,7 @@ export default function ReportsPage() {
     <div style={{
       maxWidth: "1600px",
       margin: "0 auto",
+      padding: isMobile ? spacing[4] : 0,
       fontFamily: typography.fontFamily.sans
     }}>
       {/* Toast notifications */}
@@ -1398,8 +1401,8 @@ export default function ReportsPage() {
       )}
 
       {/* Header */}
-      <div style={{ marginBottom: spacing[8] }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: spacing[4] }}>
+      <div style={{ marginBottom: isMobile ? spacing[6] : spacing[8] }}>
+        <div style={{ display: "flex", alignItems: isMobile ? "flex-start" : "center", justifyContent: "space-between", flexWrap: "wrap", gap: spacing[4], flexDirection: isMobile ? "column" : "row" }}>
           <div>
             <h1 style={{
               fontSize: typography.fontSize['4xl'],
@@ -1646,7 +1649,7 @@ export default function ReportsPage() {
             </div>
           ) : (
             <form onSubmit={handleSubmit}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[6], marginBottom: spacing[6] }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: spacing[6], marginBottom: spacing[6] }}>
                 <div style={{ gridColumn: "1 / -1" }}>
                   <FormField label="Arbetsorder" required>
                     <select
@@ -2390,7 +2393,7 @@ export default function ReportsPage() {
                                     </button>
                                   </div>
 
-                                  <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: spacing[4], marginBottom: spacing[4] }}>
+                                  <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(2, 1fr)", gap: spacing[4], marginBottom: spacing[4] }}>
                                     <FormField label="Arbetsorder" required>
                                       <select
                                         name="arbetsorder"
@@ -2517,7 +2520,7 @@ export default function ReportsPage() {
                               ) : (
                                 // View mode
                                 <div>
-                                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[4], marginBottom: spacing[4] }}>
+                                  <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: spacing[4], marginBottom: spacing[4] }}>
                                     <div>
                                       <div style={{ fontSize: typography.fontSize.xs, color: '#94a3b8', marginBottom: spacing[1] }}>Ordertitel</div>
                                       <div style={{ fontSize: typography.fontSize.sm, color: '#fff', fontWeight: typography.fontWeight.medium }}>{order?.title || "Ingen titel"}</div>
@@ -2724,7 +2727,7 @@ export default function ReportsPage() {
                     )}
                   </div>
 
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[3] }}>
+                  <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: spacing[3] }}>
                     <div style={{ padding: spacing[3], backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: borderRadius.base }}>
                       <div style={{ fontSize: typography.fontSize.xs, color: '#94a3b8', marginBottom: spacing[1] }}>Rapporter</div>
                       <div style={{ fontSize: typography.fontSize.xl, fontWeight: typography.fontWeight.bold, color: '#fff' }}>{codeReports.length}</div>

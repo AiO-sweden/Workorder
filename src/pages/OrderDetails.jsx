@@ -23,7 +23,6 @@ import {
   Upload,
   Camera,
   Download,
-  Image as ImageIcon,
   File
 } from "lucide-react";
 
@@ -1365,7 +1364,7 @@ export default function OrderDetails() {
       {/* Order Details Tab */}
       {activeTab === 'details' && (isEditing ? (
         // EDITING MODE FOR ORDER DETAILS
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[6] }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: isMobile ? spacing[4] : spacing[6] }}>
           <div className="card-enter hover-lift" style={{
             backgroundColor: 'rgba(255, 255, 255, 0.05)',
             backdropFilter: 'blur(20px)',
@@ -1606,7 +1605,7 @@ export default function OrderDetails() {
         </div>
       ) : (
         // VIEWING MODE FOR ORDER DETAILS
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[6] }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: isMobile ? spacing[4] : spacing[6] }}>
           <div className="card-enter hover-lift" style={{
             backgroundColor: 'rgba(255, 255, 255, 0.05)',
             backdropFilter: 'blur(20px)',
@@ -2046,7 +2045,7 @@ export default function OrderDetails() {
                 <form onSubmit={handleTimeSubmit}>
                   <div style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(2, 1fr)",
+                    gridTemplateColumns: isMobile ? "1fr" : "repeat(2, 1fr)",
                     gap: spacing[4],
                     marginBottom: spacing[4]
                   }}>
@@ -2435,7 +2434,7 @@ export default function OrderDetails() {
                       borderRadius: borderRadius.xl,
                       boxShadow: '0 25px 50px rgba(59, 130, 246, 0.4)'
                     }}>
-                      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: spacing[6] }}>
+                      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : (isTablet ? "repeat(2, 1fr)" : "repeat(3, 1fr)"), gap: isMobile ? spacing[4] : spacing[6] }}>
                         <div>
                           <div style={{
                             fontSize: typography.fontSize.xs,
@@ -2926,7 +2925,7 @@ export default function OrderDetails() {
           ) : (
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+              gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(200px, 1fr))',
               gap: spacing[4]
             }}>
               {documents.map(doc => (
