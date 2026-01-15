@@ -262,12 +262,17 @@ export default function SidebarLayout() {
           minHeight: "100vh",
           background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
           transition: "margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+          overflowX: "hidden",
+          width: isMobile ? "100%" : "auto"
         }}
       >
         <div style={{
           padding: isMobile ? "5rem 1rem 1rem 1rem" : "2rem",
-          maxWidth: "1600px",
-          margin: "0 auto"
+          maxWidth: isMobile ? "100%" : "1600px",
+          margin: "0 auto",
+          boxSizing: "border-box",
+          overflowX: "hidden",
+          width: "100%"
         }}>
           <Outlet />
         </div>
