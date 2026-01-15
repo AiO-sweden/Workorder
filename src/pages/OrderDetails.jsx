@@ -1188,11 +1188,12 @@ export default function OrderDetails() {
           </div>
 
           {/* Quick Status Changer */}
-          <div style={{ display: "flex", alignItems: "center", gap: spacing[3] }}>
+          <div style={{ display: "flex", alignItems: "center", gap: spacing[3], width: isMobile ? "100%" : "auto" }}>
             <label style={{
               fontSize: typography.fontSize.sm,
               fontWeight: typography.fontWeight.semibold,
-              color: '#cbd5e1'
+              color: '#cbd5e1',
+              whiteSpace: "nowrap"
             }}>
               Status:
             </label>
@@ -1200,7 +1201,8 @@ export default function OrderDetails() {
               value={order.status}
               onChange={(e) => handleQuickStatusChange(e.target.value)}
               style={{
-                minWidth: "200px",
+                minWidth: isMobile ? "0" : "200px",
+                width: isMobile ? "100%" : "auto",
                 padding: `${spacing[2]} ${spacing[4]}`,
                 fontWeight: typography.fontWeight.semibold,
                 fontSize: typography.fontSize.base,
