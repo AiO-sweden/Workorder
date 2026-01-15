@@ -311,12 +311,14 @@ export default function Dashboard() {
         display: "flex",
         gap: spacing[4],
         marginBottom: spacing[8],
-        flexWrap: "wrap"
+        flexWrap: "wrap",
+        flexDirection: isMobile ? "column" : "row"
       }}>
         <ActionButton
           onClick={() => navigate("/orders/new")}
           icon={<Plus size={20} />}
           variant="primary"
+          style={isMobile ? { width: "100%" } : {}}
         >
           Ny arbetsorder
         </ActionButton>
@@ -325,6 +327,7 @@ export default function Dashboard() {
           onClick={() => navigate("/customers/new")}
           icon={<UserPlus size={20} />}
           variant="secondary"
+          style={isMobile ? { width: "100%" } : {}}
         >
           Ny kund
         </ActionButton>
@@ -418,12 +421,13 @@ export default function Dashboard() {
                 padding: `${spacing[3]} ${spacing[4]}`,
                 border: '1px solid rgba(255, 255, 255, 0.1)',
                 borderRadius: borderRadius.lg,
-                fontSize: typography.fontSize.base,
+                fontSize: isMobile ? typography.fontSize.sm : typography.fontSize.base,
                 color: '#fff',
                 backgroundColor: 'rgba(255, 255, 255, 0.08)',
                 cursor: "pointer",
                 outline: "none",
-                minWidth: "160px",
+                minWidth: isMobile ? "0" : "160px",
+                width: isMobile ? "100%" : "auto",
                 fontFamily: typography.fontFamily.sans,
                 fontWeight: typography.fontWeight.medium,
               }}
@@ -442,12 +446,13 @@ export default function Dashboard() {
                 padding: `${spacing[3]} ${spacing[4]}`,
                 border: '1px solid rgba(255, 255, 255, 0.1)',
                 borderRadius: borderRadius.lg,
-                fontSize: typography.fontSize.base,
+                fontSize: isMobile ? typography.fontSize.sm : typography.fontSize.base,
                 color: '#fff',
                 backgroundColor: 'rgba(255, 255, 255, 0.08)',
                 cursor: "pointer",
                 outline: "none",
-                minWidth: "180px",
+                minWidth: isMobile ? "0" : "180px",
+                width: isMobile ? "100%" : "auto",
                 fontFamily: typography.fontFamily.sans,
                 fontWeight: typography.fontWeight.medium,
               }}
@@ -467,7 +472,7 @@ export default function Dashboard() {
                 padding: `${spacing[3]} ${spacing[4]}`,
                 border: `2px solid ${showClosed ? '#10b981' : 'rgba(255, 255, 255, 0.1)'}`,
                 borderRadius: borderRadius.lg,
-                fontSize: typography.fontSize.base,
+                fontSize: isMobile ? typography.fontSize.sm : typography.fontSize.base,
                 color: showClosed ? "white" : '#fff',
                 backgroundColor: showClosed ? '#10b981' : 'rgba(255, 255, 255, 0.08)',
                 cursor: "pointer",
@@ -477,7 +482,8 @@ export default function Dashboard() {
                 display: "flex",
                 alignItems: "center",
                 gap: spacing[2],
-                minWidth: "200px",
+                minWidth: isMobile ? "0" : "200px",
+                width: isMobile ? "100%" : "auto",
                 justifyContent: "center",
               }}
               onMouseEnter={(e) => {

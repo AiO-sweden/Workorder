@@ -373,10 +373,12 @@ export default function NewOrder() {
 
   return (
     <div className="page-enter" style={{
-      maxWidth: "1000px",
+      maxWidth: isMobile ? "100%" : "1000px",
       margin: "0 auto",
       padding: isMobile ? spacing[4] : 0,
-      fontFamily: typography.fontFamily.sans
+      fontFamily: typography.fontFamily.sans,
+      boxSizing: "border-box",
+      width: "100%"
     }}>
       {/* Toast Notification */}
       {toast && (
