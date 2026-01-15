@@ -2123,7 +2123,7 @@ export default function ReportsPage() {
       {/* Dashboard View */}
       {activeView === "dashboard" && (
         <div className="fade-in">
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(500px, 1fr))", gap: spacing[6], marginBottom: spacing[6] }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(500px, 1fr))", gap: spacing[6], marginBottom: spacing[6] }}>
             <div className="card-enter" style={darkCardStyle}>
               <div style={{
                 display: "flex",
@@ -2235,7 +2235,7 @@ export default function ReportsPage() {
           </div>
 
           <div style={{ display: "flex", gap: spacing[4], marginBottom: spacing[6], flexWrap: "wrap" }}>
-            <div style={{ flex: "1", minWidth: "250px" }}>
+            <div style={{ flex: isMobile ? "1 1 100%" : "1", minWidth: isMobile ? "0" : "250px" }}>
               <div style={{ position: "relative" }}>
                 <Search size={18} style={{ position: "absolute", left: spacing[3], top: "50%", transform: "translateY(-50%)", color: '#94a3b8' }} />
                 <input
@@ -2251,7 +2251,7 @@ export default function ReportsPage() {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              style={{ ...darkInputStyle, width: "auto", minWidth: "150px" }}
+              style={{ ...darkInputStyle, width: isMobile ? "100%" : "auto", minWidth: isMobile ? "0" : "150px", flex: isMobile ? "1 1 100%" : "0 0 auto" }}
             >
               <option value="all">Alla statusar</option>
               <option value="approved">Godkända</option>
@@ -2261,7 +2261,7 @@ export default function ReportsPage() {
             <select
               value={filterBillable}
               onChange={(e) => setFilterBillable(e.target.value)}
-              style={{ ...darkInputStyle, width: "auto", minWidth: "150px" }}
+              style={{ ...darkInputStyle, width: isMobile ? "100%" : "auto", minWidth: isMobile ? "0" : "150px", flex: isMobile ? "1 1 100%" : "0 0 auto" }}
             >
               <option value="all">Alla typer</option>
               <option value="billable">Fakturerbar</option>
@@ -2271,7 +2271,7 @@ export default function ReportsPage() {
             <select
               value={selectedTimeCode}
               onChange={(e) => setSelectedTimeCode(e.target.value)}
-              style={{ ...darkInputStyle, width: "auto", minWidth: "150px" }}
+              style={{ ...darkInputStyle, width: isMobile ? "100%" : "auto", minWidth: isMobile ? "0" : "150px", flex: isMobile ? "1 1 100%" : "0 0 auto" }}
             >
               <option value="all">Alla tidkoder</option>
               {timeCodes.map(code => (

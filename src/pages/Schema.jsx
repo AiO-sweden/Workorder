@@ -729,7 +729,10 @@ export default function Schema() {
     <div style={{
       minHeight: '100vh',
       background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
-      padding: isMobile ? spacing['4'] : spacing['8']
+      padding: isMobile ? spacing['4'] : spacing['8'],
+      boxSizing: 'border-box',
+      overflowX: 'hidden',
+      width: '100%'
     }}>
       {/* Header */}
       <div style={{

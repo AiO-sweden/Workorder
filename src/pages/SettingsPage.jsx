@@ -2038,9 +2038,9 @@ Välkommen!`;
                     </div>
                   </div>
 
-                  <div style={{ display: "flex", alignItems: "center", gap: spacing[3] }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: spacing[3], flexWrap: "wrap" }}>
                     {/* Role selector */}
-                    <div style={{ minWidth: "140px" }}>
+                    <div style={{ minWidth: isMobile ? "0" : "140px", flex: isMobile ? "1 1 100%" : "0 0 auto" }}>
                       <select
                         value={user.role}
                         onChange={(e) => handleUpdateUserRole(user.id, e.target.value)}
@@ -2220,10 +2220,11 @@ Välkommen!`;
                   }}
                 >
                   <div style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr 1fr 1fr auto",
+                    display: isMobile ? "flex" : "grid",
+                    flexDirection: isMobile ? "column" : undefined,
+                    gridTemplateColumns: isMobile ? undefined : "1fr 1fr 1fr auto",
                     gap: spacing[4],
-                    alignItems: "center"
+                    alignItems: isMobile ? "stretch" : "center"
                   }}>
                     {/* Name */}
                     <div>
@@ -2378,7 +2379,7 @@ Välkommen!`;
                           type="color"
                           value={timeCode.color}
                           onChange={(e) => handleUpdateTimeCode(timeCode.id, 'color', e.target.value)}
-                          style={{ ...darkInputStyle, height: "45px", width: "200px" }}
+                          style={{ ...darkInputStyle, height: "45px", width: isMobile ? "100%" : "200px", maxWidth: "100%" }}
                         />
                       </FormField>
                     </div>

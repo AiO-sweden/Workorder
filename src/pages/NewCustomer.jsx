@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { supabase } from "../supabase";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { useResponsive } from "../hooks/useResponsive";
 import {
   UserPlus,
   User,
@@ -24,6 +25,7 @@ import { spacing, shadows, borderRadius, typography, transitions } from "../comp
 export default function NewCustomer() {
   const navigate = useNavigate();
   const { userDetails } = useAuth();
+  const { isMobile, isTablet } = useResponsive();
   const [customerType, setCustomerType] = useState("Privatperson"); // Privatperson, Företag, Förening
   const [form, setForm] = useState({
     customerType: "Privatperson",
@@ -284,7 +286,7 @@ export default function NewCustomer() {
   };
 
   return (
-    <div style={{ maxWidth: "900px", margin: "0 auto", padding: spacing[8] }}>
+    <div style={{ maxWidth: isMobile ? "100%" : "900px", margin: "0 auto", padding: isMobile ? spacing[4] : spacing[8], boxSizing: "border-box", overflowX: "hidden", width: "100%" }}>
       {/* Toast Notifications */}
       {toast && (
         <Toast
@@ -362,7 +364,7 @@ export default function NewCustomer() {
             }}>
               Kundtyp
             </label>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: spacing[4] }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr", gap: spacing[4] }}>
               {["Privatperson", "Företag", "Förening"].map((type) => (
                 <label
                   key={type}
@@ -416,7 +418,7 @@ export default function NewCustomer() {
                 </h3>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[6] }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: spacing[6] }}>
                 <FormField label="Förnamn" required>
                   <input
                     name="firstName"
@@ -440,7 +442,7 @@ export default function NewCustomer() {
                 </FormField>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[6] }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: spacing[6] }}>
                 <FormField label="Telefonnummer">
                   <input
                     name="phone"
@@ -484,7 +486,7 @@ export default function NewCustomer() {
                 </h3>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[6] }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: spacing[6] }}>
                 <FormField label="Kundnamn" required>
                   <input
                     name="name"
@@ -527,7 +529,7 @@ export default function NewCustomer() {
                 </h3>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[6] }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: spacing[6] }}>
                 <FormField label="Kundnamn" required>
                   <input
                     name="name"
@@ -554,7 +556,7 @@ export default function NewCustomer() {
                 </FormField>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[6] }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: spacing[6] }}>
                 <FormField label="Alias">
                   <input
                     name="alias"
@@ -657,7 +659,7 @@ export default function NewCustomer() {
                 </h3>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[6] }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: spacing[6] }}>
                 <FormField label="Kundnamn" required>
                   <input
                     name="name"
@@ -714,7 +716,7 @@ export default function NewCustomer() {
             />
           </FormField>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[6] }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: spacing[6] }}>
             <FormField label="Postnummer & Ort">
               <input
                 name="zipCity"
@@ -743,7 +745,7 @@ export default function NewCustomer() {
             Fakturering
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[6] }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: spacing[6] }}>
             <FormField label="Betalningsvillkor">
               <select name="paymentTerms" value={form.paymentTerms} onChange={handleChange} style={darkInputStyle}>
                 <option value="10 dagar" style={{ backgroundColor: '#1a1a2e' }}>10 dagar</option>
@@ -811,7 +813,7 @@ export default function NewCustomer() {
               ROT & RUT-avdrag
             </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: spacing[6], marginBottom: spacing[6] }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: spacing[6], marginBottom: spacing[6] }}>
             <FormField label="ROT-kund" helper="Renovering, Ombyggnad, Tillbyggnad">
               <select name="rotCustomer" value={form.rotCustomer} onChange={handleChange} style={darkInputStyle}>
                 <option value="Nej" style={{ backgroundColor: '#1a1a2e' }}>Nej</option>
