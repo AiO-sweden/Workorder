@@ -500,13 +500,113 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Table */}
-        <div style={{ overflowX: "auto" }}>
-          <table style={{
-            width: "100%",
-            borderCollapse: "collapse",
-          }}>
-            <thead>
+        {/* Table (Desktop) / Cards (Mobile) */}
+        {isMobile ? (
+          // Mobile: Card view
+          <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[4] }}>
+            {sortedAndFilteredOrders.length > 0 ? (
+              sortedAndFilteredOrders.map((order) => (
+                <div
+                  key={order.id}
+                  onClick={() => navigate(`/orders/${order.id}`)}
+                  style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                    borderRadius: borderRadius.lg,
+                    padding: spacing[4],
+                    cursor: 'pointer',
+                    transition: transitions.base,
+                    border: '1px solid rgba(255, 255, 255, 0.1)'
+                  }}
+                  onTouchStart={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)'}
+                  onTouchEnd={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)'}
+                >
+                  {/* Header */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: spacing[3] }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: spacing[2] }}>
+                      <div style={{
+                        width: "32px",
+                        height: "32px",
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                        borderRadius: borderRadius.md,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center"
+                      }}>
+                        <FileText size={16} color="#60a5fa" />
+                      </div>
+                      <span style={{ fontWeight: typography.fontWeight.bold, color: '#fff', fontSize: typography.fontSize.lg }}>
+                        #{order.orderNumber}
+                      </span>
+                    </div>
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <PriorityBadge
+                        priority={order.priority}
+                        orderId={order.id}
+                        onChange={handlePriorityChange}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Title */}
+                  <div style={{ marginBottom: spacing[2] }}>
+                    <span style={{ fontSize: typography.fontSize.base, fontWeight: typography.fontWeight.semibold, color: '#fff' }}>
+                      {order.title || "Ingen titel"}
+                    </span>
+                  </div>
+
+                  {/* Info */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[2], fontSize: typography.fontSize.sm, color: '#cbd5e1' }}>
+                    {order.customerName && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: spacing[2] }}>
+                        <Users size={14} />
+                        <span>{order.customerName}</span>
+                      </div>
+                    )}
+                    {order.address && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: spacing[2] }}>
+                        <FileText size={14} />
+                        <span>{order.address}</span>
+                      </div>
+                    )}
+                    {order.deadline && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: spacing[2] }}>
+                        <AlertCircle size={14} />
+                        <span>Deadline: {order.deadline}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Status */}
+                  <div style={{ marginTop: spacing[3], paddingTop: spacing[3], borderTop: '1px solid rgba(255, 255, 255, 0.1)' }} onClick={(e) => e.stopPropagation()}>
+                    <StatusBadge
+                      status={order.status}
+                      orderId={order.id}
+                      onChange={handleStatusChange}
+                    />
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div style={{
+                padding: spacing[12],
+                textAlign: "center",
+                color: '#94a3b8',
+                fontSize: typography.fontSize.lg,
+              }}>
+                {searchTerm || filter.priority || filter.status
+                  ? "Inga arbetsordrar matchar dina filter"
+                  : "Inga arbetsordrar ännu"}
+              </div>
+            )}
+          </div>
+        ) : (
+          // Desktop: Table view
+          <div style={{ overflowX: "auto" }}>
+            <table style={{
+              width: "100%",
+              borderCollapse: "collapse",
+            }}>
+              <thead>
               <tr style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}>
                 <TableHeader onClick={() => requestSort('orderNumber')} sortKey="orderNumber" sortConfig={sortConfig}>
                   Order
@@ -604,6 +704,7 @@ export default function Dashboard() {
             </tbody>
           </table>
         </div>
+        )}
       </div>
     </div>
   );
