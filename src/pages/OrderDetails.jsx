@@ -3190,3 +3190,4 @@ function ApprovalBadge({ approved, reportId, onChange }) {
     </>
   );
 }
+// Force rebuild
