@@ -1228,24 +1228,30 @@ export default function OrderDetails() {
         display: 'flex',
         gap: spacing[2],
         marginBottom: spacing[6],
-        borderBottom: '2px solid rgba(255, 255, 255, 0.1)'
+        borderBottom: '2px solid rgba(255, 255, 255, 0.1)',
+        overflowX: 'auto',
+        WebkitOverflowScrolling: 'touch',
+        scrollbarWidth: 'none',
+        msOverflowStyle: 'none'
       }}>
         <button
           onClick={() => setActiveTab('details')}
           style={{
-            padding: `${spacing[3]} ${spacing[6]}`,
+            padding: isMobile ? `${spacing[2]} ${spacing[4]}` : `${spacing[3]} ${spacing[6]}`,
             background: activeTab === 'details' ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
             border: 'none',
             borderBottom: activeTab === 'details' ? '2px solid #3b82f6' : '2px solid transparent',
             color: activeTab === 'details' ? '#fff' : 'rgba(255, 255, 255, 0.6)',
-            fontSize: typography.fontSize.base,
+            fontSize: isMobile ? typography.fontSize.sm : typography.fontSize.base,
             fontWeight: typography.fontWeight.semibold,
             cursor: 'pointer',
             transition: transitions.all,
             display: 'flex',
             alignItems: 'center',
             gap: spacing[2],
-            marginBottom: '-2px'
+            marginBottom: '-2px',
+            whiteSpace: 'nowrap',
+            flexShrink: 0
           }}
           onMouseEnter={(e) => {
             if (activeTab !== 'details') {
