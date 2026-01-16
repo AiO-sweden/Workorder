@@ -811,13 +811,19 @@ function StatusBadge({ status, orderId, onChange }) {
       setIsOpen(false);
     };
 
+    const handleScroll = () => {
+      setIsOpen(false);
+    };
+
     // Small delay to avoid immediate closure
     setTimeout(() => {
       document.addEventListener('click', handleClickOutside);
+      window.addEventListener('scroll', handleScroll, true);
     }, 0);
 
     return () => {
       document.removeEventListener('click', handleClickOutside);
+      window.removeEventListener('scroll', handleScroll, true);
     };
   }, [isOpen]);
 
@@ -939,13 +945,19 @@ function PriorityBadge({ priority, orderId, onChange }) {
       setIsOpen(false);
     };
 
+    const handleScroll = () => {
+      setIsOpen(false);
+    };
+
     // Small delay to avoid immediate closure
     setTimeout(() => {
       document.addEventListener('click', handleClickOutside);
+      window.addEventListener('scroll', handleScroll, true);
     }, 0);
 
     return () => {
       document.removeEventListener('click', handleClickOutside);
+      window.removeEventListener('scroll', handleScroll, true);
     };
   }, [isOpen]);
 
