@@ -367,7 +367,12 @@ export default function Dashboard() {
             justifyContent: "space-between"
           }}>
             {/* Search */}
-            <div style={{ position: "relative", flex: "0 1 280px", minWidth: "200px" }}>
+            <div style={{
+              position: "relative",
+              flex: isMobile ? "1 1 100%" : "0 1 280px",
+              minWidth: isMobile ? "100%" : "200px",
+              width: isMobile ? "100%" : "auto"
+            }}>
               <Search
                 size={18}
                 style={{
@@ -388,12 +393,13 @@ export default function Dashboard() {
                   padding: `${spacing[3]} ${spacing[4]} ${spacing[3]} ${spacing[10]}`,
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                   borderRadius: borderRadius.lg,
-                  fontSize: typography.fontSize.base,
+                  fontSize: isMobile ? typography.fontSize.sm : typography.fontSize.base,
                   outline: "none",
                   transition: "all 0.2s ease",
                   fontFamily: typography.fontFamily.sans,
                   backgroundColor: 'rgba(255, 255, 255, 0.08)',
                   color: '#fff',
+                  fontWeight: typography.fontWeight.medium,
                 }}
                 onFocus={(e) => {
                   e.currentTarget.style.borderColor = '#3b82f6';
@@ -411,7 +417,9 @@ export default function Dashboard() {
               display: "flex",
               gap: spacing[4],
               alignItems: "center",
-              flexWrap: "wrap"
+              flexWrap: "wrap",
+              flex: isMobile ? "1 1 100%" : "auto",
+              width: isMobile ? "100%" : "auto"
             }}>
             {/* Priority Filter */}
             <select
