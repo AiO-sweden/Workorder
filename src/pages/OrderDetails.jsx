@@ -1251,10 +1251,10 @@ export default function OrderDetails() {
               minHeight: '44px'
             }}
           >
-            <option value="details" style={{ backgroundColor: '#1a1a2e' }}>📋 Orderdetaljer</option>
-            <option value="time" style={{ backgroundColor: '#1a1a2e' }}>⏱️ Tidrapportering</option>
-            <option value="shopping" style={{ backgroundColor: '#1a1a2e' }}>✅ Checklista</option>
-            <option value="documents" style={{ backgroundColor: '#1a1a2e' }}>📄 Dokument</option>
+            <option value="details" style={{ backgroundColor: '#1a1a2e' }}>Orderdetaljer</option>
+            <option value="time" style={{ backgroundColor: '#1a1a2e' }}>Tidrapportering</option>
+            <option value="shopping" style={{ backgroundColor: '#1a1a2e' }}>Checklista</option>
+            <option value="documents" style={{ backgroundColor: '#1a1a2e' }}>Dokument</option>
           </select>
         </div>
       ) : (

@@ -1227,11 +1227,11 @@ Välkommen!`;
               minHeight: '44px'
             }}
           >
-            <option value="users" style={{ backgroundColor: '#1a1a2e' }}>🏢 Organisation</option>
-            <option value="timeCodes" style={{ backgroundColor: '#1a1a2e' }}>🕐 Tidkoder</option>
-            <option value="workTypes" style={{ backgroundColor: '#1a1a2e' }}>💼 Arbetstyper</option>
-            <option value="eventTypes" style={{ backgroundColor: '#1a1a2e' }}>📅 Händelsetyper</option>
-            <option value="import" style={{ backgroundColor: '#1a1a2e' }}>📤 Importera</option>
+            <option value="users" style={{ backgroundColor: '#1a1a2e' }}>Organisation</option>
+            <option value="timeCodes" style={{ backgroundColor: '#1a1a2e' }}>Tidkoder</option>
+            <option value="workTypes" style={{ backgroundColor: '#1a1a2e' }}>Arbetstyper</option>
+            <option value="eventTypes" style={{ backgroundColor: '#1a1a2e' }}>Händelsetyper</option>
+            <option value="import" style={{ backgroundColor: '#1a1a2e' }}>Importera</option>
           </select>
         </div>
       ) : (
