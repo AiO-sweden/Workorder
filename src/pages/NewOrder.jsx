@@ -73,6 +73,7 @@ export default function NewOrder() {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [toast, setToast] = useState(null);
+  const [showWorkTypeIcons, setShowWorkTypeIcons] = useState(false);
 
   const [form, setForm] = useState({
     orderNumber: "",
@@ -237,6 +238,8 @@ export default function NewOrder() {
     if (errors.workType) {
       setErrors({ ...errors, workType: "" });
     }
+    // Auto-close icon picker
+    setShowWorkTypeIcons(false);
   };
 
   const handleCustomerChange = (e) => {
@@ -601,21 +604,73 @@ export default function NewOrder() {
           </FormField>
 
           <FormField label="Typ av arbete" required>
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
-              gap: spacing[3],
-              marginBottom: spacing[4]
-            }}>
-              {workTypes.map(type => (
-                <WorkTypeButton
-                  key={type.id}
-                  type={type}
-                  selected={form.workType === type.name}
-                  onClick={() => handleWorkTypeChange(type.name)}
-                />
-              ))}
-            </div>
+            {/* Toggle Button */}
+            <button
+              type="button"
+              onClick={() => setShowWorkTypeIcons(!showWorkTypeIcons)}
+              style={{
+                width: '100%',
+                padding: spacing[3],
+                borderRadius: borderRadius.lg,
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                color: '#fff',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: spacing[3],
+                transition: `all ${transitions.base}`,
+                fontSize: typography.fontSize.base,
+                fontWeight: typography.fontWeight.medium,
+                marginBottom: spacing[3]
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+              }}
+            >
+              {form.workType && (() => {
+                const selectedType = workTypes.find(t => t.name === form.workType);
+                if (selectedType) {
+                  const Icon = AVAILABLE_ICONS[selectedType.icon] || MoreHorizontal;
+                  return <Icon size={24} color={selectedType.color} />;
+                }
+                return null;
+              })()}
+              <span style={{ flex: 1, textAlign: 'left', color: form.workType ? '#fff' : '#94a3b8' }}>
+                {form.workType || 'Välj typ av arbete'}
+              </span>
+              <span style={{ fontSize: typography.fontSize.lg, color: '#94a3b8' }}>
+                {showWorkTypeIcons ? '−' : '+'}
+              </span>
+            </button>
+
+            {/* Work Type Icons Grid - Only show when expanded */}
+            {showWorkTypeIcons && (
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: isMobile ? "repeat(auto-fill, minmax(100px, 1fr))" : "repeat(auto-fill, minmax(140px, 1fr))",
+                gap: spacing[3],
+                marginBottom: spacing[4],
+                maxHeight: '300px',
+                overflowY: 'auto',
+                padding: spacing[2],
+                backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                borderRadius: borderRadius.lg,
+                border: '1px solid rgba(255, 255, 255, 0.1)'
+              }}>
+                {workTypes.map(type => (
+                  <WorkTypeButton
+                    key={type.id}
+                    type={type}
+                    selected={form.workType === type.name}
+                    onClick={() => handleWorkTypeChange(type.name)}
+                  />
+                ))}
+              </div>
+            )}
             {errors.workType && <ErrorMessage message={errors.workType} />}
           </FormField>
 
