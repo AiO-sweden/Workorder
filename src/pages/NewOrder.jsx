@@ -529,18 +529,20 @@ export default function NewOrder() {
             </ActionButton>
           )}
 
-          <FormField label="Adress">
-            <div style={{ position: "relative" }}>
-              <MapPin size={18} style={{ position: "absolute", left: spacing[3], top: "50%", transform: "translateY(-50%)", color: '#94a3b8', pointerEvents: "none" }} />
-              <input
-                name="address"
-                value={form.address}
-                onChange={handleChange}
-                style={{ ...darkInputStyle, paddingLeft: spacing[10] }}
-                placeholder="Adress fylls i automatiskt"
-              />
-            </div>
-          </FormField>
+          <div style={{ marginTop: spacing[6] }}>
+            <FormField label="Adress">
+              <div style={{ position: "relative" }}>
+                <MapPin size={18} style={{ position: "absolute", left: spacing[3], top: "50%", transform: "translateY(-50%)", color: '#94a3b8', pointerEvents: "none" }} />
+                <input
+                  name="address"
+                  value={form.address}
+                  onChange={handleChange}
+                  style={{ ...darkInputStyle, paddingLeft: spacing[10] }}
+                  placeholder="Adress fylls i automatiskt"
+                />
+              </div>
+            </FormField>
+          </div>
 
           {/* Customer Details Display */}
           {form.customerId && selectedCustomer() && (
