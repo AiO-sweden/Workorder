@@ -3404,9 +3404,13 @@ Välkommen!`;
               margin: `0 0 ${spacing[3]} 0`,
               fontSize: typography.fontSize.base,
               fontWeight: typography.fontWeight.semibold,
-              color: '#60a5fa'
+              color: '#60a5fa',
+              display: 'flex',
+              alignItems: 'center',
+              gap: spacing[2]
             }}>
-              📋 Instruktioner
+              <ClipboardCheck size={18} />
+              Instruktioner
             </h4>
             <ul style={{
               margin: 0,
