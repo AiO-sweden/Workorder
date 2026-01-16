@@ -1199,139 +1199,177 @@ Välkommen!`;
       </div>
 
       {/* Tabs */}
-      <div style={{
-        display: "flex",
-        gap: spacing[2],
-        marginBottom: spacing[6],
-        borderBottom: '2px solid rgba(255, 255, 255, 0.1)',
-        flexWrap: "wrap"
-      }}>
-        <button
-          onClick={() => {
-            setActiveTab("users");
-            setShowAddForm(false);
-            setEditingId(null);
-          }}
-          style={{
-            padding: `${spacing[3]} ${spacing[6]}`,
-            border: "none",
-            backgroundColor: "transparent",
-            borderBottom: `3px solid ${activeTab === "users" ? "#60a5fa" : "transparent"}`,
-            color: activeTab === "users" ? "#60a5fa" : "#94a3b8",
-            fontWeight: typography.fontWeight.semibold,
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: spacing[2],
-            marginBottom: "-2px",
-            transition: `all ${transitions.base}`
-          }}
-        >
-          <Building2 size={18} />
-          Organisation
-        </button>
+      {isMobile ? (
+        // Mobile: Dropdown menu
+        <div style={{ marginBottom: spacing[6] }}>
+          <select
+            value={activeTab}
+            onChange={(e) => {
+              setActiveTab(e.target.value);
+              setShowAddForm(false);
+              setEditingId(null);
+              if (e.target.value === "import") {
+                setImportResults(null);
+              }
+            }}
+            style={{
+              width: '100%',
+              padding: `${spacing[3]} ${spacing[4]}`,
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: borderRadius.lg,
+              fontSize: typography.fontSize.base,
+              fontWeight: typography.fontWeight.semibold,
+              backgroundColor: 'rgba(59, 130, 246, 0.15)',
+              color: '#fff',
+              cursor: 'pointer',
+              outline: 'none',
+              boxSizing: 'border-box',
+              minHeight: '44px'
+            }}
+          >
+            <option value="users" style={{ backgroundColor: '#1a1a2e' }}>🏢 Organisation</option>
+            <option value="timeCodes" style={{ backgroundColor: '#1a1a2e' }}>🕐 Tidkoder</option>
+            <option value="workTypes" style={{ backgroundColor: '#1a1a2e' }}>💼 Arbetstyper</option>
+            <option value="eventTypes" style={{ backgroundColor: '#1a1a2e' }}>📅 Händelsetyper</option>
+            <option value="import" style={{ backgroundColor: '#1a1a2e' }}>📤 Importera</option>
+          </select>
+        </div>
+      ) : (
+        // Desktop: Horizontal tab buttons
+        <div style={{
+          display: "flex",
+          gap: spacing[2],
+          marginBottom: spacing[6],
+          borderBottom: '2px solid rgba(255, 255, 255, 0.1)',
+          flexWrap: "wrap"
+        }}>
+          <button
+            onClick={() => {
+              setActiveTab("users");
+              setShowAddForm(false);
+              setEditingId(null);
+            }}
+            style={{
+              padding: `${spacing[3]} ${spacing[6]}`,
+              border: "none",
+              backgroundColor: "transparent",
+              borderBottom: `3px solid ${activeTab === "users" ? "#60a5fa" : "transparent"}`,
+              color: activeTab === "users" ? "#60a5fa" : "#94a3b8",
+              fontWeight: typography.fontWeight.semibold,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: spacing[2],
+              marginBottom: "-2px",
+              transition: `all ${transitions.base}`
+            }}
+          >
+            <Building2 size={18} />
+            Organisation
+          </button>
 
-        <button
-          onClick={() => {
-            setActiveTab("timeCodes");
-            setShowAddForm(false);
-            setEditingId(null);
-          }}
-          style={{
-            padding: `${spacing[3]} ${spacing[6]}`,
-            border: "none",
-            backgroundColor: "transparent",
-            borderBottom: `3px solid ${activeTab === "timeCodes" ? "#60a5fa" : "transparent"}`,
-            color: activeTab === "timeCodes" ? "#60a5fa" : "#94a3b8",
-            fontWeight: typography.fontWeight.semibold,
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: spacing[2],
-            marginBottom: "-2px",
-            transition: `all ${transitions.base}`
-          }}
-        >
-          <Clock size={18} />
-          Tidkoder
-        </button>
+          <button
+            onClick={() => {
+              setActiveTab("timeCodes");
+              setShowAddForm(false);
+              setEditingId(null);
+            }}
+            style={{
+              padding: `${spacing[3]} ${spacing[6]}`,
+              border: "none",
+              backgroundColor: "transparent",
+              borderBottom: `3px solid ${activeTab === "timeCodes" ? "#60a5fa" : "transparent"}`,
+              color: activeTab === "timeCodes" ? "#60a5fa" : "#94a3b8",
+              fontWeight: typography.fontWeight.semibold,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: spacing[2],
+              marginBottom: "-2px",
+              transition: `all ${transitions.base}`
+            }}
+          >
+            <Clock size={18} />
+            Tidkoder
+          </button>
 
-        <button
-          onClick={() => {
-            setActiveTab("workTypes");
-            setShowAddForm(false);
-            setEditingId(null);
-          }}
-          style={{
-            padding: `${spacing[3]} ${spacing[6]}`,
-            border: "none",
-            backgroundColor: "transparent",
-            borderBottom: `3px solid ${activeTab === "workTypes" ? "#60a5fa" : "transparent"}`,
-            color: activeTab === "workTypes" ? "#60a5fa" : "#94a3b8",
-            fontWeight: typography.fontWeight.semibold,
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: spacing[2],
-            marginBottom: "-2px",
-            transition: `all ${transitions.base}`
-          }}
-        >
-          <Briefcase size={18} />
-          Arbetstyper
-        </button>
+          <button
+            onClick={() => {
+              setActiveTab("workTypes");
+              setShowAddForm(false);
+              setEditingId(null);
+            }}
+            style={{
+              padding: `${spacing[3]} ${spacing[6]}`,
+              border: "none",
+              backgroundColor: "transparent",
+              borderBottom: `3px solid ${activeTab === "workTypes" ? "#60a5fa" : "transparent"}`,
+              color: activeTab === "workTypes" ? "#60a5fa" : "#94a3b8",
+              fontWeight: typography.fontWeight.semibold,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: spacing[2],
+              marginBottom: "-2px",
+              transition: `all ${transitions.base}`
+            }}
+          >
+            <Briefcase size={18} />
+            Arbetstyper
+          </button>
 
-        <button
-          onClick={() => {
-            setActiveTab("eventTypes");
-            setShowAddForm(false);
-            setEditingId(null);
-          }}
-          style={{
-            padding: `${spacing[3]} ${spacing[6]}`,
-            border: "none",
-            backgroundColor: "transparent",
-            borderBottom: `3px solid ${activeTab === "eventTypes" ? "#60a5fa" : "transparent"}`,
-            color: activeTab === "eventTypes" ? "#60a5fa" : "#94a3b8",
-            fontWeight: typography.fontWeight.semibold,
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: spacing[2],
-            marginBottom: "-2px",
-            transition: `all ${transitions.base}`
-          }}
-        >
-          <Calendar size={18} />
-          Händelsetyper
-        </button>
+          <button
+            onClick={() => {
+              setActiveTab("eventTypes");
+              setShowAddForm(false);
+              setEditingId(null);
+            }}
+            style={{
+              padding: `${spacing[3]} ${spacing[6]}`,
+              border: "none",
+              backgroundColor: "transparent",
+              borderBottom: `3px solid ${activeTab === "eventTypes" ? "#60a5fa" : "transparent"}`,
+              color: activeTab === "eventTypes" ? "#60a5fa" : "#94a3b8",
+              fontWeight: typography.fontWeight.semibold,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: spacing[2],
+              marginBottom: "-2px",
+              transition: `all ${transitions.base}`
+            }}
+          >
+            <Calendar size={18} />
+            Händelsetyper
+          </button>
 
-        <button
-          onClick={() => {
-            setActiveTab("import");
-            setShowAddForm(false);
-            setEditingId(null);
-            setImportResults(null);
-          }}
-          style={{
-            padding: `${spacing[3]} ${spacing[6]}`,
-            border: "none",
-            backgroundColor: "transparent",
-            borderBottom: `3px solid ${activeTab === "import" ? "#60a5fa" : "transparent"}`,
-            color: activeTab === "import" ? "#60a5fa" : "#94a3b8",
-            fontWeight: typography.fontWeight.semibold,
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: spacing[2],
-            marginBottom: "-2px",
-            transition: `all ${transitions.base}`
-          }}
-        >
-          <FileUp size={18} />
-          Importera
-        </button>
-      </div>
+          <button
+            onClick={() => {
+              setActiveTab("import");
+              setShowAddForm(false);
+              setEditingId(null);
+              setImportResults(null);
+            }}
+            style={{
+              padding: `${spacing[3]} ${spacing[6]}`,
+              border: "none",
+              backgroundColor: "transparent",
+              borderBottom: `3px solid ${activeTab === "import" ? "#60a5fa" : "transparent"}`,
+              color: activeTab === "import" ? "#60a5fa" : "#94a3b8",
+              fontWeight: typography.fontWeight.semibold,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: spacing[2],
+              marginBottom: "-2px",
+              transition: `all ${transitions.base}`
+            }}
+          >
+            <FileUp size={18} />
+            Importera
+          </button>
+        </div>
+      )}
 
       {/* Users Tab */}
       {activeTab === "users" && (

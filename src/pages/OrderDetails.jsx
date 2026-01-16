@@ -1230,143 +1230,173 @@ export default function OrderDetails() {
       </div>
 
       {/* Tab Navigation */}
-      <div style={{
-        display: 'flex',
-        gap: spacing[2],
-        marginBottom: spacing[6],
-        borderBottom: '2px solid rgba(255, 255, 255, 0.1)',
-        overflowX: 'auto',
-        WebkitOverflowScrolling: 'touch',
-        scrollbarWidth: 'none',
-        msOverflowStyle: 'none'
-      }}>
-        <button
-          onClick={() => setActiveTab('details')}
-          style={{
-            padding: isMobile ? `${spacing[2]} ${spacing[4]}` : `${spacing[3]} ${spacing[6]}`,
-            background: activeTab === 'details' ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
-            border: 'none',
-            borderBottom: activeTab === 'details' ? '2px solid #3b82f6' : '2px solid transparent',
-            color: activeTab === 'details' ? '#fff' : 'rgba(255, 255, 255, 0.6)',
-            fontSize: isMobile ? typography.fontSize.sm : typography.fontSize.base,
-            fontWeight: typography.fontWeight.semibold,
-            cursor: 'pointer',
-            transition: transitions.all,
-            display: 'flex',
-            alignItems: 'center',
-            gap: spacing[2],
-            marginBottom: '-2px',
-            whiteSpace: 'nowrap',
-            flexShrink: 0
-          }}
-          onMouseEnter={(e) => {
-            if (activeTab !== 'details') {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (activeTab !== 'details') {
-              e.currentTarget.style.background = 'transparent';
-            }
-          }}
-        >
-          <FileText size={18} />
-          Orderdetaljer
-        </button>
-        <button
-          onClick={() => setActiveTab('time')}
-          style={{
-            padding: `${spacing[3]} ${spacing[6]}`,
-            background: activeTab === 'time' ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
-            border: 'none',
-            borderBottom: activeTab === 'time' ? '2px solid #3b82f6' : '2px solid transparent',
-            color: activeTab === 'time' ? '#fff' : 'rgba(255, 255, 255, 0.6)',
-            fontSize: typography.fontSize.base,
-            fontWeight: typography.fontWeight.semibold,
-            cursor: 'pointer',
-            transition: transitions.all,
-            display: 'flex',
-            alignItems: 'center',
-            gap: spacing[2],
-            marginBottom: '-2px'
-          }}
-          onMouseEnter={(e) => {
-            if (activeTab !== 'time') {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (activeTab !== 'time') {
-              e.currentTarget.style.background = 'transparent';
-            }
-          }}
-        >
-          <Clock size={18} />
-          Tidrapportering
-        </button>
-        <button
-          onClick={() => setActiveTab('shopping')}
-          style={{
-            padding: `${spacing[3]} ${spacing[6]}`,
-            background: activeTab === 'shopping' ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
-            border: 'none',
-            borderBottom: activeTab === 'shopping' ? '2px solid #3b82f6' : '2px solid transparent',
-            color: activeTab === 'shopping' ? '#fff' : 'rgba(255, 255, 255, 0.6)',
-            fontSize: typography.fontSize.base,
-            fontWeight: typography.fontWeight.semibold,
-            cursor: 'pointer',
-            transition: transitions.all,
-            display: 'flex',
-            alignItems: 'center',
-            gap: spacing[2],
-            marginBottom: '-2px'
-          }}
-          onMouseEnter={(e) => {
-            if (activeTab !== 'shopping') {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (activeTab !== 'shopping') {
-              e.currentTarget.style.background = 'transparent';
-            }
-          }}
-        >
-          <ShoppingCart size={18} />
-          Checklista
-        </button>
-        <button
-          onClick={() => setActiveTab('documents')}
-          style={{
-            padding: `${spacing[3]} ${spacing[6]}`,
-            background: activeTab === 'documents' ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
-            border: 'none',
-            borderBottom: activeTab === 'documents' ? '2px solid #3b82f6' : '2px solid transparent',
-            color: activeTab === 'documents' ? '#fff' : 'rgba(255, 255, 255, 0.6)',
-            fontSize: typography.fontSize.base,
-            fontWeight: typography.fontWeight.semibold,
-            cursor: 'pointer',
-            transition: transitions.all,
-            display: 'flex',
-            alignItems: 'center',
-            gap: spacing[2],
-            marginBottom: '-2px'
-          }}
-          onMouseEnter={(e) => {
-            if (activeTab !== 'documents') {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (activeTab !== 'documents') {
-              e.currentTarget.style.background = 'transparent';
-            }
-          }}
-        >
-          <File size={18} />
-          Dokument
-        </button>
-      </div>
+      {isMobile ? (
+        // Mobile: Dropdown menu
+        <div style={{ marginBottom: spacing[6] }}>
+          <select
+            value={activeTab}
+            onChange={(e) => setActiveTab(e.target.value)}
+            style={{
+              width: '100%',
+              padding: `${spacing[3]} ${spacing[4]}`,
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: borderRadius.lg,
+              fontSize: typography.fontSize.base,
+              fontWeight: typography.fontWeight.semibold,
+              backgroundColor: 'rgba(59, 130, 246, 0.15)',
+              color: '#fff',
+              cursor: 'pointer',
+              outline: 'none',
+              boxSizing: 'border-box',
+              minHeight: '44px'
+            }}
+          >
+            <option value="details" style={{ backgroundColor: '#1a1a2e' }}>📋 Orderdetaljer</option>
+            <option value="time" style={{ backgroundColor: '#1a1a2e' }}>⏱️ Tidrapportering</option>
+            <option value="shopping" style={{ backgroundColor: '#1a1a2e' }}>✅ Checklista</option>
+            <option value="documents" style={{ backgroundColor: '#1a1a2e' }}>📄 Dokument</option>
+          </select>
+        </div>
+      ) : (
+        // Desktop: Horizontal tab buttons
+        <div style={{
+          display: 'flex',
+          gap: spacing[2],
+          marginBottom: spacing[6],
+          borderBottom: '2px solid rgba(255, 255, 255, 0.1)',
+          overflowX: 'auto',
+          WebkitOverflowScrolling: 'touch',
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none'
+        }}>
+          <button
+            onClick={() => setActiveTab('details')}
+            style={{
+              padding: `${spacing[3]} ${spacing[6]}`,
+              background: activeTab === 'details' ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
+              border: 'none',
+              borderBottom: activeTab === 'details' ? '2px solid #3b82f6' : '2px solid transparent',
+              color: activeTab === 'details' ? '#fff' : 'rgba(255, 255, 255, 0.6)',
+              fontSize: typography.fontSize.base,
+              fontWeight: typography.fontWeight.semibold,
+              cursor: 'pointer',
+              transition: transitions.all,
+              display: 'flex',
+              alignItems: 'center',
+              gap: spacing[2],
+              marginBottom: '-2px',
+              whiteSpace: 'nowrap',
+              flexShrink: 0
+            }}
+            onMouseEnter={(e) => {
+              if (activeTab !== 'details') {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (activeTab !== 'details') {
+                e.currentTarget.style.background = 'transparent';
+              }
+            }}
+          >
+            <FileText size={18} />
+            Orderdetaljer
+          </button>
+          <button
+            onClick={() => setActiveTab('time')}
+            style={{
+              padding: `${spacing[3]} ${spacing[6]}`,
+              background: activeTab === 'time' ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
+              border: 'none',
+              borderBottom: activeTab === 'time' ? '2px solid #3b82f6' : '2px solid transparent',
+              color: activeTab === 'time' ? '#fff' : 'rgba(255, 255, 255, 0.6)',
+              fontSize: typography.fontSize.base,
+              fontWeight: typography.fontWeight.semibold,
+              cursor: 'pointer',
+              transition: transitions.all,
+              display: 'flex',
+              alignItems: 'center',
+              gap: spacing[2],
+              marginBottom: '-2px'
+            }}
+            onMouseEnter={(e) => {
+              if (activeTab !== 'time') {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (activeTab !== 'time') {
+                e.currentTarget.style.background = 'transparent';
+              }
+            }}
+          >
+            <Clock size={18} />
+            Tidrapportering
+          </button>
+          <button
+            onClick={() => setActiveTab('shopping')}
+            style={{
+              padding: `${spacing[3]} ${spacing[6]}`,
+              background: activeTab === 'shopping' ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
+              border: 'none',
+              borderBottom: activeTab === 'shopping' ? '2px solid #3b82f6' : '2px solid transparent',
+              color: activeTab === 'shopping' ? '#fff' : 'rgba(255, 255, 255, 0.6)',
+              fontSize: typography.fontSize.base,
+              fontWeight: typography.fontWeight.semibold,
+              cursor: 'pointer',
+              transition: transitions.all,
+              display: 'flex',
+              alignItems: 'center',
+              gap: spacing[2],
+              marginBottom: '-2px'
+            }}
+            onMouseEnter={(e) => {
+              if (activeTab !== 'shopping') {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (activeTab !== 'shopping') {
+                e.currentTarget.style.background = 'transparent';
+              }
+            }}
+          >
+            <ShoppingCart size={18} />
+            Checklista
+          </button>
+          <button
+            onClick={() => setActiveTab('documents')}
+            style={{
+              padding: `${spacing[3]} ${spacing[6]}`,
+              background: activeTab === 'documents' ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
+              border: 'none',
+              borderBottom: activeTab === 'documents' ? '2px solid #3b82f6' : '2px solid transparent',
+              color: activeTab === 'documents' ? '#fff' : 'rgba(255, 255, 255, 0.6)',
+              fontSize: typography.fontSize.base,
+              fontWeight: typography.fontWeight.semibold,
+              cursor: 'pointer',
+              transition: transitions.all,
+              display: 'flex',
+              alignItems: 'center',
+              gap: spacing[2],
+              marginBottom: '-2px'
+            }}
+            onMouseEnter={(e) => {
+              if (activeTab !== 'documents') {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (activeTab !== 'documents') {
+                e.currentTarget.style.background = 'transparent';
+              }
+            }}
+          >
+            <File size={18} />
+            Dokument
+          </button>
+        </div>
+      )}
 
       {/* Order Details Tab */}
       {activeTab === 'details' && (isEditing ? (
