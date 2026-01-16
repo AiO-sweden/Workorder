@@ -235,6 +235,12 @@ export default function SettingsPage() {
     color: "#3b82f6"
   });
 
+  // States for icon picker visibility
+  const [showNewWorkTypeIcons, setShowNewWorkTypeIcons] = useState(false);
+  const [showEditWorkTypeIcons, setShowEditWorkTypeIcons] = useState({});
+  const [showNewEventTypeIcons, setShowNewEventTypeIcons] = useState(false);
+  const [showEditEventTypeIcons, setShowEditEventTypeIcons] = useState({});
+
   useEffect(() => {
     fetchSettings();
     fetchTimeCodes();
@@ -2500,62 +2506,99 @@ Välkommen!`;
 
                 <div style={{ gridColumn: "1 / -1" }}>
                   <FormField label="Ikon">
-                    <div style={{
-                      display: "grid",
-                      gridTemplateColumns: "repeat(auto-fill, minmax(60px, 1fr))",
-                      gap: spacing[2],
-                      padding: spacing[3],
-                      backgroundColor: 'rgba(255, 255, 255, 0.03)',
-                      borderRadius: borderRadius.base,
-                      border: '1px solid rgba(255, 255, 255, 0.1)'
-                    }}>
-                      {Object.keys(AVAILABLE_ICONS).map(iconName => {
-                        const isSelected = newWorkType.icon === iconName;
-                        const Icon = AVAILABLE_ICONS[iconName];
-                        return (
-                          <button
-                            key={iconName}
-                            type="button"
-                            onClick={() => setNewWorkType({ ...newWorkType, icon: iconName })}
-                            style={{
-                              padding: spacing[3],
-                              border: `2px solid ${isSelected ? newWorkType.color : 'rgba(255, 255, 255, 0.1)'}`,
-                              borderRadius: borderRadius.base,
-                              backgroundColor: isSelected ? `${newWorkType.color}15` : 'rgba(255, 255, 255, 0.03)',
-                              cursor: "pointer",
-                              display: "flex",
-                              flexDirection: "column",
-                              alignItems: "center",
-                              gap: spacing[1],
-                              transition: `all ${transitions.base}`,
-                              boxShadow: isSelected ? shadows.md : "none"
-                            }}
-                            onMouseEnter={(e) => {
-                              if (!isSelected) {
-                                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
-                                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-                              }
-                            }}
-                            onMouseLeave={(e) => {
-                              if (!isSelected) {
-                                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)';
-                                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                              }
-                            }}
-                          >
-                            <Icon size={24} color={isSelected ? newWorkType.color : '#94a3b8'} />
-                            <span style={{
-                              fontSize: typography.fontSize.xs,
-                              color: isSelected ? newWorkType.color : '#94a3b8',
-                              fontWeight: isSelected ? typography.fontWeight.semibold : typography.fontWeight.normal,
-                              textAlign: "center"
-                            }}>
-                              {iconName}
-                            </span>
-                          </button>
-                        );
+                    {/* Icon Picker Toggle Button */}
+                    <button
+                      type="button"
+                      onClick={() => setShowNewWorkTypeIcons(!showNewWorkTypeIcons)}
+                      style={{
+                        width: '100%',
+                        padding: spacing[3],
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: borderRadius.base,
+                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                        color: '#fff',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: spacing[3],
+                        transition: `all ${transitions.base}`,
+                        marginBottom: showNewWorkTypeIcons ? spacing[3] : 0
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+                      }}
+                    >
+                      {React.createElement(AVAILABLE_ICONS[newWorkType.icon], {
+                        size: 24,
+                        color: newWorkType.color
                       })}
-                    </div>
+                      <span style={{ flex: 1, textAlign: 'left' }}>
+                        {showNewWorkTypeIcons ? 'Dölj ikoner' : 'Välj ikon'}
+                      </span>
+                      <span style={{ fontSize: typography.fontSize.lg }}>
+                        {showNewWorkTypeIcons ? '−' : '+'}
+                      </span>
+                    </button>
+
+                    {/* Icon Grid - Only show when expanded */}
+                    {showNewWorkTypeIcons && (
+                      <div style={{
+                        display: "grid",
+                        gridTemplateColumns: isMobile ? "repeat(auto-fill, minmax(50px, 1fr))" : "repeat(auto-fill, minmax(60px, 1fr))",
+                        gap: spacing[2],
+                        padding: spacing[3],
+                        backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                        borderRadius: borderRadius.base,
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        maxHeight: '300px',
+                        overflowY: 'auto'
+                      }}>
+                        {Object.keys(AVAILABLE_ICONS).map(iconName => {
+                          const isSelected = newWorkType.icon === iconName;
+                          const Icon = AVAILABLE_ICONS[iconName];
+                          return (
+                            <button
+                              key={iconName}
+                              type="button"
+                              onClick={() => {
+                                setNewWorkType({ ...newWorkType, icon: iconName });
+                                setShowNewWorkTypeIcons(false);
+                              }}
+                              style={{
+                                padding: spacing[2],
+                                border: `2px solid ${isSelected ? newWorkType.color : 'rgba(255, 255, 255, 0.1)'}`,
+                                borderRadius: borderRadius.base,
+                                backgroundColor: isSelected ? `${newWorkType.color}15` : 'rgba(255, 255, 255, 0.03)',
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                transition: `all ${transitions.base}`,
+                                boxShadow: isSelected ? shadows.md : "none",
+                                minHeight: '44px'
+                              }}
+                              onMouseEnter={(e) => {
+                                if (!isSelected) {
+                                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
+                                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (!isSelected) {
+                                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)';
+                                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                                }
+                              }}
+                            >
+                              <Icon size={24} color={isSelected ? newWorkType.color : '#94a3b8'} />
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
                   </FormField>
                 </div>
 
@@ -2615,62 +2658,99 @@ Välkommen!`;
                       </FormField>
 
                       <FormField label="Ikon">
-                        <div style={{
-                          display: "grid",
-                          gridTemplateColumns: "repeat(auto-fill, minmax(60px, 1fr))",
-                          gap: spacing[2],
-                          padding: spacing[3],
-                          backgroundColor: 'rgba(255, 255, 255, 0.03)',
-                          borderRadius: borderRadius.base,
-                          border: '1px solid rgba(255, 255, 255, 0.1)'
-                        }}>
-                          {Object.keys(AVAILABLE_ICONS).map(iconName => {
-                            const isSelected = workType.icon === iconName;
-                            const Icon = AVAILABLE_ICONS[iconName];
-                            return (
-                              <button
-                                key={iconName}
-                                type="button"
-                                onClick={() => handleUpdateWorkType(workType.id, 'icon', iconName)}
-                                style={{
-                                  padding: spacing[3],
-                                  border: `2px solid ${isSelected ? workType.color : 'rgba(255, 255, 255, 0.1)'}`,
-                                  borderRadius: borderRadius.base,
-                                  backgroundColor: isSelected ? `${workType.color}15` : 'rgba(255, 255, 255, 0.03)',
-                                  cursor: "pointer",
-                                  display: "flex",
-                                  flexDirection: "column",
-                                  alignItems: "center",
-                                  gap: spacing[1],
-                                  transition: `all ${transitions.base}`,
-                                  boxShadow: isSelected ? shadows.md : "none"
-                                }}
-                                onMouseEnter={(e) => {
-                                  if (!isSelected) {
-                                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
-                                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-                                  }
-                                }}
-                                onMouseLeave={(e) => {
-                                  if (!isSelected) {
-                                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)';
-                                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                                  }
-                                }}
-                              >
-                                <Icon size={24} color={isSelected ? workType.color : '#94a3b8'} />
-                                <span style={{
-                                  fontSize: typography.fontSize.xs,
-                                  color: isSelected ? workType.color : '#94a3b8',
-                                  fontWeight: isSelected ? typography.fontWeight.semibold : typography.fontWeight.normal,
-                                  textAlign: "center"
-                                }}>
-                                  {iconName}
-                                </span>
-                              </button>
-                            );
+                        {/* Icon Picker Toggle Button */}
+                        <button
+                          type="button"
+                          onClick={() => setShowEditWorkTypeIcons(prev => ({ ...prev, [workType.id]: !prev[workType.id] }))}
+                          style={{
+                            width: '100%',
+                            padding: spacing[3],
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            borderRadius: borderRadius.base,
+                            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                            color: '#fff',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: spacing[3],
+                            transition: `all ${transitions.base}`,
+                            marginBottom: showEditWorkTypeIcons[workType.id] ? spacing[3] : 0
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+                          }}
+                        >
+                          {React.createElement(AVAILABLE_ICONS[workType.icon], {
+                            size: 24,
+                            color: workType.color
                           })}
-                        </div>
+                          <span style={{ flex: 1, textAlign: 'left' }}>
+                            {showEditWorkTypeIcons[workType.id] ? 'Dölj ikoner' : 'Välj ikon'}
+                          </span>
+                          <span style={{ fontSize: typography.fontSize.lg }}>
+                            {showEditWorkTypeIcons[workType.id] ? '−' : '+'}
+                          </span>
+                        </button>
+
+                        {/* Icon Grid - Only show when expanded */}
+                        {showEditWorkTypeIcons[workType.id] && (
+                          <div style={{
+                            display: "grid",
+                            gridTemplateColumns: isMobile ? "repeat(auto-fill, minmax(50px, 1fr))" : "repeat(auto-fill, minmax(60px, 1fr))",
+                            gap: spacing[2],
+                            padding: spacing[3],
+                            backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                            borderRadius: borderRadius.base,
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            maxHeight: '300px',
+                            overflowY: 'auto'
+                          }}>
+                            {Object.keys(AVAILABLE_ICONS).map(iconName => {
+                              const isSelected = workType.icon === iconName;
+                              const Icon = AVAILABLE_ICONS[iconName];
+                              return (
+                                <button
+                                  key={iconName}
+                                  type="button"
+                                  onClick={() => {
+                                    handleUpdateWorkType(workType.id, 'icon', iconName);
+                                    setShowEditWorkTypeIcons(prev => ({ ...prev, [workType.id]: false }));
+                                  }}
+                                  style={{
+                                    padding: spacing[2],
+                                    border: `2px solid ${isSelected ? workType.color : 'rgba(255, 255, 255, 0.1)'}`,
+                                    borderRadius: borderRadius.base,
+                                    backgroundColor: isSelected ? `${workType.color}15` : 'rgba(255, 255, 255, 0.03)',
+                                    cursor: "pointer",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    transition: `all ${transitions.base}`,
+                                    boxShadow: isSelected ? shadows.md : "none",
+                                    minHeight: '44px'
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    if (!isSelected) {
+                                      e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
+                                      e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                                    }
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    if (!isSelected) {
+                                      e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)';
+                                      e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                                    }
+                                  }}
+                                >
+                                  <Icon size={24} color={isSelected ? workType.color : '#94a3b8'} />
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
                       </FormField>
 
                       <FormField label="Färg">
@@ -2816,62 +2896,99 @@ Välkommen!`;
 
                 <div style={{ gridColumn: "1 / -1" }}>
                   <FormField label="Ikon">
-                    <div style={{
-                      display: "grid",
-                      gridTemplateColumns: "repeat(auto-fill, minmax(60px, 1fr))",
-                      gap: spacing[2],
-                      padding: spacing[3],
-                      backgroundColor: 'rgba(255, 255, 255, 0.03)',
-                      borderRadius: borderRadius.base,
-                      border: '1px solid rgba(255, 255, 255, 0.1)'
-                    }}>
-                      {Object.keys(AVAILABLE_ICONS).map(iconName => {
-                        const isSelected = newEventType.icon === iconName;
-                        const Icon = AVAILABLE_ICONS[iconName];
-                        return (
-                          <button
-                            key={iconName}
-                            type="button"
-                            onClick={() => setNewEventType({ ...newEventType, icon: iconName })}
-                            style={{
-                              padding: spacing[3],
-                              border: `2px solid ${isSelected ? newEventType.color : 'rgba(255, 255, 255, 0.1)'}`,
-                              borderRadius: borderRadius.base,
-                              backgroundColor: isSelected ? `${newEventType.color}15` : 'rgba(255, 255, 255, 0.03)',
-                              cursor: "pointer",
-                              display: "flex",
-                              flexDirection: "column",
-                              alignItems: "center",
-                              gap: spacing[1],
-                              transition: `all ${transitions.base}`,
-                              boxShadow: isSelected ? shadows.md : "none"
-                            }}
-                            onMouseEnter={(e) => {
-                              if (!isSelected) {
-                                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
-                                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-                              }
-                            }}
-                            onMouseLeave={(e) => {
-                              if (!isSelected) {
-                                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)';
-                                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                              }
-                            }}
-                          >
-                            <Icon size={24} color={isSelected ? newEventType.color : '#94a3b8'} />
-                            <span style={{
-                              fontSize: typography.fontSize.xs,
-                              color: isSelected ? newEventType.color : '#94a3b8',
-                              fontWeight: isSelected ? typography.fontWeight.semibold : typography.fontWeight.normal,
-                              textAlign: "center"
-                            }}>
-                              {iconName}
-                            </span>
-                          </button>
-                        );
+                    {/* Icon Picker Toggle Button */}
+                    <button
+                      type="button"
+                      onClick={() => setShowNewEventTypeIcons(!showNewEventTypeIcons)}
+                      style={{
+                        width: '100%',
+                        padding: spacing[3],
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: borderRadius.base,
+                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                        color: '#fff',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: spacing[3],
+                        transition: `all ${transitions.base}`,
+                        marginBottom: showNewEventTypeIcons ? spacing[3] : 0
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+                      }}
+                    >
+                      {React.createElement(AVAILABLE_ICONS[newEventType.icon], {
+                        size: 24,
+                        color: newEventType.color
                       })}
-                    </div>
+                      <span style={{ flex: 1, textAlign: 'left' }}>
+                        {showNewEventTypeIcons ? 'Dölj ikoner' : 'Välj ikon'}
+                      </span>
+                      <span style={{ fontSize: typography.fontSize.lg }}>
+                        {showNewEventTypeIcons ? '−' : '+'}
+                      </span>
+                    </button>
+
+                    {/* Icon Grid - Only show when expanded */}
+                    {showNewEventTypeIcons && (
+                      <div style={{
+                        display: "grid",
+                        gridTemplateColumns: isMobile ? "repeat(auto-fill, minmax(50px, 1fr))" : "repeat(auto-fill, minmax(60px, 1fr))",
+                        gap: spacing[2],
+                        padding: spacing[3],
+                        backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                        borderRadius: borderRadius.base,
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        maxHeight: '300px',
+                        overflowY: 'auto'
+                      }}>
+                        {Object.keys(AVAILABLE_ICONS).map(iconName => {
+                          const isSelected = newEventType.icon === iconName;
+                          const Icon = AVAILABLE_ICONS[iconName];
+                          return (
+                            <button
+                              key={iconName}
+                              type="button"
+                              onClick={() => {
+                                setNewEventType({ ...newEventType, icon: iconName });
+                                setShowNewEventTypeIcons(false);
+                              }}
+                              style={{
+                                padding: spacing[2],
+                                border: `2px solid ${isSelected ? newEventType.color : 'rgba(255, 255, 255, 0.1)'}`,
+                                borderRadius: borderRadius.base,
+                                backgroundColor: isSelected ? `${newEventType.color}15` : 'rgba(255, 255, 255, 0.03)',
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                transition: `all ${transitions.base}`,
+                                boxShadow: isSelected ? shadows.md : "none",
+                                minHeight: '44px'
+                              }}
+                              onMouseEnter={(e) => {
+                                if (!isSelected) {
+                                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
+                                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (!isSelected) {
+                                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)';
+                                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                                }
+                              }}
+                            >
+                              <Icon size={24} color={isSelected ? newEventType.color : '#94a3b8'} />
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
                   </FormField>
                 </div>
 
@@ -2931,62 +3048,99 @@ Välkommen!`;
                       </FormField>
 
                       <FormField label="Ikon">
-                        <div style={{
-                          display: "grid",
-                          gridTemplateColumns: "repeat(auto-fill, minmax(60px, 1fr))",
-                          gap: spacing[2],
-                          padding: spacing[3],
-                          backgroundColor: 'rgba(255, 255, 255, 0.03)',
-                          borderRadius: borderRadius.base,
-                          border: '1px solid rgba(255, 255, 255, 0.1)'
-                        }}>
-                          {Object.keys(AVAILABLE_ICONS).map(iconName => {
-                            const isSelected = eventType.icon === iconName;
-                            const Icon = AVAILABLE_ICONS[iconName];
-                            return (
-                              <button
-                                key={iconName}
-                                type="button"
-                                onClick={() => handleUpdateEventType(eventType.id, 'icon', iconName)}
-                                style={{
-                                  padding: spacing[3],
-                                  border: `2px solid ${isSelected ? eventType.color : 'rgba(255, 255, 255, 0.1)'}`,
-                                  borderRadius: borderRadius.base,
-                                  backgroundColor: isSelected ? `${eventType.color}15` : 'rgba(255, 255, 255, 0.03)',
-                                  cursor: "pointer",
-                                  display: "flex",
-                                  flexDirection: "column",
-                                  alignItems: "center",
-                                  gap: spacing[1],
-                                  transition: `all ${transitions.base}`,
-                                  boxShadow: isSelected ? shadows.md : "none"
-                                }}
-                                onMouseEnter={(e) => {
-                                  if (!isSelected) {
-                                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
-                                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-                                  }
-                                }}
-                                onMouseLeave={(e) => {
-                                  if (!isSelected) {
-                                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)';
-                                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                                  }
-                                }}
-                              >
-                                <Icon size={24} color={isSelected ? eventType.color : '#94a3b8'} />
-                                <span style={{
-                                  fontSize: typography.fontSize.xs,
-                                  color: isSelected ? eventType.color : '#94a3b8',
-                                  fontWeight: isSelected ? typography.fontWeight.semibold : typography.fontWeight.normal,
-                                  textAlign: "center"
-                                }}>
-                                  {iconName}
-                                </span>
-                              </button>
-                            );
+                        {/* Icon Picker Toggle Button */}
+                        <button
+                          type="button"
+                          onClick={() => setShowEditEventTypeIcons(prev => ({ ...prev, [eventType.id]: !prev[eventType.id] }))}
+                          style={{
+                            width: '100%',
+                            padding: spacing[3],
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            borderRadius: borderRadius.base,
+                            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                            color: '#fff',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: spacing[3],
+                            transition: `all ${transitions.base}`,
+                            marginBottom: showEditEventTypeIcons[eventType.id] ? spacing[3] : 0
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+                          }}
+                        >
+                          {React.createElement(AVAILABLE_ICONS[eventType.icon], {
+                            size: 24,
+                            color: eventType.color
                           })}
-                        </div>
+                          <span style={{ flex: 1, textAlign: 'left' }}>
+                            {showEditEventTypeIcons[eventType.id] ? 'Dölj ikoner' : 'Välj ikon'}
+                          </span>
+                          <span style={{ fontSize: typography.fontSize.lg }}>
+                            {showEditEventTypeIcons[eventType.id] ? '−' : '+'}
+                          </span>
+                        </button>
+
+                        {/* Icon Grid - Only show when expanded */}
+                        {showEditEventTypeIcons[eventType.id] && (
+                          <div style={{
+                            display: "grid",
+                            gridTemplateColumns: isMobile ? "repeat(auto-fill, minmax(50px, 1fr))" : "repeat(auto-fill, minmax(60px, 1fr))",
+                            gap: spacing[2],
+                            padding: spacing[3],
+                            backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                            borderRadius: borderRadius.base,
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            maxHeight: '300px',
+                            overflowY: 'auto'
+                          }}>
+                            {Object.keys(AVAILABLE_ICONS).map(iconName => {
+                              const isSelected = eventType.icon === iconName;
+                              const Icon = AVAILABLE_ICONS[iconName];
+                              return (
+                                <button
+                                  key={iconName}
+                                  type="button"
+                                  onClick={() => {
+                                    handleUpdateEventType(eventType.id, 'icon', iconName);
+                                    setShowEditEventTypeIcons(prev => ({ ...prev, [eventType.id]: false }));
+                                  }}
+                                  style={{
+                                    padding: spacing[2],
+                                    border: `2px solid ${isSelected ? eventType.color : 'rgba(255, 255, 255, 0.1)'}`,
+                                    borderRadius: borderRadius.base,
+                                    backgroundColor: isSelected ? `${eventType.color}15` : 'rgba(255, 255, 255, 0.03)',
+                                    cursor: "pointer",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    transition: `all ${transitions.base}`,
+                                    boxShadow: isSelected ? shadows.md : "none",
+                                    minHeight: '44px'
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    if (!isSelected) {
+                                      e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
+                                      e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                                    }
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    if (!isSelected) {
+                                      e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)';
+                                      e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                                    }
+                                  }}
+                                >
+                                  <Icon size={24} color={isSelected ? eventType.color : '#94a3b8'} />
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
                       </FormField>
 
                       <FormField label="Färg">
